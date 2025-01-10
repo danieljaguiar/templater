@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
+    "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
