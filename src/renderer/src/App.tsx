@@ -1,8 +1,12 @@
+import { Button } from '@/components/ui/button'
+
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
   return (
-    <div className="bg-black">
+    <div className="bg-black flex flex-col items-center justify-center h-screen ">
+      <Button>Send IPC</Button>
+
       <a target="_blank" rel="noreferrer" className="text-red-700" onClick={ipcHandle}>
         Send IPC
       </a>
