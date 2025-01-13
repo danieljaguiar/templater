@@ -1,4 +1,4 @@
-# electron-poc
+# ual-reader
 
 An Electron application with React and TypeScript
 

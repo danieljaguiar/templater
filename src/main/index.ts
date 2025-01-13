@@ -1,5 +1,6 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { dialog } from 'electron/main'
 import fs from 'fs'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
@@ -51,10 +52,21 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => {
+  ipcMain.on('ping', async () => {
     console.time('reading file')
-    // read file on C:\temp\test.csv
-    fs.readFile('C:\\temp\\test.csv', 'utf8', (err, data) => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'CSV Files', extensions: ['csv'] }]
+    })
+
+    if (result.canceled) {
+      console.log('No file selected')
+      return
+    }
+
+    const filePath = result.filePaths[0]
+    console.time('reading file')
+    fs.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
         console.error(err)
         return
@@ -67,9 +79,7 @@ app.whenReady().then(() => {
         count += 1
       }
       console.timeEnd('loop every line')
-      console.log('total lines: ', lines.length)
-      console.log('total count: ', count)
-      console.log('first 10 characters of file: ', data.slice(0, 10))
+      console.log(`Total lines: ${count}`)
     })
   })
 
