@@ -1,5 +1,5 @@
-import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron'
 
 // Custom APIs for renderer
 const api = {}
@@ -11,6 +11,20 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('electronAPI', {
+      // Add method to open folder
+      openFolder: () => ipcRenderer.send('OPEN-FOLDER'),
+
+      // Add listener for reply with folder contents
+      onFolderOpened: (callback) => {
+        ipcRenderer.on('OPEN-FOLDER-REPLY', (_event, data) => callback(data))
+      },
+
+      // If you need to remove the listener later
+      removeOpenFolderListener: () => {
+        ipcRenderer.removeAllListeners('OPEN-FOLDER-REPLY')
+      }
+    })
   } catch (error) {
     console.error(error)
   }

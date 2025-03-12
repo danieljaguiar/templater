@@ -4,6 +4,7 @@ import { dialog } from 'electron/main'
 import fs from 'fs'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
+import { ItemForDirectoryStructure } from '../types/types'
 
 function createWindow(): void {
   // Create the browser window.
@@ -52,34 +53,58 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', async () => {
-    console.time('reading file')
-    const result = await dialog.showOpenDialog({
-      properties: ['openFile'],
-      filters: [{ name: 'CSV Files', extensions: ['csv'] }]
+  ipcMain.on('OPEN-FOLDER', async (event) => {
+    const folderPath = await dialog.showOpenDialog({
+      properties: ['openDirectory']
     })
 
-    if (result.canceled) {
-      console.log('No file selected')
+    if (folderPath.canceled) {
       return
     }
 
-    const filePath = result.filePaths[0]
-    console.time('reading file')
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-      console.timeEnd('reading file')
-      console.time('loop every line')
-      const lines = data.split('\n')
-      let count = 0
-      for (let i = 0; i < lines.length; i++) {
-        count += 1
-      }
-      console.timeEnd('loop every line')
-      console.log(`Total lines: ${count}`)
+    const folder = folderPath.filePaths[0]
+    const templatesFolderPath = join(folder, 'Templates')
+    const dataFolderPath = join(folder, 'Data')
+
+    if (!fs.existsSync(templatesFolderPath)) {
+      fs.mkdirSync(templatesFolderPath)
+    }
+
+    if (!fs.existsSync(dataFolderPath)) {
+      fs.mkdirSync(dataFolderPath)
+    }
+
+    // Get folder structure for templates directory
+    const getDirectoryStructure = (dir: string): any => {
+      const files = fs.readdirSync(dir)
+      const structure: ItemForDirectoryStructure[] = []
+
+      files.forEach((file) => {
+        const fullPath = join(dir, file)
+        const stats = fs.statSync(fullPath)
+
+        if (stats.isDirectory()) {
+          structure.push({
+            name: file,
+            children: getDirectoryStructure(fullPath)
+          })
+        } else {
+          structure.push({
+            name: file
+          })
+        }
+      })
+
+      return structure
+    }
+
+    const templateDirectory = getDirectoryStructure(templatesFolderPath)
+    const dataDirectory = getDirectoryStructure(dataFolderPath)
+
+    event.reply('OPEN-FOLDER-REPLY', {
+      tempalteDirectory: templateDirectory,
+      dataDirectory: dataDirectory,
+      basePath: folder
     })
   })
 
