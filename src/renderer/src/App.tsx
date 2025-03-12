@@ -1,8 +1,10 @@
+import TreeView from '@/components/tree-view'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
+import { OnOpenFolderReturn, TreeViewItem } from '../../types/types'
 
 function App(): JSX.Element {
-  const [result, setResult] = useState<string>('')
+  const [templateTree, setTemplateTree] = useState<TreeViewItem[]>([])
 
   const openFolderHandler = (): void => {
     console.log('Opening folder dialog...')
@@ -12,11 +14,9 @@ function App(): JSX.Element {
   // Set up the IPC listener when component mounts
   useEffect(() => {
     // Define the callback function to run when we receive data
-    const handleFolderData = (data: any): void => {
-      console.log('Received data from main process:')
-      console.log('Template files:', data.files)
-      console.log('Data files with content:', data.dataFiles)
-      setResult(JSON.stringify(data, null, 2))
+    const handleFolderData = (data: OnOpenFolderReturn): void => {
+      console.log('Received folder data:', data)
+      setTemplateTree(data.templateDirectory)
     }
 
     // Register the callback with our IPC listener
@@ -35,7 +35,15 @@ function App(): JSX.Element {
       </Button>
       pack
       <p className="text-white mb-2 ">Check the console for results</p>
-      <pre className="text-white max-h-screen overflow-auto">{result}</pre>
+      <div className="text-white max-h-screen overflow-auto">
+        <TreeView
+          showCheckboxes={false}
+          data={templateTree}
+          onSelectionChange={(selectedItems) => {
+            console.log('Selected Items:', selectedItems)
+          }}
+        />
+      </div>
     </div>
   )
 }

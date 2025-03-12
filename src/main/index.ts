@@ -4,7 +4,7 @@ import { dialog } from 'electron/main'
 import fs from 'fs'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
-import { ItemForDirectoryStructure } from '../types/types'
+import { TreeViewItem } from '../types/types'
 
 function createWindow(): void {
   // Create the browser window.
@@ -77,7 +77,7 @@ app.whenReady().then(() => {
     // Get folder structure for templates directory
     const getDirectoryStructure = (dir: string): any => {
       const files = fs.readdirSync(dir)
-      const structure: ItemForDirectoryStructure[] = []
+      const structure: TreeViewItem[] = []
 
       files.forEach((file) => {
         const fullPath = join(dir, file)
@@ -85,11 +85,15 @@ app.whenReady().then(() => {
 
         if (stats.isDirectory()) {
           structure.push({
+            id: fullPath,
+            type: 'folder',
             name: file,
             children: getDirectoryStructure(fullPath)
           })
         } else {
           structure.push({
+            id: fullPath,
+            type: 'file',
             name: file
           })
         }
@@ -102,8 +106,8 @@ app.whenReady().then(() => {
     const dataDirectory = getDirectoryStructure(dataFolderPath)
 
     event.reply('OPEN-FOLDER-REPLY', {
-      tempalteDirectory: templateDirectory,
-      dataDirectory: dataDirectory,
+      templateDirectory,
+      dataDirectory,
       basePath: folder
     })
   })

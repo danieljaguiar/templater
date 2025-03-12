@@ -1,6 +1,8 @@
+import { OnOpenFolderReturn } from '../../types/types'
+
 interface ElectronAPI {
   openFolder: () => void
-  onFolderOpened: (callback: (data: any) => void) => void
+  onFolderOpened: (callback: (data: OnOpenFolderReturn) => void) => void
   removeOpenFolderListener: () => void
 }
 
