@@ -1,10 +1,11 @@
-import TreeView from '@/components/tree-view'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { OnOpenFolderReturn, TreeViewItem } from '../../types/types'
+import { TreeViewV0 } from './components/ui/tree-viewV0'
 
 function App(): JSX.Element {
   const [templateTree, setTemplateTree] = useState<TreeViewItem[]>([])
+  const [dataTree, setDataTree] = useState<TreeViewItem[]>([])
 
   const openFolderHandler = (): void => {
     console.log('Opening folder dialog...')
@@ -17,6 +18,7 @@ function App(): JSX.Element {
     const handleFolderData = (data: OnOpenFolderReturn): void => {
       console.log('Received folder data:', data)
       setTemplateTree(data.templateDirectory)
+      setDataTree(data.dataDirectory)
     }
 
     // Register the callback with our IPC listener
@@ -36,13 +38,10 @@ function App(): JSX.Element {
       pack
       <p className="text-white mb-2 ">Check the console for results</p>
       <div className="text-white max-h-screen overflow-auto">
-        <TreeView
-          showCheckboxes={false}
-          data={templateTree}
-          onSelectionChange={(selectedItems) => {
-            console.log('Selected Items:', selectedItems)
-          }}
-        />
+        <TreeViewV0 data={templateTree} />
+      </div>
+      <div className="text-white max-h-screen overflow-auto">
+        <TreeViewV0 data={dataTree} />
       </div>
     </div>
   )

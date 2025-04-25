@@ -6,7 +6,7 @@ export interface ItemForDirectoryStructure {
 
 export interface OnOpenFolderReturn {
   templateDirectory: TreeViewItem[]
-  dataDirectory: TreeViewItem
+  dataDirectory: TreeViewItem[]
   basePath: string
 }
 
