@@ -11,7 +11,7 @@ interface TreeItemProps {
 }
 
 export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProps) {
-  const [expanded, setExpanded] = React.useState(level < 1)
+  const [expanded, setExpanded] = React.useState(false)
   const isFolder = item.type === 'folder'
   const hasChildren = isFolder && item.children && item.children.length > 0
   const isSelected = selectedId === item.id
@@ -29,7 +29,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
   }
 
   return (
-    <div>
+    <>
       <div
         className={cn(
           'flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-muted/20 transition-colors',
@@ -49,7 +49,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
             {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
         ) : (
-          <span className="w-6" />
+          <span className="w-6 min-w-6" />
         )}
 
         {isFolder ? (
@@ -74,7 +74,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
           ))}
         </div>
       )}
-    </div>
+    </>
   )
 }
 
@@ -95,7 +95,7 @@ export function TreeViewV0({ data, className, onSelect }: TreeViewProps) {
   }
 
   return (
-    <div className={cn('border rounded-md p-2 ', className)}>
+    <div className={cn('p-2 ', className)}>
       {data.map((item) => (
         <TreeItem key={item.id} item={item} onSelect={handleSelect} selectedId={selectedId} />
       ))}
