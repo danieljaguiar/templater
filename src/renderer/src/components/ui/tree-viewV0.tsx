@@ -14,7 +14,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
   const [expanded, setExpanded] = React.useState(false)
   const isFolder = item.type === 'folder'
   const hasChildren = isFolder && item.children && item.children.length > 0
-  const isSelected = selectedId === item.id
+  const isSelected = selectedId === item.path
 
   const handleToggle = () => {
     if (isFolder) {
@@ -33,7 +33,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
       <div
         className={cn(
           'flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-muted/20 transition-colors',
-          isSelected && 'ring-muted/50 ring-2'
+          isSelected && 'ring-muted/80 dark:bg-accent bg-accent/40 ring-2'
         )}
         style={{ paddingLeft: `${level * 12 + 8}px` }}
         onClick={handleSelect}
@@ -65,7 +65,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
         <div>
           {item.children?.map((child) => (
             <TreeItem
-              key={child.id}
+              key={child.path}
               item={child}
               level={level + 1}
               onSelect={onSelect}
@@ -81,23 +81,23 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
 interface TreeViewProps {
   data: TreeViewItem[]
   className?: string
-  onSelect?: (item: TreeViewItem) => void
+  onSelectFile?: (item: TreeViewItem) => void
 }
 
-export function TreeViewV0({ data, className, onSelect }: TreeViewProps) {
+export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
   const handleSelect = (item: TreeViewItem) => {
-    setSelectedId(item.id)
-    if (onSelect) {
-      onSelect(item)
+    setSelectedId(item.path)
+    if (onSelectFile && item.type === 'file') {
+      onSelectFile(item)
     }
   }
 
   return (
     <div className={cn('p-2 ', className)}>
       {data.map((item) => (
-        <TreeItem key={item.id} item={item} onSelect={handleSelect} selectedId={selectedId} />
+        <TreeItem key={item.path} item={item} onSelect={handleSelect} selectedId={selectedId} />
       ))}
     </div>
   )

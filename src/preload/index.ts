@@ -20,6 +20,12 @@ if (process.contextIsolated) {
         ipcRenderer.on('OPEN-FOLDER-REPLY', (_event, data) => callback(data))
       },
 
+      openFile: (path: string) => ipcRenderer.send('open-file', path),
+
+      onFileOpened: (callback) => {
+        ipcRenderer.on('on-open-file', (_event, data) => callback(data))
+      },
+
       // If you need to remove the listener later
       removeOpenFolderListener: () => {
         ipcRenderer.removeAllListeners('OPEN-FOLDER-REPLY')

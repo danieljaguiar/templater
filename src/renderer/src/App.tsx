@@ -1,5 +1,6 @@
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from './components/AppSidebar'
+import TemplateEditor from './components/TemplateEditor'
 import { ThemeProvider } from './components/theme-provider'
 
 function App(): JSX.Element {
@@ -9,8 +10,7 @@ function App(): JSX.Element {
         <SidebarProvider>
           <AppSidebar />
           <main>
-            <SidebarTrigger />
-            <p className="mb-2 ">Check the console for results</p>
+            <TemplateEditor />
           </main>
         </SidebarProvider>
       </div>

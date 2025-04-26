@@ -46,6 +46,7 @@ export function AppSidebar() {
       window.electronAPI.removeOpenFolderListener()
     }
   }, []) // Empty dependency array means this runs once on mount
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -68,7 +69,13 @@ export function AppSidebar() {
             <SidebarGroupLabel>Template Directory</SidebarGroupLabel>
             <SidebarGroupContent>
               <ScrollArea>
-                <TreeViewV0 data={templateTree} />
+                <TreeViewV0
+                  data={templateTree}
+                  onSelectFile={(fileFromTree) => {
+                    console.log('Selected file:', fileFromTree)
+                    window.electronAPI.openFile(fileFromTree.path)
+                  }}
+                />
               </ScrollArea>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -4,7 +4,7 @@ import { dialog } from 'electron/main'
 import fs from 'fs'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
-import { TreeViewItem } from '../types/types'
+import { FileInterface, TreeViewItem } from '../types/types'
 
 function createWindow(): void {
   // Create the browser window.
@@ -52,6 +52,22 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  ipcMain.on('open-file', async (event, filePath) => {
+    console.log('Opening file:', filePath)
+    const fileContent = fs.readFileSync(filePath, 'utf-8')
+    const fileName = filePath.split('/').pop() || 'file.txt'
+    const fileType = filePath.split('.').pop() || 'txt'
+
+    const file: FileInterface = {
+      name: fileName,
+      path: filePath,
+      type: fileType,
+      content: fileContent
+    }
+
+    event.reply('on-open-file', file)
+  })
+
   // IPC test
   ipcMain.on('OPEN-FOLDER', async (event) => {
     const folderPath = await dialog.showOpenDialog({
@@ -85,14 +101,14 @@ app.whenReady().then(() => {
 
         if (stats.isDirectory()) {
           structure.push({
-            id: fullPath,
+            path: fullPath,
             type: 'folder',
             name: file,
             children: getDirectoryStructure(fullPath)
           })
         } else {
           structure.push({
-            id: fullPath,
+            path: fullPath,
             type: 'file',
             name: file
           })

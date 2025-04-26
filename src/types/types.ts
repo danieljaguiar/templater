@@ -1,4 +1,26 @@
 import React from 'react'
+
+export enum IPCEvents {
+  OPEN_FOLDER = 'open-folder',
+  OPEN_FILE = 'open-file',
+  ON_OPEN_FILE = 'on-open-file',
+  SAVE_FILE = 'save-file',
+  CLOSE_FILE = 'close-file',
+  DELETE_FILE = 'delete-file',
+  RENAME_FILE = 'rename-file',
+  CREATE_FILE = 'create-file',
+  CREATE_FOLDER = 'create-folder',
+  COPY_FILE = 'copy-file',
+  CUT_FILE = 'cut-file',
+  PASTE_FILE = 'paste-file',
+  GET_TEMPLATE_DIRECTORY_STRUCTURE = 'get-template-directory-structure',
+  GET_DATA_DIRECTORY_STRUCTURE = 'get-data-directory-structure'
+}
+
+export interface OnOpenFileReply {
+  file: FileInterface
+}
+
 export interface ItemForDirectoryStructure {
   name: string
   children?: ItemForDirectoryStructure[]
@@ -13,11 +35,18 @@ export interface OnOpenFolderReturn {
 //#region Tree Component
 
 export interface TreeViewItem {
-  id: string
+  path: string
   name: string
   type: string
   children?: TreeViewItem[]
   checked?: boolean
+}
+
+export interface FileInterface {
+  name: string
+  path: string
+  type: string
+  content: string
 }
 
 export interface TreeViewProps {
