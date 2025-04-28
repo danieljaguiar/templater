@@ -1,7 +1,7 @@
 import { FileInterface, OnOpenFolderReturn } from '../../types/types'
 
 interface ElectronAPI {
-  openFolder: () => void
+  openFolder: (path?: string) => void
   onFolderOpened: (callback: (data: OnOpenFolderReturn) => void) => void
   openFile: (path: string) => void
   onFileOpened: (callback: (data: FileInterface) => void) => void

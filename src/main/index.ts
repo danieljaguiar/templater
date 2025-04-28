@@ -1,6 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
-import { dialog } from 'electron/main'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import fs from 'fs'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
@@ -52,33 +51,26 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  ipcMain.on('open-file', async (event, filePath) => {
-    console.log('Opening file:', filePath)
-    const fileContent = fs.readFileSync(filePath, 'utf-8')
-    const fileName = filePath.split('/').pop() || 'file.txt'
-    const fileType = filePath.split('.').pop() || 'txt'
-
-    const file: FileInterface = {
-      name: fileName,
-      path: filePath,
-      type: fileType,
-      content: fileContent
-    }
-
-    event.reply('on-open-file', file)
-  })
-
   // IPC test
-  ipcMain.on('OPEN-FOLDER', async (event) => {
-    const folderPath = await dialog.showOpenDialog({
-      properties: ['openDirectory']
-    })
-
-    if (folderPath.canceled) {
-      return
+  ipcMain.on('open-folder', async (event, folderPathArg) => {
+    let folderPath = folderPathArg
+    // if no folderpath then open dialog
+    if (!folderPath) {
+      const result = await dialog.showOpenDialog({
+        properties: ['openDirectory', 'createDirectory', 'promptToCreate', 'showHiddenFiles']
+      })
+      if (result.canceled) {
+        event.reply('open-folder-reply', {
+          templateDirectory: [],
+          dataDirectory: [],
+          basePath: ''
+        })
+        return
+      }
+      folderPath = result.filePaths[0]
     }
 
-    const folder = folderPath.filePaths[0]
+    const folder = folderPath.toString()
     const templatesFolderPath = join(folder, 'Templates')
     const dataFolderPath = join(folder, 'Data')
 
@@ -121,11 +113,27 @@ app.whenReady().then(() => {
     const templateDirectory = getDirectoryStructure(templatesFolderPath)
     const dataDirectory = getDirectoryStructure(dataFolderPath)
 
-    event.reply('OPEN-FOLDER-REPLY', {
+    event.reply('open-folder-reply', {
       templateDirectory,
       dataDirectory,
       basePath: folder
     })
+  })
+
+  ipcMain.on('open-file', async (event, filePath) => {
+    console.log('Opening file:', filePath)
+    const fileContent = fs.readFileSync(filePath, 'utf-8')
+    const fileName = filePath.split('/').pop() || 'file.txt'
+    const fileType = filePath.split('.').pop() || 'txt'
+
+    const file: FileInterface = {
+      name: fileName,
+      path: filePath,
+      type: fileType,
+      content: fileContent
+    }
+
+    event.reply('on-open-file', file)
   })
 
   createWindow()

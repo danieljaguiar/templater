@@ -17,6 +17,10 @@ export enum IPCEvents {
   GET_DATA_DIRECTORY_STRUCTURE = 'get-data-directory-structure'
 }
 
+export const LocalStorageKeys = {
+  TEMPLATES_FOLDER_PATH: 'templates-folder-path'
+}
+
 export interface OnOpenFileReply {
   file: FileInterface
 }

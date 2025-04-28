@@ -12,12 +12,9 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
-      // Add method to open folder
-      openFolder: () => ipcRenderer.send('OPEN-FOLDER'),
-
-      // Add listener for reply with folder contents
+      openFolder: (path?: string) => ipcRenderer.send('open-folder', path),
       onFolderOpened: (callback) => {
-        ipcRenderer.on('OPEN-FOLDER-REPLY', (_event, data) => callback(data))
+        ipcRenderer.on('open-folder-reply', (_event, data) => callback(data))
       },
 
       openFile: (path: string) => ipcRenderer.send('open-file', path),

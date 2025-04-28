@@ -8,6 +8,7 @@ import {
   SidebarHeader,
   SidebarSeparator
 } from '@/components/ui/sidebar'
+import { useLocalStorage } from '@/hooks/use-local-storage'
 import { FolderOpen, Settings } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { OnOpenFolderReturn, TreeViewItem } from 'src/types/types'
@@ -15,13 +16,12 @@ import { ThemeToggle } from './theme-toggle'
 import { Button } from './ui/button'
 import { ScrollArea } from './ui/scroll-area'
 import { TreeViewV0 } from './ui/tree-viewV0'
-console.log('AppSidebar.tsx loaded')
 
 export function AppSidebar() {
   const [templateTree, setTemplateTree] = useState<TreeViewItem[] | null>([])
+  const [templatePath, setTemplatePath] = useLocalStorage<string | null>('templatePath', null)
 
   const openFolderHandler = (): void => {
-    console.log('Opening folder dialog...')
     window.electronAPI.openFolder()
   }
 
@@ -36,6 +36,7 @@ export function AppSidebar() {
     const handleFolderData = (data: OnOpenFolderReturn): void => {
       console.log('Received folder data:', data)
       setTemplateTree(data.templateDirectory)
+      setTemplatePath(data.basePath)
     }
 
     // Register the callback with our IPC listener
@@ -46,6 +47,12 @@ export function AppSidebar() {
       window.electronAPI.removeOpenFolderListener()
     }
   }, []) // Empty dependency array means this runs once on mount
+
+  useEffect(() => {
+    if (templatePath) {
+      window.electronAPI.openFolder(templatePath)
+    }
+  }, [templatePath])
 
   return (
     <Sidebar>
