@@ -49,7 +49,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
             {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </button>
         ) : (
-          <span className="w-6 min-w-6" />
+          <span className="w-7 min-w-7" />
         )}
 
         {isFolder ? (
