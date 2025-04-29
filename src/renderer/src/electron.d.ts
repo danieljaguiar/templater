@@ -5,6 +5,7 @@ interface ElectronAPI {
   onFolderOpened: (callback: (data: OnOpenFolderReturn) => void) => void
   openFile: (path: string) => void
   onFileOpened: (callback: (data: FileInterface) => void) => void
+  saveFile: (path: string, content: string, name?: string) => void
   removeOpenFolderListener: () => void
   removeOpenFileListener: () => void
 }

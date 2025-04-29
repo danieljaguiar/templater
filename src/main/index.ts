@@ -94,15 +94,15 @@ app.whenReady().then(() => {
         if (stats.isDirectory()) {
           structure.push({
             path: fullPath,
-            type: 'folder',
             name: file,
+            type: 'folder',
             children: getDirectoryStructure(fullPath)
           })
         } else {
           structure.push({
             path: fullPath,
-            type: 'file',
-            name: file
+            name: file,
+            type: 'file'
           })
         }
       })
@@ -123,7 +123,7 @@ app.whenReady().then(() => {
   ipcMain.on('open-file', async (event, filePath) => {
     console.log('Opening file:', filePath)
     const fileContent = fs.readFileSync(filePath, 'utf-8')
-    const fileName = filePath.split('/').pop() || 'file.txt'
+    const fileName = filePath.split('\\').pop() || 'file.txt'
     const fileType = filePath.split('.').pop() || 'txt'
 
     const file: FileInterface = {
