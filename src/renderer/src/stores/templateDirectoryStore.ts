@@ -1,4 +1,6 @@
 import { TreeViewItem } from 'src/types/types'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface TemplateDirectoryStore {
   templateDirectory: {
@@ -8,15 +10,20 @@ interface TemplateDirectoryStore {
   setTemplateDirectory: (templateDirectory: TreeViewItem[], baseBath: string) => void
 }
 
-import { create } from 'zustand'
-
-const useTemplateDirectoryStore = create<TemplateDirectoryStore>((set) => ({
-  templateDirectory: {
-    templateDirectory: [],
-    basePath: ''
-  },
-  setTemplateDirectory: (templateDirectory, basePath) =>
-    set({ templateDirectory: { templateDirectory, basePath } })
-}))
+const useTemplateDirectoryStore = create<TemplateDirectoryStore>()(
+  persist(
+    (set) => ({
+      templateDirectory: {
+        templateDirectory: [],
+        basePath: ''
+      },
+      setTemplateDirectory: (templateDirectory, basePath) =>
+        set({ templateDirectory: { templateDirectory, basePath } })
+    }),
+    {
+      name: 'template-directory-storage' // unique name
+    }
+  )
+)
 
 export default useTemplateDirectoryStore
