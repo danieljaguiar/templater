@@ -15,9 +15,9 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
       // FOLDER HANDLERS
-      openFolder: (path?: string) => ipcRenderer.send('open-folder', path),
+      openFolder: (path?: string) => ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, path),
       onFolderOpened: (callback) => {
-        ipcRenderer.on('open-folder-reply', (_event, data) => callback(data))
+        ipcRenderer.on(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, (_event, data) => callback(data))
       },
 
       // FILE HANDLERS
