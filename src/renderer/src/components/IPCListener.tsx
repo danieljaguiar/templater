@@ -16,6 +16,10 @@ export default function IPCListener() {
       }
     }
     window.electronAPI.onFolderOpened(handleDirectoryOpened)
+    if (window && window.electronAPI && templateDirectoryStore.templateDirectory.basePath !== '') {
+      console.log('Initial Load - Refreshing Directory')
+      window.electronAPI.openFolder(templateDirectoryStore.templateDirectory.basePath)
+    }
 
     // File Opened Listener
     const handleFileOpened = (data: FileInterface): void => {
