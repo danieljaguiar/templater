@@ -1,5 +1,7 @@
+import { FileSaveData } from '@/types/types'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron'
+import { IPC_CHANNELS } from '../shared/ipc/channels'
 
 // Custom APIs for renderer
 const api = {}
@@ -12,31 +14,25 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
+      // FOLDER HANDLERS
       openFolder: (path?: string) => ipcRenderer.send('open-folder', path),
       onFolderOpened: (callback) => {
         ipcRenderer.on('open-folder-reply', (_event, data) => callback(data))
       },
 
-      openFile: (path: string) => ipcRenderer.send('open-file', path),
-
-      saveFile: (fileInfo: {
-        basePath: string
-        content: string
-        currentFileName?: string
-        newFileName?: string
-      }) => ipcRenderer.send('save-file', fileInfo),
-
+      // FILE HANDLERS
+      openFile: (path: string) => ipcRenderer.send(IPC_CHANNELS.FILE.OPEN, path),
       onFileOpened: (callback) => {
-        ipcRenderer.on('on-open-file', (_event, data) => callback(data))
+        ipcRenderer.on(IPC_CHANNELS.FILE.OPEN_REPLY, (_event, data) => callback(data))
       },
+      saveFile: (fileInfo: FileSaveData) => ipcRenderer.send(IPC_CHANNELS.FILE.SAVE, fileInfo),
 
-      // If you need to remove the listener later
+      // REMOVE LISTENERS
       removeOnOpenFolderListener: () => {
-        ipcRenderer.removeAllListeners('OPEN-FOLDER-REPLY')
+        ipcRenderer.removeAllListeners(IPC_CHANNELS.DIRECTORY.OPEN_REPLY)
       },
-
       removeOnOpenFileListener: () => {
-        ipcRenderer.removeAllListeners('on-open-file')
+        ipcRenderer.removeAllListeners(IPC_CHANNELS.FILE.OPEN_REPLY)
       }
     })
   } catch (error) {

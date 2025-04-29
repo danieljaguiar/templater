@@ -38,6 +38,13 @@ export interface OnOpenFolderReturn {
 
 //#region Tree Component
 
+export interface FileSaveData {
+  basePath: string
+  content: string
+  currentFileName?: string
+  newFileName?: string
+}
+
 export interface TreeViewItem {
   fullPath: string
   name: string
@@ -48,7 +55,7 @@ export interface TreeViewItem {
 
 export interface FileInterface {
   name: string
-  path: string
+  fullPath: string
   type: string
   content: string
 }

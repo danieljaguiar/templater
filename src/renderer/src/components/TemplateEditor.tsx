@@ -78,7 +78,7 @@ export default function TemplateEditor() {
               </ScrollArea>
             </div>
 
-            <p className="text-sm text-muted-foreground">{selectedTemplate.path}</p>
+            <p className="text-sm text-muted-foreground">{selectedTemplate.fullPath}</p>
           </div>
         ) : (
           <div className="flex h-[500px] items-center justify-center">
