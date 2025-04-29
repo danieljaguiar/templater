@@ -51,7 +51,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
   ipcMain.on('open-folder', async (event, folderPathArg) => {
     let folderPath = folderPathArg
     // if no folderpath then open dialog
@@ -93,14 +92,14 @@ app.whenReady().then(() => {
 
         if (stats.isDirectory()) {
           structure.push({
-            path: fullPath,
+            fullPath: fullPath,
             name: file,
             type: 'folder',
             children: getDirectoryStructure(fullPath)
           })
         } else {
           structure.push({
-            path: fullPath,
+            fullPath: fullPath,
             name: file,
             type: 'file'
           })
@@ -132,8 +131,43 @@ app.whenReady().then(() => {
       type: fileType,
       content: fileContent
     }
-
     event.reply('on-open-file', file)
+  })
+
+  ipcMain.on('save-file', async (event, fileInfo) => {
+    // if currentFileName is empty then save as new file
+    // if newFileName is empty then save as current file
+    // if currentFileName and newFileName is not empty then save as new file and delete old file
+
+    try {
+      let filePath = ''
+
+      if (!fileInfo.currentFileName) {
+        // Save as new file - show save dialog
+        filePath = join(fileInfo.basePath, fileInfo.newFileName)
+      } else if (!fileInfo.newFileName) {
+        // Save to current file
+        filePath = join(fileInfo.basePath, fileInfo.currentFileName)
+      } else {
+        filePath = join(fileInfo.basePath, fileInfo.newFileName)
+        const oldFilePath = join(fileInfo.basePath, fileInfo.currentFileName)
+
+        // Delete the old file if it exists and is different from the new path
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath)
+        }
+      }
+
+      // Save the file content
+      fs.writeFileSync(filePath, fileInfo.content, 'utf-8')
+      console.log('File saved successfully:', filePath)
+    } catch (error) {
+      console.error('Error saving file:', error)
+      event.reply('save-file-reply', {
+        success: false,
+        message: `Error saving file: ${error instanceof Error ? error.message : String(error)}`
+      })
+    }
   })
 
   createWindow()

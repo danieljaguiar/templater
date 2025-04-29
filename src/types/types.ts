@@ -39,7 +39,7 @@ export interface OnOpenFolderReturn {
 //#region Tree Component
 
 export interface TreeViewItem {
-  path: string
+  fullPath: string
   name: string
   type: string
   children?: TreeViewItem[]

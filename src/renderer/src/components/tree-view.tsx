@@ -72,7 +72,7 @@ interface TreeItemProps {
 const buildItemMap = (items: TreeViewItem[]): Map<string, TreeViewItem> => {
   const map = new Map<string, TreeViewItem>()
   const processItem = (item: TreeViewItem) => {
-    map.set(item.path, item)
+    map.set(item.fullPath, item)
     item.children?.forEach(processItem)
   }
   items.forEach(processItem)
@@ -85,7 +85,7 @@ const getCheckState = (
   itemMap: Map<string, TreeViewItem>
 ): 'checked' | 'unchecked' | 'indeterminate' => {
   // Get the original item from the map
-  const originalItem = itemMap.get(item.path)
+  const originalItem = itemMap.get(item.fullPath)
   if (!originalItem) return 'unchecked'
 
   // If it's a leaf node (no children), return its check state
@@ -142,8 +142,8 @@ function TreeItem({
   menuItems,
   getSelectedItems
 }: TreeItemProps): JSX.Element {
-  const isOpen = expandedIds.has(item.path)
-  const isSelected = selectedIds.has(item.path)
+  const isOpen = expandedIds.has(item.fullPath)
+  const isSelected = selectedIds.has(item.fullPath)
   const itemRef = useRef<HTMLDivElement>(null)
   const [selectionStyle, setSelectionStyle] = useState('')
 
@@ -154,7 +154,7 @@ function TreeItem({
 
       items.forEach((item) => {
         visibleItems.push(item)
-        if (item.children && expandedIds.has(item.path)) {
+        if (item.children && expandedIds.has(item.fullPath)) {
           visibleItems = [...visibleItems, ...getVisibleItems(item.children)]
         }
       })
@@ -172,19 +172,19 @@ function TreeItem({
 
     // Get all visible items from the entire tree
     const visibleItems = getVisibleItems(allItems)
-    const currentIndex = visibleItems.findIndex((i) => i.path === item.path)
+    const currentIndex = visibleItems.findIndex((i) => i.fullPath === item.fullPath)
 
     const prevItem = visibleItems[currentIndex - 1]
     const nextItem = visibleItems[currentIndex + 1]
 
-    const isPrevSelected = prevItem && selectedIds.has(prevItem.path)
-    const isNextSelected = nextItem && selectedIds.has(nextItem.path)
+    const isPrevSelected = prevItem && selectedIds.has(prevItem.fullPath)
+    const isNextSelected = nextItem && selectedIds.has(nextItem.fullPath)
 
     const roundTop = !isPrevSelected
     const roundBottom = !isNextSelected
 
     setSelectionStyle(`${roundTop ? 'rounded-t-md' : ''} ${roundBottom ? 'rounded-b-md' : ''}`)
-  }, [isSelected, selectedIds, expandedIds, item.path, getVisibleItems, allItems])
+  }, [isSelected, selectedIds, expandedIds, item.fullPath, getVisibleItems, allItems])
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -212,20 +212,20 @@ function TreeItem({
         }
       })
     } else if (e.ctrlKey || e.metaKey) {
-      if (newSelection.has(item.path)) {
-        newSelection.delete(item.path)
+      if (newSelection.has(item.fullPath)) {
+        newSelection.delete(item.fullPath)
       } else {
-        newSelection.add(item.path)
+        newSelection.add(item.fullPath)
       }
     } else {
-      newSelection = new Set([item.path])
+      newSelection = new Set([item.fullPath])
       // Open folder on single click if it's a folder
       if (item.children && isSelected) {
-        onToggleExpand(item.path, !isOpen)
+        onToggleExpand(item.fullPath, !isOpen)
       }
     }
 
-    lastSelectedId.current = item.path
+    lastSelectedId.current = item.fullPath
     onSelect(newSelection)
   }
 
@@ -236,7 +236,7 @@ function TreeItem({
         selectedIds.size > 0
           ? allItems
               .flatMap((item) => getAllDescendants(item))
-              .filter((item) => selectedIds.has(item.path))
+              .filter((item) => selectedIds.has(item.fullPath))
           : [item]
       onAction(action, selectedItems)
     }
@@ -277,7 +277,7 @@ function TreeItem({
 
     const findParent = (currentItem: TreeViewItem, allItems: TreeViewItem[]) => {
       for (const potentialParent of allItems) {
-        if (potentialParent.children?.some((child) => child.path === currentItem.path)) {
+        if (potentialParent.children?.some((child) => child.fullPath === currentItem.fullPath)) {
           path.unshift(potentialParent.name)
           findParent(potentialParent, allItems)
           break
@@ -299,7 +299,7 @@ function TreeItem({
     if (!item.children) return 0
 
     item.children.forEach((child) => {
-      if (selectedIds.has(child.path)) {
+      if (selectedIds.has(child.fullPath)) {
         count++
       }
       if (child.children) {
@@ -320,7 +320,7 @@ function TreeItem({
           <div
             ref={itemRef}
             data-tree-item
-            data-id={item.path}
+            data-id={item.fullPath}
             data-depth={depth}
             data-folder-closed={item.children && !isOpen}
             className={`select-none cursor-pointer ${
@@ -334,7 +334,7 @@ function TreeItem({
                 <div className="flex items-center gap-2 flex-1 group">
                   <Collapsible
                     open={isOpen}
-                    onOpenChange={(open) => onToggleExpand(item.path, open)}
+                    onOpenChange={(open) => onToggleExpand(item.fullPath, open)}
                   >
                     <CollapsibleTrigger asChild onClick={(e) => e.stopPropagation()}>
                       <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -408,7 +408,7 @@ function TreeItem({
                               item.type.slice(1).replace('_', ' ')}
                           </div>
                           <div>
-                            <span className="font-medium">ID:</span> {item.path}
+                            <span className="font-medium">ID:</span> {item.fullPath}
                           </div>
                           <div>
                             <span className="font-medium">Location:</span>{' '}
@@ -474,7 +474,7 @@ function TreeItem({
                               item.type.slice(1).replace('_', ' ')}
                           </div>
                           <div>
-                            <span className="font-medium">ID:</span> {item.path}
+                            <span className="font-medium">ID:</span> {item.fullPath}
                           </div>
                           <div>
                             <span className="font-medium">Location:</span>{' '}
@@ -490,7 +490,7 @@ function TreeItem({
           </div>
 
           {item.children && (
-            <Collapsible open={isOpen} onOpenChange={(open) => onToggleExpand(item.path, open)}>
+            <Collapsible open={isOpen} onOpenChange={(open) => onToggleExpand(item.fullPath, open)}>
               <AnimatePresence initial={false}>
                 {isOpen && (
                   <CollapsibleContent forceMount asChild>
@@ -502,7 +502,7 @@ function TreeItem({
                     >
                       {item.children?.map((child) => (
                         <TreeItem
-                          key={child.path}
+                          key={child.fullPath}
                           item={child}
                           depth={depth + 1}
                           selectedIds={selectedIds}
@@ -534,7 +534,7 @@ function TreeItem({
           <ContextMenuItem
             key={menuItem.id}
             onClick={() => {
-              const items = selectedIds.has(item.path) ? getSelectedItems() : [item]
+              const items = selectedIds.has(item.fullPath) ? getSelectedItems() : [item]
               menuItem.action(items)
             }}
           >
@@ -617,7 +617,7 @@ export default function TreeView({
           const filteredChildren = filterTree(item.children)
           if (filteredChildren.length > 0 || itemMatches(item)) {
             if (item.children) {
-              newExpandedIds.add(item.path)
+              newExpandedIds.add(item.fullPath)
             }
             return {
               ...item,
@@ -668,7 +668,7 @@ export default function TreeView({
     let ids: string[] = []
     items.forEach((item) => {
       if (item.children) {
-        ids.push(item.path)
+        ids.push(item.fullPath)
         ids = [...ids, ...getAllFolderIds(item.children)]
       }
     })
@@ -697,7 +697,7 @@ export default function TreeView({
   const getSelectedItems = useCallback((): TreeViewItem[] => {
     const items: TreeViewItem[] = []
     const processItem = (item: TreeViewItem) => {
-      if (selectedIds.has(item.path)) {
+      if (selectedIds.has(item.fullPath)) {
         items.push(item)
       }
       item.children?.forEach(processItem)
@@ -711,7 +711,7 @@ export default function TreeView({
     const selectedItems = getSelectedItems()
 
     // Build a set of all selected IDs for quick lookup
-    const selectedIdsSet = new Set(selectedItems.map((item) => item.path))
+    const selectedIdsSet = new Set(selectedItems.map((item) => item.fullPath))
 
     // Filter out parents whose children are also selected
     return selectedItems.filter((item) => {
@@ -719,7 +719,7 @@ export default function TreeView({
       if (!item.children) return true
 
       // Check if any children of this item are selected
-      const hasSelectedChildren = item.children.some((child) => selectedIdsSet.has(child.path))
+      const hasSelectedChildren = item.children.some((child) => selectedIdsSet.has(child.fullPath))
 
       // Only include this item if none of its children are selected
       return !hasSelectedChildren
@@ -946,7 +946,7 @@ export default function TreeView({
           )}
           {filteredData.map((item) => (
             <TreeItem
-              key={item.path}
+              key={item.fullPath}
               item={item}
               selectedIds={selectedIds}
               lastSelectedId={lastSelectedId}

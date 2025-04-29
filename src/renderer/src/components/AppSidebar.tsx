@@ -73,7 +73,7 @@ export function AppSidebar() {
                   data={templateTree}
                   onSelectFile={(fileFromTree) => {
                     console.log('Selected file:', fileFromTree)
-                    window.electronAPI.openFile(fileFromTree.path)
+                    window.electronAPI.openFile(fileFromTree.fullPath)
                   }}
                 />
               </ScrollArea>

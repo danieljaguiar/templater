@@ -19,6 +19,13 @@ if (process.contextIsolated) {
 
       openFile: (path: string) => ipcRenderer.send('open-file', path),
 
+      saveFile: (fileInfo: {
+        basePath: string
+        content: string
+        currentFileName?: string
+        newFileName?: string
+      }) => ipcRenderer.send('save-file', fileInfo),
+
       onFileOpened: (callback) => {
         ipcRenderer.on('on-open-file', (_event, data) => callback(data))
       },

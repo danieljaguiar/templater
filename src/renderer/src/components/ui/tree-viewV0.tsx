@@ -14,7 +14,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
   const [expanded, setExpanded] = React.useState(false)
   const isFolder = item.type === 'folder'
   const hasChildren = isFolder && item.children && item.children.length > 0
-  const isSelected = selectedId === item.path
+  const isSelected = selectedId === item.fullPath
 
   const handleToggle = () => {
     if (isFolder) {
@@ -65,7 +65,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
         <div>
           {item.children?.map((child) => (
             <TreeItem
-              key={child.path}
+              key={child.fullPath}
               item={child}
               level={level + 1}
               onSelect={onSelect}
@@ -88,7 +88,7 @@ export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
   const handleSelect = (item: TreeViewItem) => {
-    setSelectedId(item.path)
+    setSelectedId(item.fullPath)
     if (onSelectFile && item.type === 'file') {
       onSelectFile(item)
     }
@@ -97,7 +97,7 @@ export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   return (
     <div className={cn('p-2 ', className)}>
       {data.map((item) => (
-        <TreeItem key={item.path} item={item} onSelect={handleSelect} selectedId={selectedId} />
+        <TreeItem key={item.fullPath} item={item} onSelect={handleSelect} selectedId={selectedId} />
       ))}
     </div>
   )
