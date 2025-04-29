@@ -2,11 +2,22 @@
 
 //#region FILE HANDLERS
 
+export enum FileRole {
+  TEMPLATE = 'template',
+  DATA = 'data'
+}
+
 export interface FileInterface {
   fullPath: string
   name: string
   type: string
   content: string
+  role: FileRole
+}
+
+export interface OpenFileArgs {
+  fullPath: string
+  role: FileRole
 }
 
 export interface OpenFileReplyData {

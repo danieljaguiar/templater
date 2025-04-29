@@ -2,24 +2,25 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs'
 import { join } from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
-import { FileInterface, FileToSave } from '../../types/types'
+import { FileInterface, FileToSave, OpenFileArgs } from '../../types/types'
 
 export function registerFileHandlers(): void {
   ipcMain.on(IPC_CHANNELS.FILE.OPEN, handleOpenFile)
   ipcMain.on(IPC_CHANNELS.FILE.SAVE, handeSaveFile)
 }
 
-async function handleOpenFile(event: IpcMainEvent, filePathArg: string): Promise<void> {
-  console.log('Opening file:', filePathArg)
-  const fileContent = fs.readFileSync(filePathArg, 'utf-8')
-  const fileName = filePathArg.split('\\').pop() || 'file.txt'
-  const fileType = filePathArg.split('.').pop() || 'txt'
+async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<void> {
+  console.log('Opening file:', args.fullPath)
+  const fileContent = fs.readFileSync(args.fullPath, 'utf-8')
+  const fileName = args.fullPath.split('\\').pop() || 'file.txt'
+  const fileType = args.fullPath.split('.').pop() || 'txt'
 
   const file: FileInterface = {
     name: fileName,
-    fullPath: filePathArg,
+    fullPath: args.fullPath,
     type: fileType,
-    content: fileContent
+    content: fileContent,
+    role: args.role
   }
   event.reply(IPC_CHANNELS.FILE.OPEN_REPLY, file)
 }

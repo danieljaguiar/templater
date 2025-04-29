@@ -1,4 +1,4 @@
-import { FileToSave } from '@/types/types'
+import { FileToSave, OpenFileArgs } from '@/types/types'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc/channels'
@@ -21,7 +21,7 @@ if (process.contextIsolated) {
       },
 
       // FILE HANDLERS
-      openFile: (path: string) => ipcRenderer.send(IPC_CHANNELS.FILE.OPEN, path),
+      openFile: (args: OpenFileArgs) => ipcRenderer.send(IPC_CHANNELS.FILE.OPEN, args),
       onFileOpened: (callback) => {
         ipcRenderer.on(IPC_CHANNELS.FILE.OPEN_REPLY, (_event, data) => callback(data))
       },

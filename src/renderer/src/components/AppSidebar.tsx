@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/sidebar'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { FolderOpen, RefreshCw, Settings } from 'lucide-react'
+import { FileRole } from '../../../types/types'
 import { ThemeToggle } from './theme-toggle'
 import { Button } from './ui/button'
 import { ScrollArea } from './ui/scroll-area'
@@ -73,7 +74,10 @@ export function AppSidebar() {
                   data={templateTree}
                   onSelectFile={(fileFromTree) => {
                     console.log('Selected file:', fileFromTree)
-                    window.electronAPI.openFile(fileFromTree.fullPath)
+                    window.electronAPI.openFile({
+                      fullPath: fileFromTree.fullPath,
+                      role: FileRole.TEMPLATE
+                    })
                   }}
                 />
               </ScrollArea>
