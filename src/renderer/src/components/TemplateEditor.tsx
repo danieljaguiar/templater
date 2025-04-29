@@ -3,12 +3,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
-import useCurrentTemplateStore from '@/stores/currentTemplateStore'
+import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import { useEffect, useState } from 'react'
 
 export default function TemplateEditor() {
-  const file = useCurrentTemplateStore((state) => state.currentTemplate)
-  const setFile = useCurrentTemplateStore((state) => state.setCurrentTemplate)
+  const selectedTemplate = useSelectedTemplateStore((state) => state.selectedTemplate)
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')
@@ -17,11 +16,14 @@ export default function TemplateEditor() {
   // Set up the IPC listener when component mounts
   useEffect(() => {
     // Only update the local state if file exists and either the name or content has changed
-    if (file !== null && (fileName !== file.name || fileContent !== file.content)) {
-      setFileName(file.name)
-      setFileContent(file.content)
+    if (
+      selectedTemplate !== null &&
+      (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
+    ) {
+      setFileName(selectedTemplate.name)
+      setFileContent(selectedTemplate.content)
     }
-  }, [file, fileName, fileContent]) // Include all dependencies that are referenced
+  }, [selectedTemplate, fileName, fileContent]) // Include all dependencies that are referenced
 
   const handleSave = () => {
     // Reset editing state
@@ -30,9 +32,9 @@ export default function TemplateEditor() {
 
   const handleCancel = () => {
     // Reset to original values
-    if (file) {
-      setFileName(file.name)
-      setFileContent(file.content)
+    if (selectedTemplate) {
+      setFileName(selectedTemplate.name)
+      setFileContent(selectedTemplate.content)
     }
     setIsEditing(false)
   }
@@ -47,7 +49,7 @@ export default function TemplateEditor() {
         <CardTitle>Template Editor</CardTitle>
       </CardHeader>
       <CardContent>
-        {file !== null ? (
+        {selectedTemplate !== null ? (
           <div className="flex flex-col gap-4">
             <div className="space-y-2">
               <label htmlFor="fileName" className="text-sm font-medium">
@@ -76,7 +78,7 @@ export default function TemplateEditor() {
               </ScrollArea>
             </div>
 
-            <p className="text-sm text-muted-foreground">{file.path}</p>
+            <p className="text-sm text-muted-foreground">{selectedTemplate.path}</p>
           </div>
         ) : (
           <div className="flex h-[500px] items-center justify-center">
@@ -86,7 +88,7 @@ export default function TemplateEditor() {
       </CardContent>
 
       <CardFooter className="flex justify-end gap-2">
-        {file &&
+        {selectedTemplate &&
           (isEditing ? (
             <>
               <Button variant="outline" onClick={handleCancel}>

@@ -1,26 +1,36 @@
-import useCurrentTemplateStore from '@/stores/currentTemplateStore'
+import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
+import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect } from 'react'
-import { FileInterface } from 'src/types/types'
+import { FileInterface, OnOpenFolderReturn } from 'src/types/types'
 
 export default function IPCListener() {
-  const file = useCurrentTemplateStore((state) => state.currentTemplate)
-  const setFile = useCurrentTemplateStore((state) => state.setCurrentTemplate)
+  const selectedTemplateStore = useSelectedTemplateStore((state) => state)
+  const templateDirectoryStore = useTemplateDirectoryStore((state) => state)
 
   useEffect(() => {
+    // Directory Opened Listener
+    const handleDirectoryOpened = (data: OnOpenFolderReturn): void => {
+      console.log('Received directory data:', data)
+      if (data !== null) {
+        templateDirectoryStore.setTemplateDirectory(data.templateDirectory, data.basePath)
+      }
+    }
+    window.electronAPI.onFolderOpened(handleDirectoryOpened)
+
     // File Opened Listener
     const handleFileOpened = (data: FileInterface): void => {
       console.log('Received file data:', data)
       if (data !== null) {
-        setFile(data)
+        selectedTemplateStore.setSelectedTemplate(data)
       }
     }
     window.electronAPI.onFileOpened(handleFileOpened)
 
-    // Clean up the listener when component unmounts
     return () => {
-      window.electronAPI.removeOpenFolderListener()
+      window.electronAPI.removeOnOpenFileListener()
+      window.electronAPI.removeOnOpenFolderListener()
     }
-  }, [setFile]) // Empty dependency array means this runs once on mount
+  }, []) // Empty dependency array means this runs once on mount
 
   return null
 }

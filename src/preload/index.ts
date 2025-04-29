@@ -24,8 +24,12 @@ if (process.contextIsolated) {
       },
 
       // If you need to remove the listener later
-      removeOpenFolderListener: () => {
+      removeOnOpenFolderListener: () => {
         ipcRenderer.removeAllListeners('OPEN-FOLDER-REPLY')
+      },
+
+      removeOnOpenFileListener: () => {
+        ipcRenderer.removeAllListeners('on-open-file')
       }
     })
   } catch (error) {
