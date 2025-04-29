@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
 import * as React from 'react'
-import { TreeViewItem } from 'src/types/types'
+import { DirectoryItem } from 'src/types/types'
 
 interface TreeItemProps {
-  item: TreeViewItem
+  item: DirectoryItem
   level?: number
-  onSelect?: (item: TreeViewItem) => void
+  onSelect?: (item: DirectoryItem) => void
   selectedId?: string
 }
 
@@ -79,15 +79,15 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
 }
 
 interface TreeViewProps {
-  data: TreeViewItem[]
+  data: DirectoryItem[]
   className?: string
-  onSelectFile?: (item: TreeViewItem) => void
+  onSelectFile?: (item: DirectoryItem) => void
 }
 
 export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
-  const handleSelect = (item: TreeViewItem) => {
+  const handleSelect = (item: DirectoryItem) => {
     setSelectedId(item.fullPath)
     if (onSelectFile && item.type === 'file') {
       onSelectFile(item)

@@ -2,7 +2,7 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs'
 import { join } from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
-import { FileInterface, FileSaveData } from '../../types/types'
+import { FileInterface, FileToSave } from '../../types/types'
 
 export function registerFileHandlers(): void {
   ipcMain.on(IPC_CHANNELS.FILE.OPEN, handleOpenFile)
@@ -24,7 +24,7 @@ async function handleOpenFile(event: IpcMainEvent, filePathArg: string): Promise
   event.reply(IPC_CHANNELS.FILE.OPEN_REPLY, file)
 }
 
-async function handeSaveFile(event: IpcMainEvent, fileInfo: FileSaveData): Promise<void> {
+async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise<void> {
   // if currentFileName is empty then save as new file
   // if newFileName is empty then save as current file
   // if currentFileName and newFileName is not empty then save as new file and delete old file

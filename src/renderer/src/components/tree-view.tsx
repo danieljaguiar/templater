@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Box, ChevronDown, ChevronRight, Folder, Info, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { TreeViewItem } from 'src/types/types'
+import { DirectoryItem } from 'src/types/types'
 
 export interface TreeViewIconMap {
   [key: string]: React.ReactNode | undefined
@@ -25,12 +25,12 @@ export interface TreeViewMenuItem {
   id: string
   label: string
   icon?: React.ReactNode
-  action: (items: TreeViewItem[]) => void
+  action: (items: DirectoryItem[]) => void
 }
 
 export interface TreeViewProps {
   className?: string
-  data: TreeViewItem[]
+  data: DirectoryItem[]
   title?: string
   showExpandAll?: boolean
   showCheckboxes?: boolean
@@ -41,37 +41,37 @@ export interface TreeViewProps {
     check: string
     uncheck: string
   }
-  getIcon?: (item: TreeViewItem, depth: number) => React.ReactNode
-  onSelectionChange?: (selectedItems: TreeViewItem[]) => void
-  onAction?: (action: string, items: TreeViewItem[]) => void
-  onCheckChange?: (item: TreeViewItem, checked: boolean) => void
+  getIcon?: (item: DirectoryItem, depth: number) => React.ReactNode
+  onSelectionChange?: (selectedItems: DirectoryItem[]) => void
+  onAction?: (action: string, items: DirectoryItem[]) => void
+  onCheckChange?: (item: DirectoryItem, checked: boolean) => void
   iconMap?: TreeViewIconMap
   menuItems?: TreeViewMenuItem[]
 }
 
 interface TreeItemProps {
-  item: TreeViewItem
+  item: DirectoryItem
   depth?: number
   selectedIds: Set<string>
   lastSelectedId: React.MutableRefObject<string | null>
   onSelect: (ids: Set<string>) => void
   expandedIds: Set<string>
   onToggleExpand: (id: string, isOpen: boolean) => void
-  getIcon?: (item: TreeViewItem, depth: number) => React.ReactNode
-  onAction?: (action: string, items: TreeViewItem[]) => void
-  onAccessChange?: (item: TreeViewItem, hasAccess: boolean) => void
-  allItems: TreeViewItem[]
+  getIcon?: (item: DirectoryItem, depth: number) => React.ReactNode
+  onAction?: (action: string, items: DirectoryItem[]) => void
+  onAccessChange?: (item: DirectoryItem, hasAccess: boolean) => void
+  allItems: DirectoryItem[]
   showAccessRights?: boolean
-  itemMap: Map<string, TreeViewItem>
+  itemMap: Map<string, DirectoryItem>
   iconMap?: TreeViewIconMap
   menuItems?: TreeViewMenuItem[]
-  getSelectedItems: () => TreeViewItem[]
+  getSelectedItems: () => DirectoryItem[]
 }
 
 // Helper function to build a map of all items by ID
-const buildItemMap = (items: TreeViewItem[]): Map<string, TreeViewItem> => {
-  const map = new Map<string, TreeViewItem>()
-  const processItem = (item: TreeViewItem) => {
+const buildItemMap = (items: DirectoryItem[]): Map<string, DirectoryItem> => {
+  const map = new Map<string, DirectoryItem>()
+  const processItem = (item: DirectoryItem) => {
     map.set(item.fullPath, item)
     item.children?.forEach(processItem)
   }
@@ -81,8 +81,8 @@ const buildItemMap = (items: TreeViewItem[]): Map<string, TreeViewItem> => {
 
 // Update the getCheckState function to work bottom-up
 const getCheckState = (
-  item: TreeViewItem,
-  itemMap: Map<string, TreeViewItem>
+  item: DirectoryItem,
+  itemMap: Map<string, DirectoryItem>
 ): 'checked' | 'unchecked' | 'indeterminate' => {
   // Get the original item from the map
   const originalItem = itemMap.get(item.fullPath)
@@ -149,8 +149,8 @@ function TreeItem({
 
   // Get all visible items in order
   const getVisibleItems = useCallback(
-    (items: TreeViewItem[]): TreeViewItem[] => {
-      let visibleItems: TreeViewItem[] = []
+    (items: DirectoryItem[]): DirectoryItem[] => {
+      let visibleItems: DirectoryItem[] = []
 
       items.forEach((item) => {
         visibleItems.push(item)
@@ -243,7 +243,7 @@ function TreeItem({
   }
 
   // Helper function to get all descendants of an item (including the item itself)
-  const getAllDescendants = (item: TreeViewItem): TreeViewItem[] => {
+  const getAllDescendants = (item: DirectoryItem): DirectoryItem[] => {
     const descendants = [item]
     if (item.children) {
       item.children.forEach((child) => {
@@ -272,10 +272,10 @@ function TreeItem({
     return iconMap[item.type] || iconMap.folder || defaultIconMap.folder
   }
 
-  const getItemPath = (item: TreeViewItem, items: TreeViewItem[]): string => {
+  const getItemPath = (item: DirectoryItem, items: DirectoryItem[]): string => {
     const path: string[] = [item.name]
 
-    const findParent = (currentItem: TreeViewItem, allItems: TreeViewItem[]) => {
+    const findParent = (currentItem: DirectoryItem, allItems: DirectoryItem[]) => {
       for (const potentialParent of allItems) {
         if (potentialParent.children?.some((child) => child.fullPath === currentItem.fullPath)) {
           path.unshift(potentialParent.name)
@@ -293,7 +293,7 @@ function TreeItem({
   }
 
   // Add function to count selected items in a folder
-  const getSelectedChildrenCount = (item: TreeViewItem): number => {
+  const getSelectedChildrenCount = (item: DirectoryItem): number => {
     let count = 0
 
     if (!item.children) return 0
@@ -595,7 +595,7 @@ export default function TreeView({
     const newExpandedIds = new Set<string>()
 
     // Helper function to check if an item or its descendants match the search
-    const itemMatches = (item: TreeViewItem): boolean => {
+    const itemMatches = (item: DirectoryItem): boolean => {
       const nameMatches = item.name.toLowerCase().includes(searchLower)
       if (nameMatches) return true
 
@@ -607,7 +607,7 @@ export default function TreeView({
     }
 
     // Helper function to filter tree while keeping parent structure
-    const filterTree = (items: TreeViewItem[]): TreeViewItem[] => {
+    const filterTree = (items: DirectoryItem[]): DirectoryItem[] => {
       return items
         .map((item) => {
           if (!item.children) {
@@ -626,7 +626,7 @@ export default function TreeView({
           }
           return null
         })
-        .filter((item): item is TreeViewItem => item !== null)
+        .filter((item): item is DirectoryItem => item !== null)
     }
 
     return {
@@ -664,7 +664,7 @@ export default function TreeView({
   }, [])
 
   // Function to collect all folder IDs
-  const getAllFolderIds = (items: TreeViewItem[]): string[] => {
+  const getAllFolderIds = (items: DirectoryItem[]): string[] => {
     let ids: string[] = []
     items.forEach((item) => {
       if (item.children) {
@@ -694,9 +694,9 @@ export default function TreeView({
   }
 
   // Get selected items
-  const getSelectedItems = useCallback((): TreeViewItem[] => {
-    const items: TreeViewItem[] = []
-    const processItem = (item: TreeViewItem) => {
+  const getSelectedItems = useCallback((): DirectoryItem[] => {
+    const items: DirectoryItem[] = []
+    const processItem = (item: DirectoryItem) => {
       if (selectedIds.has(item.fullPath)) {
         items.push(item)
       }
@@ -707,7 +707,7 @@ export default function TreeView({
   }, [selectedIds, data])
 
   // Get selected items, filtering out parents if their children are selected
-  const getEffectiveSelectedItems = useCallback((): TreeViewItem[] => {
+  const getEffectiveSelectedItems = useCallback((): DirectoryItem[] => {
     const selectedItems = getSelectedItems()
 
     // Build a set of all selected IDs for quick lookup
@@ -863,7 +863,7 @@ export default function TreeView({
                     size="sm"
                     onClick={() => {
                       const effectiveItems = getEffectiveSelectedItems()
-                      const processItem = (item: TreeViewItem) => {
+                      const processItem = (item: DirectoryItem) => {
                         onCheckChange?.(item, true)
                         item.children?.forEach(processItem)
                       }
@@ -878,7 +878,7 @@ export default function TreeView({
                     size="sm"
                     onClick={() => {
                       const effectiveItems = getEffectiveSelectedItems()
-                      const processItem = (item: TreeViewItem) => {
+                      const processItem = (item: DirectoryItem) => {
                         onCheckChange?.(item, false)
                         item.children?.forEach(processItem)
                       }

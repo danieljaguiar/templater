@@ -2,7 +2,7 @@ import { dialog, ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs'
 import { join } from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
-import { TreeViewItem } from '../../types/types'
+import { DirectoryItem } from '../../types/types'
 
 export function registerDirectoryHandlers(): void {
   ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenFolder)
@@ -49,9 +49,9 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
   })
 }
 
-function getDirectoryStructure(dir: string): TreeViewItem[] {
+function getDirectoryStructure(dir: string): DirectoryItem[] {
   const files = fs.readdirSync(dir)
-  const structure: TreeViewItem[] = []
+  const structure: DirectoryItem[] = []
 
   files.forEach((file) => {
     const fullPath = join(dir, file)

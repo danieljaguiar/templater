@@ -1,7 +1,7 @@
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect } from 'react'
-import { FileInterface, OnOpenFolderReturn } from 'src/types/types'
+import { FileInterface, OpenDirectoryReplyData } from 'src/types/types'
 
 export default function IPCListener() {
   const selectedTemplateStore = useSelectedTemplateStore((state) => state)
@@ -9,7 +9,7 @@ export default function IPCListener() {
 
   useEffect(() => {
     // Directory Opened Listener
-    const handleDirectoryOpened = (data: OnOpenFolderReturn): void => {
+    const handleDirectoryOpened = (data: OpenDirectoryReplyData): void => {
       console.log('Received directory data:', data)
       if (data !== null) {
         templateDirectoryStore.setTemplateDirectory(data.templateDirectory, data.basePath)
