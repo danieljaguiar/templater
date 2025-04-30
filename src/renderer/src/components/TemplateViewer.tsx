@@ -25,6 +25,7 @@ export default function TempalteViewer() {
   useEffect(() => {
     if (
       selectedTemplate !== null &&
+      selectedTemplate.content &&
       (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
     ) {
       setFileName(selectedTemplate.name)

@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import { useEffect, useState } from 'react'
+import { GetFullPathFromBaseFileFolderInfo } from 'src/types/types'
 
 export default function TemplateEditor() {
   const selectedTemplate = useSelectedTemplateStore((state) => state.selectedTemplate)
@@ -20,6 +21,10 @@ export default function TemplateEditor() {
       selectedTemplate !== null &&
       (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
     ) {
+      if (selectedTemplate.content === null || selectedTemplate.content === undefined) {
+        console.error('File content is null.')
+        return
+      }
       setFileName(selectedTemplate.name)
       setFileContent(selectedTemplate.content)
     }
@@ -34,7 +39,7 @@ export default function TemplateEditor() {
     // Reset to original values
     if (selectedTemplate) {
       setFileName(selectedTemplate.name)
-      setFileContent(selectedTemplate.content)
+      setFileContent(selectedTemplate.content!) // HACK: This "!" is a temporary fix to avoid null error
     }
     setIsEditing(false)
   }
@@ -78,7 +83,9 @@ export default function TemplateEditor() {
               </ScrollArea>
             </div>
 
-            <p className="text-sm text-muted-foreground">{selectedTemplate.fullPath}</p>
+            <p className="text-sm text-muted-foreground">
+              {GetFullPathFromBaseFileFolderInfo(selectedTemplate)}
+            </p>
           </div>
         ) : (
           <div className="flex h-[500px] items-center justify-center">

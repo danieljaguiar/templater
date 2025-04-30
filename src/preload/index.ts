@@ -33,7 +33,14 @@ if (process.contextIsolated) {
           })
         })
       },
-      saveFile: (fileInfo: FileToSave) => ipcRenderer.send(IPC_CHANNELS.FILE.SAVE, fileInfo)
+      saveFile: (fileInfo: FileToSave) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.FILE.SAVE, fileInfo)
+          ipcRenderer.once(IPC_CHANNELS.FILE.SAVE, (_event, result) => {
+            resolve(result)
+          })
+        })
+      }
     })
   } catch (error) {
     console.error(error)

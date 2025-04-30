@@ -1,7 +1,11 @@
 import { cn } from '@/lib/utils'
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
 import * as React from 'react'
-import { DirectoryItem } from 'src/types/types'
+import {
+  DirectoryItem,
+  DirectoryItemType,
+  GetFullPathFromBaseFileFolderInfo
+} from '../../../../types/types'
 
 interface TreeItemProps {
   item: DirectoryItem
@@ -12,9 +16,9 @@ interface TreeItemProps {
 
 export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProps) {
   const [expanded, setExpanded] = React.useState(false)
-  const isFolder = item.type === 'folder'
+  const isFolder = item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && item.children && item.children.length > 0
-  const isSelected = selectedId === item.fullPath
+  const isSelected = selectedId === GetFullPathFromBaseFileFolderInfo(item)
 
   const handleToggle = () => {
     if (isFolder) {

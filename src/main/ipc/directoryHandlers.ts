@@ -2,7 +2,11 @@ import { dialog, ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs'
 import { join } from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
-import { DirectoryItem } from '../../types/types'
+import {
+  DirectoryItem,
+  DirectoryItemType,
+  ExtractBaseFileFolderInfoFromFullPath
+} from '../../types/types'
 
 export function registerDirectoryHandlers(): void {
   ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenFolder)
@@ -42,25 +46,27 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
 }
 
 function getDirectoryStructure(dir: string): DirectoryItem[] {
-  const files = fs.readdirSync(dir)
+  const allItemsInDirectory = fs.readdirSync(dir)
   const structure: DirectoryItem[] = []
 
-  files.forEach((file) => {
-    const fullPath = join(dir, file)
-    const stats = fs.statSync(fullPath)
-
-    if (stats.isDirectory()) {
+  allItemsInDirectory.forEach((itemInDirectory) => {
+    const itemFullPath = join(dir, itemInDirectory)
+    const itemFullPathForwardSlash = itemFullPath.replace(/\\/g, '/')
+    const stats = fs.statSync(itemFullPath)
+    const type: DirectoryItemType = stats.isDirectory()
+      ? DirectoryItemType.FOLDER
+      : DirectoryItemType.FILE
+    const base = ExtractBaseFileFolderInfoFromFullPath(itemFullPathForwardSlash, type)
+    if (type === DirectoryItemType.FOLDER) {
       structure.push({
-        fullPath: fullPath,
-        name: file,
-        type: 'folder',
-        children: getDirectoryStructure(fullPath)
+        ...base,
+        fullPath: itemFullPathForwardSlash,
+        children: getDirectoryStructure(itemFullPath)
       })
     } else {
       structure.push({
-        fullPath: fullPath,
-        name: file,
-        type: 'file'
+        ...base,
+        fullPath: itemFullPathForwardSlash
       })
     }
   })

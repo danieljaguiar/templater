@@ -10,45 +10,41 @@ export interface DataInUse extends DataInStore {
 
 //#region IPC
 
+export enum DirectoryItemType {
+  FILE = 'file',
+  FOLDER = 'folder'
+}
+
+export interface BaseDirectoryItem {
+  basePath: string
+  name: string
+  extension?: string
+  content?: string
+  type: DirectoryItemType
+}
+
 //#region FILE HANDLERS
 
-export enum FileRole {
-  TEMPLATE = 'template',
-  DATA = 'data'
+export interface FileToSave extends BaseDirectoryItem {
+  newFileName?: string
 }
 
-export interface FileInterface {
-  fullPath: string
-  name: string
-  type: string
-  content: string
-  role: FileRole
-}
+export interface FileInterface extends BaseDirectoryItem {}
 
 export interface OpenFileArgs {
   fullPath: string
-  role: FileRole
 }
 
 export interface OpenFileReplyData {
   file: FileInterface
 }
 
-export interface FileToSave {
-  basePath: string
-  content: string
-  currentFileName?: string
-  newFileName?: string
-}
-
 //#endregion
 
 //#region DIRECTORY HANDLERS
 
-export interface DirectoryItem {
+export interface DirectoryItem extends BaseDirectoryItem {
   fullPath: string
-  name: string
-  type: string
   children?: DirectoryItem[]
   checked?: boolean
 }
@@ -64,3 +60,31 @@ export interface OpenDirectoryReplyData {
 //#endregion
 
 //#endregion
+
+export function ExtractBaseFileFolderInfoFromFullPath(
+  fullPath: string,
+  type: DirectoryItemType
+): BaseDirectoryItem {
+  const pathParts = fullPath.split('/')
+  const nameWithExtension = pathParts.pop() || ''
+  const nameParts = nameWithExtension.split('.')
+  const extension = nameParts.length > 1 ? nameParts.pop() : undefined
+  const name = nameParts.join('.')
+
+  const ret: BaseDirectoryItem = {
+    basePath: pathParts.join('/'),
+    name,
+    extension,
+    type
+  }
+  console.log('Extracted base file/folder info:', {
+    fullPath,
+    result: ret
+  })
+  return ret
+}
+
+export function GetFullPathFromBaseFileFolderInfo(baseFileFolder: BaseDirectoryItem): string {
+  const { basePath, name, extension } = baseFileFolder
+  return `${basePath}/${name}${extension ? '.' + extension : ''}`
+}

@@ -2,7 +2,7 @@ import useDataStore from '@/stores/dataStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
-import { FileRole } from '../../../types/types'
+import { GetFullPathFromBaseFileFolderInfo } from '../../../types/types'
 import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function TemplatePicker() {
@@ -22,8 +22,7 @@ export default function TemplatePicker() {
           onSelectFile={async (fileFromTree) => {
             resetDataTemplateInUse()
             const fileInfo = await window.electronAPI.openFile({
-              fullPath: fileFromTree.fullPath,
-              role: FileRole.TEMPLATE
+              fullPath: GetFullPathFromBaseFileFolderInfo(fileFromTree)
             })
             if (fileInfo) {
               setSelectedTemplate(fileInfo)
