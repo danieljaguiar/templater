@@ -1,24 +1,17 @@
-import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
+import useDataDirectoryStore from '@/stores/dataDirectoryStore'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
-import { FileRole } from '../../../types/types'
 import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function DataPicker() {
-  const templateTree = useTemplateDirectoryStore(
-    (state) => state.templateDirectory.templateDirectory
-  )
+  const dataTree = useDataDirectoryStore((state) => state.dataDirectory.dataDirectory)
 
   return (
     <div>
       <ScrollArea>
         <TreeViewV0
-          data={templateTree}
+          data={dataTree}
           onSelectFile={(fileFromTree) => {
             console.log('Selected file:', fileFromTree)
-            window.electronAPI.openFile({
-              fullPath: fileFromTree.fullPath,
-              role: FileRole.TEMPLATE
-            })
           }}
         />
       </ScrollArea>

@@ -1,3 +1,4 @@
+import useDataDirectoryStore from '@/stores/dataDirectoryStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect } from 'react'
@@ -6,6 +7,7 @@ import { FileInterface, OpenDirectoryReplyData } from 'src/types/types'
 export default function IPCListener() {
   const selectedTemplateStore = useSelectedTemplateStore((state) => state)
   const templateDirectoryStore = useTemplateDirectoryStore((state) => state)
+  const dataDirectoryStore = useDataDirectoryStore((state) => state)
 
   useEffect(() => {
     // Directory Opened Listener
@@ -13,6 +15,7 @@ export default function IPCListener() {
       console.log('Received directory data:', data)
       if (data !== null) {
         templateDirectoryStore.setTemplateDirectory(data.templateDirectory, data.basePath)
+        dataDirectoryStore.setDataDirectory(data.dataDirectory, data.basePath)
       }
     }
     window.electronAPI.onFolderOpened(handleDirectoryOpened)
