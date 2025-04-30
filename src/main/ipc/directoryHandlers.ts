@@ -15,14 +15,6 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory', 'createDirectory', 'promptToCreate', 'showHiddenFiles']
     })
-    if (result.canceled) {
-      event.reply(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, {
-        templateDirectory: [],
-        dataDirectory: [],
-        basePath: ''
-      })
-      return
-    }
     folderPath = result.filePaths[0]
   }
 
@@ -42,7 +34,7 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
   const templateDirectory = getDirectoryStructure(templatesFolderPath)
   const dataDirectory = getDirectoryStructure(dataFolderPath)
 
-  event.reply(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, {
+  event.reply(IPC_CHANNELS.DIRECTORY.OPEN, {
     templateDirectory,
     dataDirectory,
     basePath: folder

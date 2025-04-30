@@ -22,7 +22,7 @@ async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<
     content: fileContent,
     role: args.role
   }
-  event.reply(IPC_CHANNELS.FILE.OPEN_REPLY, file)
+  event.reply(IPC_CHANNELS.FILE.OPEN, file)
 }
 
 async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise<void> {
@@ -49,7 +49,7 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
       }
     } else {
       // fail
-      event.reply(IPC_CHANNELS.FILE.SAVE_REPLY, {
+      event.reply(IPC_CHANNELS.FILE.SAVE, {
         success: false,
         message: 'No file name provided'
       })
@@ -60,7 +60,7 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
     console.log('File saved successfully:', filePath)
   } catch (error) {
     console.error('Error saving file:', error)
-    event.reply(IPC_CHANNELS.FILE.SAVE_REPLY, {
+    event.reply(IPC_CHANNELS.FILE.SAVE, {
       success: false,
       message: `Error saving file: ${error instanceof Error ? error.message : String(error)}`
     })

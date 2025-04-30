@@ -15,25 +15,25 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
       // FOLDER HANDLERS
-      openFolder: (path?: string) => ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, path),
-      onFolderOpened: (callback) => {
-        ipcRenderer.on(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, (_event, data) => callback(data))
+      openFolderAsync: (path?: string) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, path)
+          ipcRenderer.once(IPC_CHANNELS.DIRECTORY.OPEN, (_event, result) => {
+            resolve(result)
+          })
+        })
       },
 
       // FILE HANDLERS
-      openFile: (args: OpenFileArgs) => ipcRenderer.send(IPC_CHANNELS.FILE.OPEN, args),
-      onFileOpened: (callback) => {
-        ipcRenderer.on(IPC_CHANNELS.FILE.OPEN_REPLY, (_event, data) => callback(data))
+      openFile: (args: OpenFileArgs) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.FILE.OPEN, args)
+          ipcRenderer.once(IPC_CHANNELS.FILE.OPEN, (_event, result) => {
+            resolve(result)
+          })
+        })
       },
-      saveFile: (fileInfo: FileToSave) => ipcRenderer.send(IPC_CHANNELS.FILE.SAVE, fileInfo),
-
-      // REMOVE LISTENERS
-      removeOnOpenFolderListener: () => {
-        ipcRenderer.removeAllListeners(IPC_CHANNELS.DIRECTORY.OPEN_REPLY)
-      },
-      removeOnOpenFileListener: () => {
-        ipcRenderer.removeAllListeners(IPC_CHANNELS.FILE.OPEN_REPLY)
-      }
+      saveFile: (fileInfo: FileToSave) => ipcRenderer.send(IPC_CHANNELS.FILE.SAVE, fileInfo)
     })
   } catch (error) {
     console.error(error)

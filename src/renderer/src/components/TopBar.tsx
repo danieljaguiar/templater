@@ -1,3 +1,4 @@
+import useDataDirectoryStore from '@/stores/dataDirectoryStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { FolderOpen, RefreshCw, Settings } from 'lucide-react'
 import { ThemeToggle } from './theme-toggle'
@@ -5,8 +6,10 @@ import { Button } from './ui/button'
 
 export default function TopBar() {
   const basePath = useTemplateDirectoryStore((state) => state.templateDirectory.basePath)
+  const setTemplateDirectory = useTemplateDirectoryStore((state) => state.setTemplateDirectory)
+  const setDataDirectory = useDataDirectoryStore((state) => state.setDataDirectory)
   const openFolderHandler = (): void => {
-    window.electronAPI.openFolder()
+    window.electronAPI.openFolderAsync()
   }
 
   const openSettingsHandler = (): void => {
@@ -14,10 +17,17 @@ export default function TopBar() {
     // Implement settings functionality here
   }
 
-  const reloadTemplateDirectoryHandler = (): void => {
+  const reloadTemplateDirectoryHandler = async (): Promise<void> => {
     console.log('Reloading template directory...')
     if (basePath !== '') {
-      window.electronAPI.openFolder(basePath)
+      const data = await window.electronAPI.openFolderAsync(basePath)
+      if (data !== null) {
+        setTemplateDirectory(data.templateDirectory, data.basePath)
+        setDataDirectory(data.dataDirectory, data.basePath)
+        console.log('Template directory reloaded successfully.')
+      } else {
+        console.error('Failed to reload template directory.')
+      }
     } else {
       console.error('Base path is empty. Cannot reload template directory.')
     }
