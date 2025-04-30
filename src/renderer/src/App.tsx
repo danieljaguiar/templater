@@ -1,19 +1,38 @@
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { AppSidebar } from './components/AppSidebar'
+import DataPicker from './components/DataPicker'
 import IPCListener from './components/IPCListener'
 import TemplateEditor from './components/TemplateEditor'
+import TemplatePicker from './components/TemplatePicker'
 import { ThemeProvider } from './components/theme-provider'
+import TopBar from './components/TopBar'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './components/ui/resizable'
 
 function App(): JSX.Element {
   return (
     <ThemeProvider defaultTheme="system">
-      <div className="app-container">
-        <SidebarProvider>
-          <AppSidebar />
-          <main>
+      <div className="min-h-screen">
+        {/* top bar */}
+        <TopBar />
+        <ResizablePanelGroup
+          className="min-h-[calc(100vh-3rem)]"
+          direction="horizontal"
+          autoSaveId={'MainPanelGroup'}
+        >
+          <ResizablePanel className="h-full" minSize={10}>
+            <TemplatePicker />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel minSize={25}>
             <TemplateEditor />
-          </main>
-        </SidebarProvider>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel minSize={15}>
+            <div>Data forms</div>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel minSize={10}>
+            <DataPicker />
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
       <IPCListener />
     </ThemeProvider>
