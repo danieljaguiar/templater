@@ -1,7 +1,8 @@
+import DataForm from './components/DataForm'
 import DataPicker from './components/DataPicker'
 import IPCListener from './components/IPCListener'
-import TemplateEditor from './components/TemplateEditor'
 import TemplatePicker from './components/TemplatePicker'
+import TempalteViewer from './components/TemplateViewer'
 import { ThemeProvider } from './components/theme-provider'
 import TopBar from './components/TopBar'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './components/ui/resizable'
@@ -22,11 +23,11 @@ function App(): JSX.Element {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={25}>
-            <TemplateEditor />
+            <TempalteViewer />
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={15}>
-            <div>Data forms</div>
+            <DataForm />
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={10}>

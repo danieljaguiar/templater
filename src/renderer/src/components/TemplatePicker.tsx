@@ -1,3 +1,4 @@
+import useDataStore from '@/stores/dataStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { FileRole } from '../../../types/types'
@@ -7,6 +8,9 @@ export default function TemplatePicker() {
   const templateTree = useTemplateDirectoryStore(
     (state) => state.templateDirectory.templateDirectory
   )
+  const resetDataTemplateInUse = useDataStore(
+    (state) => state.removeFieldsNotInUseAndResetTemplateFlag
+  )
 
   return (
     <div>
@@ -14,7 +18,7 @@ export default function TemplatePicker() {
         <TreeViewV0
           data={templateTree}
           onSelectFile={(fileFromTree) => {
-            console.log('Selected file:', fileFromTree)
+            resetDataTemplateInUse()
             window.electronAPI.openFile({
               fullPath: fileFromTree.fullPath,
               role: FileRole.TEMPLATE

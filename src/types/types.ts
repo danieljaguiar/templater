@@ -1,3 +1,13 @@
+export interface DataInStore {
+  name: string
+  value: string
+}
+
+export interface DataInUse extends DataInStore {
+  inTemplate: boolean
+  inDataFile: boolean
+}
+
 //#region IPC
 
 //#region FILE HANDLERS
