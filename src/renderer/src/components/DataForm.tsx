@@ -50,7 +50,7 @@ export default function DataForm() {
       await window.electronAPI.saveFile({
         ...fileInfo,
         newFileName: stateFileName !== fileInfo.name ? stateFileName : undefined,
-        extension: 'json',
+        extension: fileInfo.extension || 'json',
         content: JSON.stringify(
           data.map((item) => ({
             name: item.name,
