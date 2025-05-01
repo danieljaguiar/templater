@@ -16,7 +16,6 @@ export function registerFileHandlers(): void {
 }
 
 async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<void> {
-  console.log('Opening file:', args.fullPath)
   const fileContent = fs.readFileSync(args.fullPath, 'utf-8')
   const baseFile = ExtractBaseFileFolderInfoFromFullPath(args.fullPath, DirectoryItemType.FILE)
 
@@ -63,7 +62,6 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
 
     // Save the file content
     fs.writeFileSync(fullFilePath, fileInfo.content, 'utf-8')
-    console.log('File saved successfully:', fullFilePath)
   } catch (error) {
     console.error('Error saving file:', error)
     event.reply(IPC_CHANNELS.FILE.SAVE, {

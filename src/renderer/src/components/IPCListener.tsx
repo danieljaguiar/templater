@@ -8,7 +8,6 @@ export default function IPCListener() {
 
   const loadInitialData = async () => {
     if (window && window.electronAPI && templateDirectoryStore.templateDirectory.basePath !== '') {
-      console.log('Initial Load - Refreshing Directory')
       const data = await window.electronAPI.openFolderAsync(
         templateDirectoryStore.templateDirectory.basePath
       )

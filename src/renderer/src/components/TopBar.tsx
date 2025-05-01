@@ -13,18 +13,15 @@ export default function TopBar() {
   }
 
   const openSettingsHandler = (): void => {
-    console.log('Opening settings...')
     // Implement settings functionality here
   }
 
   const reloadTemplateDirectoryHandler = async (): Promise<void> => {
-    console.log('Reloading template directory...')
     if (basePath !== '') {
       const data = await window.electronAPI.openFolderAsync(basePath)
       if (data !== null) {
         setTemplateDirectory(data.templateDirectory, data.basePath)
         setDataDirectory(data.dataDirectory, data.basePath)
-        console.log('Template directory reloaded successfully.')
       } else {
         console.error('Failed to reload template directory.')
       }

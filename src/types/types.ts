@@ -77,10 +77,6 @@ export function ExtractBaseFileFolderInfoFromFullPath(
     extension,
     type
   }
-  console.log('Extracted base file/folder info:', {
-    fullPath,
-    result: ret
-  })
   return ret
 }
 

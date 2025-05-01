@@ -17,7 +17,6 @@ export default function DataForm() {
 
   // Sort and separate data when it changes
   useEffect(() => {
-    console.log('DataForm data', data)
     const templateData = data
       .filter((item) => item.inTemplate)
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -37,7 +36,6 @@ export default function DataForm() {
 
   // Handle input change
   const handleChange = (item: DataInUse) => {
-    console.log('handleChange', item)
     const updatedItem = { ...item, value: item.value } // Trim whitespace
     addOrUpdateData(updatedItem) // Update the store with the new value
   }
@@ -66,7 +64,6 @@ export default function DataForm() {
       if (dataDirectory) {
         setDataDirectory(dataDirectory.dataDirectory, dataDirectory.basePath)
       }
-      console.log('File saved successfully')
     }
   }
 

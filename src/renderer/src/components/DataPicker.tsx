@@ -6,7 +6,6 @@ import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function DataPicker() {
   const dataTree = useDataDirectoryStore((state) => state.dataDirectory.dataDirectory)
-  console.log('🚀 ~ DataPicker ~ dataTree:', dataTree)
   const { data, setData, setFileInfo } = useDataStore()
 
   return (
