@@ -1,4 +1,4 @@
-import useDataDirectoryStore from '@/stores/dataDirectoryStore'
+import useDataSetDirectoryStore from '@/stores/dataSetDirectoryStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { FolderOpen, RefreshCw, Settings } from 'lucide-react'
 import { ThemeToggle } from './theme-toggle'
@@ -7,7 +7,7 @@ import { Button } from './ui/button'
 export default function TopBar() {
   const basePath = useTemplateDirectoryStore((state) => state.templateDirectory.basePath)
   const setTemplateDirectory = useTemplateDirectoryStore((state) => state.setTemplateDirectory)
-  const setDataDirectory = useDataDirectoryStore((state) => state.setDataDirectory)
+  const setDataDirectory = useDataSetDirectoryStore((state) => state.setDataSetDirectory)
   const openFolderHandler = (): void => {
     window.electronAPI.openFolderAsync()
   }

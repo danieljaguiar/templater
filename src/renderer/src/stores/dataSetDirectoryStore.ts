@@ -3,22 +3,22 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 interface DataDirectoryStore {
-  dataDirectory: {
-    dataDirectory: DirectoryItem[]
+  dataSetDirectory: {
+    dataSetDirectory: DirectoryItem[]
     basePath: string
   }
-  setDataDirectory: (dataDirectory: DirectoryItem[], baseBath: string) => void
+  setDataSetDirectory: (dataDirectory: DirectoryItem[], baseBath: string) => void
 }
 
 const useDataDirectoryStore = create<DataDirectoryStore>()(
   persist(
     (set) => ({
-      dataDirectory: {
-        dataDirectory: [],
+      dataSetDirectory: {
+        dataSetDirectory: [],
         basePath: ''
       },
-      setDataDirectory: (dataDirectory, basePath) =>
-        set({ dataDirectory: { dataDirectory, basePath } })
+      setDataSetDirectory: (dataSetDirectory, basePath) =>
+        set({ dataSetDirectory: { dataSetDirectory, basePath } })
     }),
     {
       name: 'data-directory-storage' // unique name

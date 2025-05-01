@@ -1,11 +1,11 @@
-export interface DataInStore {
+export interface Field {
   name: string
   value: string
 }
 
-export interface DataInUse extends DataInStore {
+export interface FieldInUse extends Field {
   inTemplate: boolean
-  inDataFile: boolean
+  inDisk: boolean
 }
 
 //#region IPC

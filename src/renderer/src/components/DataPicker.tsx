@@ -1,12 +1,12 @@
-import useDataDirectoryStore from '@/stores/dataDirectoryStore'
-import useDataStore from '@/stores/dataStore'
+import useDataSetDirectoryStore from '@/stores/dataSetDirectoryStore'
+import useDataSetStore from '@/stores/dataSetStore'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
-import { DataInUse, GetFullPathFromBaseFileFolderInfo } from '../../../types/types'
+import { FieldInUse, GetFullPathFromBaseFileFolderInfo } from '../../../types/types'
 import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function DataPicker() {
-  const dataTree = useDataDirectoryStore((state) => state.dataDirectory.dataDirectory)
-  const { data, setData, setFileInfo } = useDataStore()
+  const dataTree = useDataSetDirectoryStore((state) => state.dataSetDirectory.dataSetDirectory)
+  const { fields: data, setFields: setData, setFileInfo } = useDataSetStore()
 
   return (
     <div>
@@ -23,7 +23,7 @@ export default function DataPicker() {
                 return
               }
 
-              let newData = JSON.parse(fileInfo.content) as DataInUse[]
+              let newData = JSON.parse(fileInfo.content) as FieldInUse[]
 
               newData = newData.map((item) => {
                 const existingItem = data.find((d) => d.name === item.name)

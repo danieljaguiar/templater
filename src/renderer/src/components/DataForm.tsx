@@ -1,10 +1,10 @@
-import useDataDirectoryStore from '@/stores/dataDirectoryStore'
-import useDataStore from '@/stores/dataStore'
+import useDataSetDirectoryStore from '@/stores/dataSetDirectoryStore'
+import useDataSetStore from '@/stores/dataSetStore'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
-  DataInUse,
   DirectoryItemType,
+  FieldInUse,
   FileSavingStatus
 } from '../../../types/types'
 import { Input } from './ui/input'
@@ -14,12 +14,12 @@ import { Separator } from './ui/separator'
 
 export default function DataForm() {
   // Get data from the store
-  const { data, addOrUpdateData, fileInfo, reset } = useDataStore()
+  const { fields: data, addOrUpdateField: addOrUpdateData, fileInfo, reset } = useDataSetStore()
   const [stateFileName, setStateFileName] = useState<string>('')
-  const dataDirectoryBasePath = useDataDirectoryStore((state) => state.dataDirectory.basePath)
-  const setDataDirectory = useDataDirectoryStore((state) => state.setDataDirectory)
-  const [sortedTemplateData, setSortedTemplateData] = useState<DataInUse[]>([])
-  const [sortedNonTemplateData, setSortedNonTemplateData] = useState<DataInUse[]>([])
+  const dataDirectoryBasePath = useDataSetDirectoryStore((state) => state.dataSetDirectory.basePath)
+  const setDataSetDirectory = useDataSetDirectoryStore((state) => state.setDataSetDirectory)
+  const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
+  const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
   const [fileSaveError, setFileSaveError] = useState<string | null>(null)
 
   // Sort and separate data when it changes
@@ -43,7 +43,7 @@ export default function DataForm() {
   }, [fileInfo])
 
   // Handle input change
-  const handleChange = (item: DataInUse) => {
+  const handleChange = (item: FieldInUse) => {
     const updatedItem = { ...item, value: item.value } // Trim whitespace
     addOrUpdateData(updatedItem) // Update the store with the new value
   }
@@ -91,12 +91,12 @@ export default function DataForm() {
 
     const dataDirectory = await window.electronAPI.openFolderAsync(dataDirectoryBasePath)
     if (dataDirectory) {
-      setDataDirectory(dataDirectory.dataDirectory, dataDirectory.basePath)
+      setDataSetDirectory(dataDirectory.dataDirectory, dataDirectory.basePath)
     }
   }
 
   // Render input field
-  const renderField = (dataItem: DataInUse) => (
+  const renderField = (dataItem: FieldInUse) => (
     <div className="grid w-full items-center gap-1.5" key={dataItem.name}>
       <Label htmlFor={dataItem.name}>{dataItem.name}</Label>
       <Input
