@@ -9,6 +9,7 @@ import {
 } from '../../../types/types'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
+import { ScrollArea } from './ui/scroll-area'
 import { Separator } from './ui/separator'
 
 export default function DataForm() {
@@ -72,10 +73,12 @@ export default function DataForm() {
           : undefined,
       extension: fileInfoLocal.extension || 'json',
       content: JSON.stringify(
-        data.map((item) => ({
-          name: item.name,
-          value: item.value
-        })),
+        data
+          .filter((i) => i.value.trim() !== '')
+          .map((item) => ({
+            name: item.name,
+            value: item.value
+          })),
         null,
         2
       )
@@ -111,7 +114,7 @@ export default function DataForm() {
   )
 
   return (
-    <div className="space-y-4 px-8">
+    <ScrollArea className="space-y-4 px-4 h-full">
       {/* Top bar with button to save to file */}
       <div className="flex items-center justify-between py-4">
         <button
@@ -188,6 +191,6 @@ export default function DataForm() {
           )}
         </pre>
       </div>
-    </div>
+    </ScrollArea>
   )
 }

@@ -9,15 +9,15 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './componen
 function App(): JSX.Element {
   return (
     <ThemeProvider defaultTheme="system">
-      <div className="min-h-screen">
+      <div className="h-screen">
         {/* top bar */}
         <TopBar />
         <ResizablePanelGroup
-          className="min-h-[calc(100vh-3rem)]"
+          style={{ height: 'calc(100vh - 3rem)' }}
           direction="horizontal"
           autoSaveId={'MainPanelGroup'}
         >
-          <ResizablePanel className="h-full" minSize={10}>
+          <ResizablePanel minSize={10}>
             <TemplatePicker />
           </ResizablePanel>
           <ResizableHandle withHandle />

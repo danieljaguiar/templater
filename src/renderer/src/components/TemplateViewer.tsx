@@ -56,8 +56,8 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     let currentPos = 0
     let match: RegExpExecArray | null
 
-    // Regex to find placeholders: $name but not \$name (escaped)
-    const placeholderRegex = /(?<!\\)\$([a-zA-Z0-9_]+)/g
+    // Regex to find placeholders: @@name but not \@@name (escaped)
+    const placeholderRegex = /(?<!@)@@([a-zA-Z0-9_]+)/g
 
     // Process all placeholders in the text
     while ((match = placeholderRegex.exec(text)) !== null) {
@@ -132,9 +132,9 @@ export default function TempalteViewer(props: TemplateViewerProps) {
   const handleCopyToClipboardAsPlainText = () => {
     const textToCopy = TextBlocks.map((block) => {
       if (block.type === TextType.text) {
-        return block.text
+        return block.text.replaceAll('@@@@', '@@')
       } else if (block.type === TextType.pendingPlaceholder) {
-        return `$${block.text}`
+        return `@@${block.text}`
       } else if (block.type === TextType.completedPlaceholder) {
         return block.text
       }
@@ -162,7 +162,7 @@ export default function TempalteViewer(props: TemplateViewerProps) {
               <span
                 key={index}
                 className={`bg-destructive text-destructive-foreground ${common}`}
-              >{`$${block.text}`}</span>
+              >{`@@${block.text}`}</span>
             )
           } else if (block.type === TextType.completedPlaceholder) {
             return (

@@ -41,6 +41,7 @@ export default function TemplateEditor(props: TemplateEditorProps) {
     const res = await window.electronAPI.saveFile(newSelectedTemplate)
     console.log('File saved:', res)
     setSelectedTemplate(newSelectedTemplate)
+    props.editingFinished()
   }
 
   const handleCancel = () => {
