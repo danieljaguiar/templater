@@ -1,19 +1,25 @@
 import useDataDirectoryStore from '@/stores/dataDirectoryStore'
 import useDataStore from '@/stores/dataStore'
 import { useEffect, useState } from 'react'
-import { DataInUse } from 'src/types/types'
+import {
+  BaseDirectoryItem,
+  DataInUse,
+  DirectoryItemType,
+  FileSavingStatus
+} from '../../../types/types'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Separator } from './ui/separator'
 
 export default function DataForm() {
   // Get data from the store
-  const { data, addOrUpdateData, fileInfo } = useDataStore()
+  const { data, addOrUpdateData, fileInfo, reset } = useDataStore()
   const [stateFileName, setStateFileName] = useState<string>('')
   const dataDirectoryBasePath = useDataDirectoryStore((state) => state.dataDirectory.basePath)
   const setDataDirectory = useDataDirectoryStore((state) => state.setDataDirectory)
   const [sortedTemplateData, setSortedTemplateData] = useState<DataInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<DataInUse[]>([])
+  const [fileSaveError, setFileSaveError] = useState<string | null>(null)
 
   // Sort and separate data when it changes
   useEffect(() => {
@@ -31,6 +37,7 @@ export default function DataForm() {
   useEffect(() => {
     if (fileInfo) {
       setStateFileName(fileInfo.name)
+      setFileSaveError(null)
     }
   }, [fileInfo])
 
@@ -40,30 +47,48 @@ export default function DataForm() {
     addOrUpdateData(updatedItem) // Update the store with the new value
   }
 
+  const handleNewFile = async () => {
+    reset()
+    setStateFileName('')
+  }
+
   const handleFileSave = async () => {
     if (stateFileName.trim() === '') {
-      alert('File name cannot be empty')
+      setFileSaveError('File name cannot be empty')
+      return
+    }
+    let fileInfoLocal: BaseDirectoryItem = fileInfo ?? {
+      name: '',
+      type: DirectoryItemType.FILE,
+      extension: 'json',
+      basePath: dataDirectoryBasePath + '/data'
+    }
+
+    const fileSaveResponse = await window.electronAPI.saveFile({
+      ...fileInfoLocal,
+      newFileName:
+        stateFileName !== fileInfoLocal.name || fileInfoLocal.name === ''
+          ? stateFileName
+          : undefined,
+      extension: fileInfoLocal.extension || 'json',
+      content: JSON.stringify(
+        data.map((item) => ({
+          name: item.name,
+          value: item.value
+        })),
+        null,
+        2
+      )
+    })
+    if (fileSaveResponse !== FileSavingStatus.SUCCESS) {
+      setFileSaveError('Error saving file: ' + fileSaveResponse)
+      console.error('Error saving file:', fileSaveResponse)
       return
     }
 
-    if (fileInfo) {
-      await window.electronAPI.saveFile({
-        ...fileInfo,
-        newFileName: stateFileName !== fileInfo.name ? stateFileName : undefined,
-        extension: fileInfo.extension || 'json',
-        content: JSON.stringify(
-          data.map((item) => ({
-            name: item.name,
-            value: item.value
-          })),
-          null,
-          2
-        )
-      })
-      const dataDirectory = await window.electronAPI.openFolderAsync(dataDirectoryBasePath)
-      if (dataDirectory) {
-        setDataDirectory(dataDirectory.dataDirectory, dataDirectory.basePath)
-      }
+    const dataDirectory = await window.electronAPI.openFolderAsync(dataDirectoryBasePath)
+    if (dataDirectory) {
+      setDataDirectory(dataDirectory.dataDirectory, dataDirectory.basePath)
     }
   }
 
@@ -97,6 +122,15 @@ export default function DataForm() {
         >
           Save
         </button>
+
+        <button
+          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          onClick={() => {
+            handleNewFile()
+          }}
+        >
+          New
+        </button>
       </div>
 
       {/* FileName input */}
@@ -110,6 +144,7 @@ export default function DataForm() {
             (e) => setStateFileName(e.target.value) // Update the file name in the store
           }
         />
+        {fileSaveError && <p className="text-sm text-red-500">{fileSaveError}</p>}
       </div>
 
       {/* Template Data */}
@@ -140,6 +175,18 @@ export default function DataForm() {
             <p className="text-sm text-muted-foreground">No additional fields found.</p>
           )}
         </div>
+      </div>
+      <div>
+        <pre>
+          {JSON.stringify(
+            {
+              basePath: dataDirectoryBasePath,
+              fileInfo: fileInfo
+            },
+            null,
+            2
+          )}
+        </pre>
       </div>
     </div>
   )

@@ -41,7 +41,7 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
   event.reply(IPC_CHANNELS.DIRECTORY.OPEN, {
     templateDirectory,
     dataDirectory,
-    basePath: folder
+    basePath: folder.replace(/\\/g, '/')
   })
 }
 

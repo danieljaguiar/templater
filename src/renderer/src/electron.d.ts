@@ -1,9 +1,15 @@
-import { FileInterface, FileToSave, OpenDirectoryReplyData, OpenFileArgs } from '../../types/types'
+import {
+  FileInterface,
+  FileSavingStatus,
+  FileToSave,
+  OpenDirectoryReplyData,
+  OpenFileArgs
+} from '../../types/types'
 
 interface ElectronAPI {
   openFolderAsync: (path?: string) => Promise<OpenDirectoryReplyData>
   openFile: (args: OpenFileArgs) => Promise<FileInterface>
-  saveFile: (fileInfo: FileToSave) => Promise<void>
+  saveFile: (fileInfo: FileToSave) => Promise<FileSavingStatus>
 }
 
 declare global {

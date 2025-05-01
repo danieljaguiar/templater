@@ -1,6 +1,7 @@
 import useDataStore from '@/stores/dataStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import { useEffect, useState } from 'react'
+import { Button } from './ui/button'
 
 enum TextType {
   text,
@@ -13,7 +14,11 @@ interface TextBlocks {
   text: string
 }
 
-export default function TempalteViewer() {
+interface TemplateViewerProps {
+  editRequested: () => void
+}
+
+export default function TempalteViewer(props: TemplateViewerProps) {
   const selectedTemplate = useSelectedTemplateStore((state) => state.selectedTemplate)
   const data = useDataStore((state) => state.data)
   const addOrUpdateData = useDataStore((state) => state.addOrUpdateData)
@@ -124,17 +129,44 @@ export default function TempalteViewer() {
     return blocks
   }
 
+  const handleCopyToClipboardAsPlainText = () => {
+    const textToCopy = TextBlocks.map((block) => {
+      if (block.type === TextType.text) {
+        return block.text
+      } else if (block.type === TextType.pendingPlaceholder) {
+        return `$${block.text}`
+      } else if (block.type === TextType.completedPlaceholder) {
+        return block.text
+      }
+      return ''
+    }).join('')
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      console.log('Text copied to clipboard')
+    })
+  }
+
   return (
     <div>
+      <div className="flex justify-between items-center mb-2 pb-4">
+        <Button onClick={() => props.editRequested()}>Edit</Button>
+        <Button onClick={() => handleCopyToClipboardAsPlainText()}>Copy</Button>
+      </div>
       <pre className="whitespace-pre-wrap break-words">
         {TextBlocks.map((block, index) => {
+          const common = 'px-0.5 py-1'
           if (block.type === TextType.text) {
             return <span key={index}>{block.text}</span>
           } else if (block.type === TextType.pendingPlaceholder) {
-            return <span key={index} className="text-red-500">{`$${block.text}`}</span>
+            return (
+              <span
+                key={index}
+                className={`bg-destructive text-destructive-foreground ${common}`}
+              >{`$${block.text}`}</span>
+            )
           } else if (block.type === TextType.completedPlaceholder) {
             return (
-              <span key={index} className="text-green-500">
+              <span key={index} className={`bg-green-900/30 ${common}`}>
                 {block.text}
               </span>
             )

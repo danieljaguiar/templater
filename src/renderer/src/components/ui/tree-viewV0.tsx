@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
 import * as React from 'react'
 import {
@@ -89,14 +90,26 @@ interface TreeViewProps {
 }
 
 export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
+  const { selectedTemplate } = useSelectedTemplateStore()
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
   const handleSelect = (item: DirectoryItem) => {
+    console.log('🚀 ~ handleSelect ~ item:', item)
     setSelectedId(item.fullPath)
     if (onSelectFile && item.type === 'file') {
       onSelectFile(item)
     }
   }
+
+  React.useEffect(() => {
+    console.log('🚀 ~ selectedTemplate:', selectedTemplate)
+    if (selectedTemplate) {
+      const fullPath = GetFullPathFromBaseFileFolderInfo(selectedTemplate)
+      setSelectedId(fullPath)
+    } else {
+      setSelectedId(undefined)
+    }
+  }, [selectedTemplate])
 
   return (
     <div className={cn('p-2 ', className)}>

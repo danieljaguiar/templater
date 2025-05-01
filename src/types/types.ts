@@ -25,6 +25,13 @@ export interface BaseDirectoryItem {
 
 //#region FILE HANDLERS
 
+export enum FileSavingStatus {
+  SUCCESS = 'success',
+  CONFLICT = 'conflict',
+  FILE_NOT_FOUND = 'file-not-found',
+  UNKNOWN_ERROR = 'unknown-error'
+}
+
 export interface FileToSave extends BaseDirectoryItem {
   newFileName?: string
 }

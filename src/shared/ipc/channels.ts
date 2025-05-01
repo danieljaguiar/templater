@@ -4,7 +4,8 @@ export const IPC_CHANNELS = {
   },
   FILE: {
     OPEN: 'open-file',
-    SAVE: 'save-file'
+    SAVE: 'save-file',
+    DELETE: 'delete-file'
   },
   SETTINGS: {
     GET: 'get-settings',

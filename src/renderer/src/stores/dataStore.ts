@@ -9,6 +9,7 @@ interface DataStore {
   addOrUpdateData: (data: DataInUse) => void
   removeData: (data: DataInUse) => void
   removeFieldsNotInUseAndResetTemplateFlag: () => void
+  reset: () => void
 }
 
 const useDataStore = create<DataStore>((set) => ({
@@ -37,7 +38,14 @@ const useDataStore = create<DataStore>((set) => ({
         return { data: [...state.data, data] }
       }
     }),
-  removeData: (data) => set((state) => ({ data: state.data.filter((d) => d.name !== data.name) }))
+  removeData: (data) => set((state) => ({ data: state.data.filter((d) => d.name !== data.name) })),
+  reset: () =>
+    set((state) => {
+      const newData = state.data.map((d) => {
+        return { ...d, inDataFile: false, value: '' }
+      })
+      return { data: newData, fileInfo: null }
+    })
 }))
 
 export default useDataStore

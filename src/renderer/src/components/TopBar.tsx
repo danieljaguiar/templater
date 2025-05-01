@@ -20,6 +20,7 @@ export default function TopBar() {
     if (basePath !== '') {
       const data = await window.electronAPI.openFolderAsync(basePath)
       if (data !== null) {
+        console.log('basePath', basePath)
         setTemplateDirectory(data.templateDirectory, data.basePath)
         setDataDirectory(data.dataDirectory, data.basePath)
       } else {
