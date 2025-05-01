@@ -1,6 +1,8 @@
 import useDataStore from '@/stores/dataStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
+import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect, useState } from 'react'
+import { DirectoryItemType } from '../../../types/types'
 import { Button } from './ui/button'
 
 enum TextType {
@@ -19,37 +21,14 @@ interface TemplateViewerProps {
 }
 
 export default function TempalteViewer(props: TemplateViewerProps) {
-  const selectedTemplate = useSelectedTemplateStore((state) => state.selectedTemplate)
+  const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
+  const { templateDirectory } = useTemplateDirectoryStore()
   const data = useDataStore((state) => state.data)
   const addOrUpdateData = useDataStore((state) => state.addOrUpdateData)
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')
   const [TextBlocks, setTextBlocks] = useState<TextBlocks[]>([])
-
-  useEffect(() => {
-    if (
-      selectedTemplate !== null &&
-      selectedTemplate.content &&
-      (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
-    ) {
-      setFileName(selectedTemplate.name)
-      setFileContent(selectedTemplate.content)
-    }
-  }, [selectedTemplate, fileName, fileContent])
-
-  useEffect(() => {
-    // update the text blocks when data changes
-    const blocks = replacePlaceholders(fileContent, false) // Pass false to not update data store during this call
-    setTextBlocks(blocks)
-  }, [data, fileContent])
-
-  // Separate effect to update data store when fileContent changes, but NOT when data changes
-  useEffect(() => {
-    if (fileContent) {
-      replacePlaceholders(fileContent, true) // Pass true to update data store
-    }
-  }, [fileContent]) // Only depend on fileContent, not data
 
   const replacePlaceholders = (text: string, updateDataStore = false) => {
     const blocks: TextBlocks[] = []
@@ -146,9 +125,45 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     })
   }
 
+  const handleNewFile = () => {
+    setSelectedTemplate({
+      name: '',
+      content: '',
+      extension: 'txt',
+      type: DirectoryItemType.FILE,
+      basePath: templateDirectory.basePath + '/templates'
+    })
+    props.editRequested()
+  }
+
+  useEffect(() => {
+    if (
+      selectedTemplate !== null &&
+      selectedTemplate.content &&
+      (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
+    ) {
+      setFileName(selectedTemplate.name)
+      setFileContent(selectedTemplate.content)
+    }
+  }, [selectedTemplate, fileName, fileContent])
+
+  useEffect(() => {
+    // update the text blocks when data changes
+    const blocks = replacePlaceholders(fileContent, false) // Pass false to not update data store during this call
+    setTextBlocks(blocks)
+  }, [data, fileContent])
+
+  // Separate effect to update data store when fileContent changes, but NOT when data changes
+  useEffect(() => {
+    if (fileContent) {
+      replacePlaceholders(fileContent, true) // Pass true to update data store
+    }
+  }, [fileContent]) // Only depend on fileContent, not data
+
   return (
     <div>
       <div className="flex justify-between items-center mb-2 pb-4">
+        <Button onClick={() => handleNewFile()}>New</Button>
         <Button onClick={() => props.editRequested()}>Edit</Button>
         <Button onClick={() => handleCopyToClipboardAsPlainText()}>Copy</Button>
       </div>

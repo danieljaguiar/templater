@@ -30,6 +30,7 @@ async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<
 async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise<void> {
   console.log('Saving file:', fileInfo)
   if (!fileInfo || !fileInfo.basePath || !fileInfo.type || !fileInfo.content) {
+    console.error('Invalid file information provided:', fileInfo)
     event.reply(IPC_CHANNELS.FILE.SAVE, FileSavingStatus.UNKNOWN_ERROR)
     return
   }
@@ -66,6 +67,7 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
       }
     } else {
       // fail
+      console.error('File name is empty and no new file name provided.')
       event.reply(IPC_CHANNELS.FILE.SAVE, FileSavingStatus.UNKNOWN_ERROR)
     }
 

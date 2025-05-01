@@ -71,5 +71,16 @@ function getDirectoryStructure(dir: string): DirectoryItem[] {
     }
   })
 
+  // Sort the structure by folder first, then by name
+  structure.sort((a, b) => {
+    if (a.type === DirectoryItemType.FOLDER && b.type !== DirectoryItemType.FOLDER) {
+      return -1 // Folders come first
+    } else if (a.type !== DirectoryItemType.FOLDER && b.type === DirectoryItemType.FOLDER) {
+      return 1 // Files come after folders
+    } else {
+      return a.name.localeCompare(b.name) // Sort by name
+    }
+  })
+
   return structure
 }

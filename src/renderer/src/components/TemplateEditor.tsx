@@ -2,6 +2,7 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
+import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
@@ -11,6 +12,7 @@ export interface TemplateEditorProps {
 
 export default function TemplateEditor(props: TemplateEditorProps) {
   const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
+  const { templateDirectory } = useTemplateDirectoryStore()
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')
@@ -33,14 +35,15 @@ export default function TemplateEditor(props: TemplateEditorProps) {
 
   const handleSave = async () => {
     if (!selectedTemplate) return
-    const newSelectedTemplate = {
+
+    const fileSaveResponse = await window.electronAPI.saveFile({
       ...selectedTemplate,
-      name: fileName,
+      newFileName:
+        fileName !== selectedTemplate.name || selectedTemplate.name === '' ? fileName : undefined,
+      extension: selectedTemplate.extension || 'json',
       content: fileContent
-    }
-    const res = await window.electronAPI.saveFile(newSelectedTemplate)
-    console.log('File saved:', res)
-    setSelectedTemplate(newSelectedTemplate)
+    })
+    console.log('🚀 ~ handleSave ~ fileSaveResponse:', fileSaveResponse)
     props.editingFinished()
   }
 
