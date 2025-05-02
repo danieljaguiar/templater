@@ -1,7 +1,7 @@
 import { BaseDirectoryItem, FieldInUse } from 'src/types/types'
 import { create } from 'zustand'
 
-interface DataSetStore {
+interface DatasetStore {
   fields: FieldInUse[]
   fileInfo: BaseDirectoryItem | null
   setFileInfo: (fileInfo: BaseDirectoryItem | null) => void
@@ -12,18 +12,18 @@ interface DataSetStore {
   reset: () => void
 }
 
-const useDataSetStore = create<DataSetStore>((set) => ({
+const useDatasetStore = create<DatasetStore>((set) => ({
   fields: [],
   fileInfo: null,
   setFileInfo: (fileInfo) => set({ fileInfo }),
   removeFieldsNotInUseAndResetTemplateFlag: () => {
     set((state) => {
-      // Remove fields that inDataFile = false
+      // Remove fields that inDisk = false
       // set all inTemplate to false
-      const updatedDataSet = state.fields.map((f) => {
+      const updatedDataset = state.fields.map((f) => {
         return { ...f, inTemplate: false }
       })
-      return { fields: updatedDataSet.filter((f) => f.inDisk || f.value.trim() !== '') }
+      return { fields: updatedDataset.filter((f) => f.inDisk || f.value.trim() !== '') }
     })
   },
   setFields: (fields) => set({ fields }),
@@ -43,10 +43,10 @@ const useDataSetStore = create<DataSetStore>((set) => ({
   reset: () =>
     set((state) => {
       const resetedFields = state.fields.map((d) => {
-        return { ...d, inDataFile: false, value: '' }
+        return { ...d, inDisk: false, value: '' }
       })
       return { fields: resetedFields, fileInfo: null }
     })
 }))
 
-export default useDataSetStore
+export default useDatasetStore

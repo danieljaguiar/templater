@@ -94,7 +94,6 @@ export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
   const handleSelect = (item: DirectoryItem) => {
-    console.log('🚀 ~ handleSelect ~ item:', item)
     setSelectedId(item.fullPath)
     if (onSelectFile && item.type === 'file') {
       onSelectFile(item)
@@ -102,7 +101,6 @@ export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   }
 
   React.useEffect(() => {
-    console.log('🚀 ~ selectedTemplate:', selectedTemplate)
     if (selectedTemplate) {
       const fullPath = GetFullPathFromBaseFileFolderInfo(selectedTemplate)
       setSelectedId(fullPath)

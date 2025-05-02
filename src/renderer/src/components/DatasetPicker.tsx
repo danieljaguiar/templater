@@ -1,12 +1,12 @@
-import useDataSetDirectoryStore from '@/stores/dataSetDirectoryStore'
-import useDataSetStore from '@/stores/dataSetStore'
+import useDatasetDirectoryStore from '@/stores/datasetDirectoryStore'
+import useDatasetStore from '@/stores/datasetStore'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { FieldInUse, GetFullPathFromBaseFileFolderInfo } from '../../../types/types'
 import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function DataPicker() {
-  const dataTree = useDataSetDirectoryStore((state) => state.dataSetDirectory.dataSetDirectory)
-  const { fields: data, setFields: setData, setFileInfo } = useDataSetStore()
+  const dataTree = useDatasetDirectoryStore((state) => state.datasetDirectory.datasetDirectory)
+  const { fields: data, setFields: setData, setFileInfo } = useDatasetStore()
 
   return (
     <div>
@@ -28,9 +28,9 @@ export default function DataPicker() {
               newData = newData.map((item) => {
                 const existingItem = data.find((d) => d.name === item.name)
                 if (existingItem) {
-                  return { ...item, inTemplate: existingItem.inTemplate, inDataFile: true }
+                  return { ...item, inTemplate: existingItem.inTemplate, inDisk: true }
                 } else {
-                  return { ...item, inTemplate: false, inDataFile: true }
+                  return { ...item, inTemplate: false, inDisk: true }
                 }
               })
               setFileInfo(fileInfo)

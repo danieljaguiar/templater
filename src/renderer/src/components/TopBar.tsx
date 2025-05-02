@@ -1,4 +1,4 @@
-import useDataSetDirectoryStore from '@/stores/dataSetDirectoryStore'
+import useDatasetDirectoryStore from '@/stores/datasetDirectoryStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { FolderOpen, RefreshCw, Settings } from 'lucide-react'
 import { ThemeToggle } from './theme-toggle'
@@ -7,7 +7,7 @@ import { Button } from './ui/button'
 export default function TopBar() {
   const basePath = useTemplateDirectoryStore((state) => state.templateDirectory.basePath)
   const setTemplateDirectory = useTemplateDirectoryStore((state) => state.setTemplateDirectory)
-  const setDataDirectory = useDataSetDirectoryStore((state) => state.setDataSetDirectory)
+  const setDatasetDirectory = useDatasetDirectoryStore((state) => state.setDatasetDirectory)
   const openFolderHandler = (): void => {
     window.electronAPI.openFolderAsync()
   }
@@ -20,9 +20,8 @@ export default function TopBar() {
     if (basePath !== '') {
       const data = await window.electronAPI.openFolderAsync(basePath)
       if (data !== null) {
-        console.log('basePath', basePath)
         setTemplateDirectory(data.templateDirectory, data.basePath)
-        setDataDirectory(data.dataDirectory, data.basePath)
+        setDatasetDirectory(data.datasetDirectory, data.basePath)
       } else {
         console.error('Failed to reload template directory.')
       }

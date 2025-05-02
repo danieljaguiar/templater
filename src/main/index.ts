@@ -10,12 +10,6 @@ function createWindow(): void {
     defaultWidth: 1000,
     defaultHeight: 800
   })
-  console.log('mainWindowState', {
-    x: mainWindowState.x,
-    y: mainWindowState.y,
-    width: mainWindowState.width,
-    height: mainWindowState.height
-  })
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     x: mainWindowState.x,

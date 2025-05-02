@@ -23,24 +23,24 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
   }
 
   const folder = folderPath.toString()
-  const templatesFolderPath = join(folder, 'Templates')
-  const dataFolderPath = join(folder, 'Data')
+  const templatesDirectoryPath = join(folder, 'Templates')
+  const datasetDirectoryPath = join(folder, 'Data')
 
-  if (!fs.existsSync(templatesFolderPath)) {
-    fs.mkdirSync(templatesFolderPath)
+  if (!fs.existsSync(templatesDirectoryPath)) {
+    fs.mkdirSync(templatesDirectoryPath)
   }
 
-  if (!fs.existsSync(dataFolderPath)) {
-    fs.mkdirSync(dataFolderPath)
+  if (!fs.existsSync(datasetDirectoryPath)) {
+    fs.mkdirSync(datasetDirectoryPath)
   }
 
   // Get folder structure for templates directory
-  const templateDirectory = getDirectoryStructure(templatesFolderPath)
-  const dataDirectory = getDirectoryStructure(dataFolderPath)
+  const templateDirectory = getDirectoryStructure(templatesDirectoryPath)
+  const datasetDirectory = getDirectoryStructure(datasetDirectoryPath)
 
   event.reply(IPC_CHANNELS.DIRECTORY.OPEN, {
     templateDirectory,
-    dataDirectory,
+    datasetDirectory: datasetDirectory,
     basePath: folder.replace(/\\/g, '/')
   })
 }

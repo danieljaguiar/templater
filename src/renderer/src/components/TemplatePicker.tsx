@@ -1,4 +1,4 @@
-import useDataSetStore from '@/stores/dataSetStore'
+import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
@@ -9,7 +9,7 @@ export default function TemplatePicker() {
   const templateTree = useTemplateDirectoryStore(
     (state) => state.templateDirectory.templateDirectory
   )
-  const resetDataTemplateInUse = useDataSetStore(
+  const resetDataTemplateInUse = useDatasetStore(
     (state) => state.removeFieldsNotInUseAndResetTemplateFlag
   )
   const setSelectedTemplate = useSelectedTemplateStore((state) => state.setSelectedTemplate)

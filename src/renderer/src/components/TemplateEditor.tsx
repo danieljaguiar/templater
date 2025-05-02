@@ -43,7 +43,6 @@ export default function TemplateEditor(props: TemplateEditorProps) {
       extension: selectedTemplate.extension || 'json',
       content: fileContent
     })
-    console.log('🚀 ~ handleSave ~ fileSaveResponse:', fileSaveResponse)
     props.editingFinished()
   }
 

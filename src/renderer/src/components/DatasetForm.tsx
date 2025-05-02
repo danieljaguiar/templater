@@ -1,5 +1,5 @@
-import useDataSetDirectoryStore from '@/stores/dataSetDirectoryStore'
-import useDataSetStore from '@/stores/dataSetStore'
+import useDatasetDirectoryStore from '@/stores/datasetDirectoryStore'
+import useDatasetStore from '@/stores/datasetStore'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
@@ -12,12 +12,14 @@ import { Label } from './ui/label'
 import { ScrollArea } from './ui/scroll-area'
 import { Separator } from './ui/separator'
 
-export default function DataForm() {
+export default function DatasetForm() {
   // Get data from the store
-  const { fields: data, addOrUpdateField: addOrUpdateData, fileInfo, reset } = useDataSetStore()
+  const { fields: data, addOrUpdateField: addOrUpdateData, fileInfo, reset } = useDatasetStore()
   const [stateFileName, setStateFileName] = useState<string>('')
-  const dataDirectoryBasePath = useDataSetDirectoryStore((state) => state.dataSetDirectory.basePath)
-  const setDataSetDirectory = useDataSetDirectoryStore((state) => state.setDataSetDirectory)
+  const datasetDirectoryBasePath = useDatasetDirectoryStore(
+    (state) => state.datasetDirectory.basePath
+  )
+  const setDatasetDirectory = useDatasetDirectoryStore((state) => state.setDatasetDirectory)
   const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
   const [fileSaveError, setFileSaveError] = useState<string | null>(null)
@@ -62,7 +64,7 @@ export default function DataForm() {
       name: '',
       type: DirectoryItemType.FILE,
       extension: 'json',
-      basePath: dataDirectoryBasePath + '/data'
+      basePath: datasetDirectoryBasePath + '/data'
     }
 
     const fileSaveResponse = await window.electronAPI.saveFile({
@@ -89,9 +91,9 @@ export default function DataForm() {
       return
     }
 
-    const dataDirectory = await window.electronAPI.openFolderAsync(dataDirectoryBasePath)
-    if (dataDirectory) {
-      setDataSetDirectory(dataDirectory.dataDirectory, dataDirectory.basePath)
+    const datasetDirectory = await window.electronAPI.openFolderAsync(datasetDirectoryBasePath)
+    if (datasetDirectory) {
+      setDatasetDirectory(datasetDirectory.datasetDirectory, datasetDirectory.basePath)
     }
   }
 
@@ -178,18 +180,6 @@ export default function DataForm() {
             <p className="text-sm text-muted-foreground">No additional fields found.</p>
           )}
         </div>
-      </div>
-      <div>
-        <pre>
-          {JSON.stringify(
-            {
-              basePath: dataDirectoryBasePath,
-              fileInfo: fileInfo
-            },
-            null,
-            2
-          )}
-        </pre>
       </div>
     </ScrollArea>
   )

@@ -1,4 +1,4 @@
-import useDataSetStore from '@/stores/dataSetStore'
+import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect, useState } from 'react'
@@ -23,8 +23,8 @@ interface TemplateViewerProps {
 export default function TempalteViewer(props: TemplateViewerProps) {
   const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
   const { templateDirectory } = useTemplateDirectoryStore()
-  const data = useDataSetStore((state) => state.fields)
-  const addOrUpdateData = useDataSetStore((state) => state.addOrUpdateField)
+  const data = useDatasetStore((state) => state.fields)
+  const addOrUpdateData = useDatasetStore((state) => state.addOrUpdateField)
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')

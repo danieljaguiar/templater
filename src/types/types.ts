@@ -59,7 +59,7 @@ export interface DirectoryItem extends BaseDirectoryItem {
 export interface OpenDirectoryReplyData {
   basePath: string
   templateDirectory: DirectoryItem[]
-  dataDirectory: DirectoryItem[]
+  datasetDirectory: DirectoryItem[]
 }
 
 //#endregion

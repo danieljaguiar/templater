@@ -2,23 +2,23 @@ import { DirectoryItem } from 'src/types/types'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-interface DataDirectoryStore {
-  dataSetDirectory: {
-    dataSetDirectory: DirectoryItem[]
+interface DatasetDirectoryStore {
+  datasetDirectory: {
+    datasetDirectory: DirectoryItem[]
     basePath: string
   }
-  setDataSetDirectory: (dataDirectory: DirectoryItem[], baseBath: string) => void
+  setDatasetDirectory: (datasetDirectory: DirectoryItem[], baseBath: string) => void
 }
 
-const useDataDirectoryStore = create<DataDirectoryStore>()(
+const useDatasetDirectoryStore = create<DatasetDirectoryStore>()(
   persist(
     (set) => ({
-      dataSetDirectory: {
-        dataSetDirectory: [],
+      datasetDirectory: {
+        datasetDirectory: [],
         basePath: ''
       },
-      setDataSetDirectory: (dataSetDirectory, basePath) =>
-        set({ dataSetDirectory: { dataSetDirectory, basePath } })
+      setDatasetDirectory: (dataSetDirectory, basePath) =>
+        set({ datasetDirectory: { datasetDirectory: dataSetDirectory, basePath } })
     }),
     {
       name: 'data-directory-storage' // unique name
@@ -26,4 +26,4 @@ const useDataDirectoryStore = create<DataDirectoryStore>()(
   )
 )
 
-export default useDataDirectoryStore
+export default useDatasetDirectoryStore
