@@ -1,3 +1,4 @@
+import { toast } from '@/hooks/use-toast'
 import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
@@ -121,7 +122,11 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     }).join('')
 
     navigator.clipboard.writeText(textToCopy).then(() => {
-      console.log('Text copied to clipboard')
+      toast({
+        title: 'Copied to clipboard',
+        description: 'The template has been copied to the clipboard as plain text.',
+        variant: 'default'
+      })
     })
   }
 

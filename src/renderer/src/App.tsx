@@ -5,6 +5,7 @@ import TemplatePicker from './components/TemplatePicker'
 import { ThemeProvider } from './components/theme-provider'
 import TopBar from './components/TopBar'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './components/ui/resizable'
+import { Toaster } from './components/ui/toaster'
 
 function App(): JSX.Element {
   return (
@@ -33,6 +34,7 @@ function App(): JSX.Element {
             <DataPicker />
           </ResizablePanel>
         </ResizablePanelGroup>
+        <Toaster />
       </div>
     </ThemeProvider>
   )
