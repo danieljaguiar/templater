@@ -15,7 +15,7 @@ export default function TemplatePicker() {
   const setSelectedTemplate = useSelectedTemplateStore((state) => state.setSelectedTemplate)
 
   return (
-    <ScrollArea>
+    <ScrollArea className="h-full">
       <TreeViewV0
         directoryItems={templateTree}
         onSelectFile={async (fileFromTree) => {
