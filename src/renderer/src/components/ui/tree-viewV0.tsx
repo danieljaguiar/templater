@@ -1,12 +1,20 @@
+import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
-import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
+import { ContextMenuLabel } from '@radix-ui/react-context-menu'
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
 import * as React from 'react'
 import {
+  BaseDirectoryItem,
   DirectoryItem,
   DirectoryItemType,
   GetFullPathFromBaseFileFolderInfo
 } from '../../../../types/types'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger
+} from './context-menu'
 
 interface TreeItemProps {
   item: DirectoryItem
@@ -35,36 +43,64 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
 
   return (
     <>
-      <div
-        className={cn(
-          'flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-muted/20 transition-colors',
-          isSelected && 'ring-muted/80 dark:bg-accent bg-accent/40 ring-2'
-        )}
-        style={{ paddingLeft: `${level * 12 + 8}px` }}
-        onClick={handleSelect}
-      >
-        {isFolder && hasChildren ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleToggle()
-            }}
-            className="mr-1 p-1 rounded-sm hover:bg-muted/90"
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div
+            className={cn(
+              'flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-muted/20 transition-colors',
+              isSelected && 'ring-muted/80 dark:bg-accent bg-accent/40 ring-2'
+            )}
+            style={{ paddingLeft: `${level * 12 + 8}px` }}
+            onClick={handleSelect}
           >
-            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-        ) : (
-          <span className="w-7 min-w-7" />
-        )}
+            {isFolder && hasChildren ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggle()
+                }}
+                className="mr-1 p-1 rounded-sm hover:bg-muted/90"
+              >
+                {expanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+            ) : (
+              <span className="w-7 min-w-7" />
+            )}
 
-        {isFolder ? (
-          <Folder className="h-4 w-4 text-blue-500 mr-2 shrink-0" />
-        ) : (
-          <File className="h-4 w-4 text-gray-500 mr-2 shrink-0" />
-        )}
+            {isFolder ? (
+              <Folder className="h-4 w-4 text-blue-500 mr-2 shrink-0" />
+            ) : (
+              <File className="h-4 w-4 text-gray-500 mr-2 shrink-0" />
+            )}
 
-        <span className="truncate">{item.name}</span>
-      </div>
+            <span className="truncate">{item.name}</span>
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-48">
+          <ContextMenuLabel className="text-xs text-muted-foreground/70 italic pl-1">
+            {item.name}
+          </ContextMenuLabel>
+          {item.type === DirectoryItemType.FILE && (
+            <ContextMenuItem
+              inset
+              onClick={() => {
+                handleSelect()
+              }}
+            >
+              Open
+            </ContextMenuItem>
+          )}
+          <ContextMenuItem inset>Move</ContextMenuItem>
+          <ContextMenuItem inset>
+            Delete {item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
+          </ContextMenuItem>
+          <ContextMenuItem inset>New Folder</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
 
       {expanded && hasChildren && (
         <div>
@@ -86,31 +122,32 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
 interface TreeViewProps {
   directoryItems: DirectoryItem[]
   className?: string
-  onSelectFile?: (item: DirectoryItem) => void
+  onFileOpened?: (item: BaseDirectoryItem) => void
 }
 
-export function TreeViewV0({ directoryItems, className, onSelectFile }: TreeViewProps) {
-  const { selectedTemplate } = useSelectedTemplateStore()
+export function TreeViewV0({ directoryItems, className, onFileOpened }: TreeViewProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
-  const handleSelect = (item: DirectoryItem) => {
-    setSelectedId(item.fullPath)
-    if (onSelectFile && item.type === 'file') {
-      onSelectFile(item)
+  const handleSelect = async (dirItem: DirectoryItem) => {
+    setSelectedId(dirItem.fullPath)
+    if (onFileOpened && dirItem.type === 'file') {
+      const fileInfo = await window.electronAPI.openFile({
+        fullPath: GetFullPathFromBaseFileFolderInfo(dirItem)
+      })
+      if (fileInfo) {
+        onFileOpened(fileInfo)
+      } else {
+        toast({
+          title: 'Error',
+          description: 'File not found or could not be opened.',
+          variant: 'destructive'
+        })
+      }
     }
   }
 
-  React.useEffect(() => {
-    if (selectedTemplate) {
-      const fullPath = GetFullPathFromBaseFileFolderInfo(selectedTemplate)
-      setSelectedId(fullPath)
-    } else {
-      setSelectedId(undefined)
-    }
-  }, [selectedTemplate])
-
   return (
-    <div className={cn(' ', className)}>
+    <div className={cn('', className)}>
       {directoryItems.map((item) => (
         <TreeItem key={item.fullPath} item={item} onSelect={handleSelect} selectedId={selectedId} />
       ))}

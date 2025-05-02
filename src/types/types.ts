@@ -36,14 +36,12 @@ export interface FileToSave extends BaseDirectoryItem {
   newFileName?: string
 }
 
-export interface FileInterface extends BaseDirectoryItem {}
-
 export interface OpenFileArgs {
   fullPath: string
 }
 
 export interface OpenFileReplyData {
-  file: FileInterface
+  file: BaseDirectoryItem
 }
 
 //#endregion

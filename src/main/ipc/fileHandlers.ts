@@ -2,9 +2,9 @@ import { ipcMain, IpcMainEvent } from 'electron'
 import fs from 'fs'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
 import {
+  BaseDirectoryItem,
   DirectoryItemType,
   ExtractBaseFileFolderInfoFromFullPath,
-  FileInterface,
   FileSavingStatus,
   FileToSave,
   GetFullPathFromBaseFileFolderInfo,
@@ -20,7 +20,7 @@ async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<
   const fileContent = fs.readFileSync(args.fullPath, 'utf-8')
   const baseFile = ExtractBaseFileFolderInfoFromFullPath(args.fullPath, DirectoryItemType.FILE)
 
-  const file: FileInterface = {
+  const file: BaseDirectoryItem = {
     ...baseFile,
     content: fileContent
   }
