@@ -5,7 +5,8 @@ import {
   BaseDirectoryItem,
   DirectoryItemType,
   FieldInUse,
-  FileSavingStatus
+  FileSavingStatus,
+  FileToSave
 } from '../../../types/types'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -14,7 +15,13 @@ import { Separator } from './ui/separator'
 
 export default function DatasetForm() {
   // Get fields from the store
-  const { fields, addOrUpdateField: addOrUpdateData, fileInfo, reset } = useDatasetStore()
+  const {
+    fields,
+    addOrUpdateField: addOrUpdateData,
+    fileInfo,
+    reset,
+    setFileInfo
+  } = useDatasetStore()
   const [stateFileName, setStateFileName] = useState<string>('')
   const datasetDirectoryBasePath = useDatasetDirectoryStore(
     (state) => state.datasetDirectory.basePath
@@ -60,20 +67,20 @@ export default function DatasetForm() {
       setFileSaveError('File name cannot be empty')
       return
     }
-    let fileInfoLocal: BaseDirectoryItem = fileInfo ?? {
+    let fileToSaveLocal: FileToSave = fileInfo ?? {
       name: '',
       type: DirectoryItemType.FILE,
       extension: 'json',
       basePath: datasetDirectoryBasePath + '/Datasets'
     }
 
-    const fileSaveResponse = await window.electronAPI.saveFile({
-      ...fileInfoLocal,
+    fileToSaveLocal = {
+      ...fileToSaveLocal,
       newFileName:
-        stateFileName !== fileInfoLocal.name || fileInfoLocal.name === ''
+        stateFileName !== fileToSaveLocal.name || fileToSaveLocal.name === ''
           ? stateFileName
           : undefined,
-      extension: fileInfoLocal.extension || 'json',
+      extension: fileToSaveLocal.extension || 'json',
       content: JSON.stringify(
         fields
           .filter((i) => i.value.trim() !== '')
@@ -84,11 +91,24 @@ export default function DatasetForm() {
         null,
         2
       )
-    })
+    }
+
+    const fileSaveResponse = await window.electronAPI.saveFile(fileToSaveLocal)
     if (fileSaveResponse !== FileSavingStatus.SUCCESS) {
       setFileSaveError('Error saving file: ' + fileSaveResponse)
       console.error('Error saving file:', fileSaveResponse)
       return
+    }
+
+    if (fileToSaveLocal.newFileName) {
+      // If a new file name is provided, update the fileInfo in the store
+      const baseFile = {
+        name: fileToSaveLocal.newFileName,
+        type: DirectoryItemType.FILE,
+        extension: fileToSaveLocal.extension,
+        basePath: fileToSaveLocal.basePath
+      } as BaseDirectoryItem
+      setFileInfo(baseFile)
     }
 
     const datasetDirectory = await window.electronAPI.openFolderAsync(datasetDirectoryBasePath)
@@ -182,6 +202,10 @@ export default function DatasetForm() {
             )}
           </div>
         </div>
+      </div>
+      <Separator className="my-4" />
+      <div className="flex items-center justify-between">
+        <pre className="text-sm text-muted-foreground">{JSON.stringify(fileInfo, null, 2)}</pre>
       </div>
     </ScrollArea>
   )
