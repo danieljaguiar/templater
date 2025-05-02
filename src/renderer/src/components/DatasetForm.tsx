@@ -13,8 +13,8 @@ import { ScrollArea } from './ui/scroll-area'
 import { Separator } from './ui/separator'
 
 export default function DatasetForm() {
-  // Get data from the store
-  const { fields: data, addOrUpdateField: addOrUpdateData, fileInfo, reset } = useDatasetStore()
+  // Get fields from the store
+  const { fields, addOrUpdateField: addOrUpdateData, fileInfo, reset } = useDatasetStore()
   const [stateFileName, setStateFileName] = useState<string>('')
   const datasetDirectoryBasePath = useDatasetDirectoryStore(
     (state) => state.datasetDirectory.basePath
@@ -24,18 +24,18 @@ export default function DatasetForm() {
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
   const [fileSaveError, setFileSaveError] = useState<string | null>(null)
 
-  // Sort and separate data when it changes
+  // Sort and separate dataset when it changes
   useEffect(() => {
-    const templateData = data
+    const templateData = fields
       .filter((item) => item.inTemplate)
       .sort((a, b) => a.name.localeCompare(b.name))
-    const nonTemplateData = data
+    const nonTemplateData = fields
       .filter((item) => !item.inTemplate)
       .sort((a, b) => a.name.localeCompare(b.name))
 
     setSortedTemplateData(templateData)
     setSortedNonTemplateData(nonTemplateData)
-  }, [data])
+  }, [fields])
 
   useEffect(() => {
     if (fileInfo) {
@@ -64,7 +64,7 @@ export default function DatasetForm() {
       name: '',
       type: DirectoryItemType.FILE,
       extension: 'json',
-      basePath: datasetDirectoryBasePath + '/data'
+      basePath: datasetDirectoryBasePath + '/Datasets'
     }
 
     const fileSaveResponse = await window.electronAPI.saveFile({
@@ -75,7 +75,7 @@ export default function DatasetForm() {
           : undefined,
       extension: fileInfoLocal.extension || 'json',
       content: JSON.stringify(
-        data
+        fields
           .filter((i) => i.value.trim() !== '')
           .map((item) => ({
             name: item.name,
@@ -116,69 +116,71 @@ export default function DatasetForm() {
   )
 
   return (
-    <ScrollArea className="space-y-4 px-4 h-full">
-      {/* Top bar with button to save to file */}
-      <div className="flex items-center justify-between py-4">
-        <button
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          onClick={() => {
-            handleFileSave() // Save the file when the button is clicked
-          }}
-        >
-          Save
-        </button>
+    <ScrollArea className="h-full">
+      <div className="space-y-4 ">
+        {/* Top bar with button to save to file */}
+        <div className="flex items-center justify-between ">
+          <button
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            onClick={() => {
+              handleFileSave() // Save the file when the button is clicked
+            }}
+          >
+            Save
+          </button>
 
-        <button
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          onClick={() => {
-            handleNewFile()
-          }}
-        >
-          New
-        </button>
-      </div>
-
-      {/* FileName input */}
-      <div className="grid w-full items-center gap-1.5">
-        <Label htmlFor="fileName">File Name</Label>
-        <Input
-          type="text"
-          id="fileName"
-          value={stateFileName}
-          onChange={
-            (e) => setStateFileName(e.target.value) // Update the file name in the store
-          }
-        />
-        {fileSaveError && <p className="text-sm text-red-500">{fileSaveError}</p>}
-      </div>
-
-      {/* Template Data */}
-      <div>
-        <div>
-          <div>Template Fields</div>
+          <button
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            onClick={() => {
+              handleNewFile()
+            }}
+          >
+            New
+          </button>
         </div>
-        <div>
-          {sortedTemplateData.length > 0 ? (
-            <div className="space-y-4">{sortedTemplateData.map(renderField)}</div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No template fields found.</p>
-          )}
-        </div>
-      </div>
 
-      <Separator />
-
-      {/* Non-Template Data */}
-      <div>
-        <div>
-          <div>Additional Fields</div>
+        {/* FileName input */}
+        <div className="grid w-full items-center gap-1.5">
+          <Label htmlFor="fileName">File Name</Label>
+          <Input
+            type="text"
+            id="fileName"
+            value={stateFileName}
+            onChange={
+              (e) => setStateFileName(e.target.value) // Update the file name in the store
+            }
+          />
+          {fileSaveError && <p className="text-sm text-red-500">{fileSaveError}</p>}
         </div>
+
+        {/* Template */}
         <div>
-          {sortedNonTemplateData.length > 0 ? (
-            <div className="space-y-4">{sortedNonTemplateData.map(renderField)}</div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No additional fields found.</p>
-          )}
+          <div>
+            <div>Template Fields</div>
+          </div>
+          <div>
+            {sortedTemplateData.length > 0 ? (
+              <div className="space-y-4">{sortedTemplateData.map(renderField)}</div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No template fields found.</p>
+            )}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Non-Template */}
+        <div>
+          <div>
+            <div>Additional Fields</div>
+          </div>
+          <div>
+            {sortedNonTemplateData.length > 0 ? (
+              <div className="space-y-4">{sortedNonTemplateData.map(renderField)}</div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No additional fields found.</p>
+            )}
+          </div>
         </div>
       </div>
     </ScrollArea>

@@ -84,12 +84,12 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
 }
 
 interface TreeViewProps {
-  data: DirectoryItem[]
+  directoryItems: DirectoryItem[]
   className?: string
   onSelectFile?: (item: DirectoryItem) => void
 }
 
-export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
+export function TreeViewV0({ directoryItems, className, onSelectFile }: TreeViewProps) {
   const { selectedTemplate } = useSelectedTemplateStore()
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
@@ -110,8 +110,8 @@ export function TreeViewV0({ data, className, onSelectFile }: TreeViewProps) {
   }, [selectedTemplate])
 
   return (
-    <div className={cn('p-2 ', className)}>
-      {data.map((item) => (
+    <div className={cn(' ', className)}>
+      {directoryItems.map((item) => (
         <TreeItem key={item.fullPath} item={item} onSelect={handleSelect} selectedId={selectedId} />
       ))}
     </div>

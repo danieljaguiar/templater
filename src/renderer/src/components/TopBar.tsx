@@ -18,10 +18,10 @@ export default function TopBar() {
 
   const reloadTemplateDirectoryHandler = async (): Promise<void> => {
     if (basePath !== '') {
-      const data = await window.electronAPI.openFolderAsync(basePath)
-      if (data !== null) {
-        setTemplateDirectory(data.templateDirectory, data.basePath)
-        setDatasetDirectory(data.datasetDirectory, data.basePath)
+      const directories = await window.electronAPI.openFolderAsync(basePath)
+      if (directories !== null) {
+        setTemplateDirectory(directories.templateDirectory, directories.basePath)
+        setDatasetDirectory(directories.datasetDirectory, directories.basePath)
       } else {
         console.error('Failed to reload template directory.')
       }

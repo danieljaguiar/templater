@@ -19,25 +19,37 @@ function App(): JSX.Element {
           autoSaveId={'MainPanelGroup'}
         >
           <ResizablePanel minSize={10}>
-            <TemplatePicker />
+            <PaneWrapper>
+              <TemplatePicker />
+            </PaneWrapper>
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={25}>
-            <TemplatePane />
+            <PaneWrapper>
+              <TemplatePane />
+            </PaneWrapper>
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={15}>
-            <DatasetForm />
+            <PaneWrapper>
+              <DatasetForm />
+            </PaneWrapper>
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={10}>
-            <DatasetPicker />
+            <PaneWrapper>
+              <DatasetPicker />
+            </PaneWrapper>
           </ResizablePanel>
         </ResizablePanelGroup>
         <Toaster />
       </div>
     </ThemeProvider>
   )
+}
+
+function PaneWrapper(props: { children: React.ReactNode }) {
+  return <div className="p-2">{props.children}</div>
 }
 
 export default App

@@ -15,23 +15,21 @@ export default function TemplatePicker() {
   const setSelectedTemplate = useSelectedTemplateStore((state) => state.setSelectedTemplate)
 
   return (
-    <div>
-      <ScrollArea>
-        <TreeViewV0
-          data={templateTree}
-          onSelectFile={async (fileFromTree) => {
-            resetDataTemplateInUse()
-            const fileInfo = await window.electronAPI.openFile({
-              fullPath: GetFullPathFromBaseFileFolderInfo(fileFromTree)
-            })
-            if (fileInfo) {
-              setSelectedTemplate(fileInfo)
-            } else {
-              console.error('File not found or could not be opened.')
-            }
-          }}
-        />
-      </ScrollArea>
-    </div>
+    <ScrollArea>
+      <TreeViewV0
+        directoryItems={templateTree}
+        onSelectFile={async (fileFromTree) => {
+          resetDataTemplateInUse()
+          const fileInfo = await window.electronAPI.openFile({
+            fullPath: GetFullPathFromBaseFileFolderInfo(fileFromTree)
+          })
+          if (fileInfo) {
+            setSelectedTemplate(fileInfo)
+          } else {
+            console.error('File not found or could not be opened.')
+          }
+        }}
+      />
+    </ScrollArea>
   )
 }

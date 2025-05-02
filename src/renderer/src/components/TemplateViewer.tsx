@@ -24,7 +24,7 @@ interface TemplateViewerProps {
 export default function TempalteViewer(props: TemplateViewerProps) {
   const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
   const { templateDirectory } = useTemplateDirectoryStore()
-  const data = useDatasetStore((state) => state.fields)
+  const fields = useDatasetStore((state) => state.fields)
   const addOrUpdateData = useDatasetStore((state) => state.addOrUpdateField)
 
   const [fileName, setFileName] = useState<string>('')
@@ -53,7 +53,7 @@ export default function TempalteViewer(props: TemplateViewerProps) {
       const placeholderName = match[1].trim()
 
       // Check if the placeholder exists in the data store
-      const placeholderData = data.find((item) => item.name === placeholderName)
+      const placeholderData = fields.find((item) => item.name === placeholderName)
 
       if (placeholderData !== undefined) {
         // Update the data store to mark it as in use, but only if updateDataStore is true
@@ -156,7 +156,7 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     // update the text blocks when data changes
     const blocks = replacePlaceholders(fileContent, false) // Pass false to not update data store during this call
     setTextBlocks(blocks)
-  }, [data, fileContent])
+  }, [fields, fileContent])
 
   // Separate effect to update data store when fileContent changes, but NOT when data changes
   useEffect(() => {
