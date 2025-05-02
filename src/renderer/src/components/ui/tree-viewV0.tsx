@@ -7,6 +7,7 @@ import {
   BaseDirectoryItem,
   DirectoryItem,
   DirectoryItemType,
+  FileSavingStatus,
   GetFullPathFromBaseFileFolderInfo
 } from '../../../../types/types'
 import {
@@ -18,12 +19,13 @@ import {
 
 interface TreeItemProps {
   item: DirectoryItem
+  selectedId?: string
   level?: number
   onSelect?: (item: DirectoryItem) => void
-  selectedId?: string
+  onDelete?: (item: DirectoryItem) => void
 }
 
-export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProps) {
+export function TreeItem({ item, level = 0, onSelect, selectedId, onDelete }: TreeItemProps) {
   const [expanded, setExpanded] = React.useState(false)
   const isFolder = item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && item.children && item.children.length > 0
@@ -95,7 +97,15 @@ export function TreeItem({ item, level = 0, onSelect, selectedId }: TreeItemProp
             </ContextMenuItem>
           )}
           <ContextMenuItem inset>Move</ContextMenuItem>
-          <ContextMenuItem inset>
+          <ContextMenuItem
+            inset
+            onClick={(e) => {
+              e.stopPropagation()
+              if (onDelete) {
+                onDelete(item)
+              }
+            }}
+          >
             Delete {item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
           </ContextMenuItem>
           <ContextMenuItem inset>New Folder</ContextMenuItem>
@@ -123,9 +133,15 @@ interface TreeViewProps {
   directoryItems: DirectoryItem[]
   className?: string
   onFileOpened?: (item: BaseDirectoryItem) => void
+  onFileDeleted?: (item: BaseDirectoryItem) => void
 }
 
-export function TreeViewV0({ directoryItems, className, onFileOpened }: TreeViewProps) {
+export function TreeViewV0({
+  directoryItems,
+  className,
+  onFileOpened,
+  onFileDeleted
+}: TreeViewProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
   const handleSelect = async (dirItem: DirectoryItem) => {
@@ -146,10 +162,39 @@ export function TreeViewV0({ directoryItems, className, onFileOpened }: TreeView
     }
   }
 
+  const handleDelete = async (dirItem: DirectoryItem) => {
+    console.log('🚀 ~ handleDelete ~ dirItem:', dirItem)
+    const res = await window.electronAPI.deleteFile({
+      fullPath: GetFullPathFromBaseFileFolderInfo(dirItem)
+    })
+    if (res === FileSavingStatus.SUCCESS) {
+      if (onFileDeleted) {
+        onFileDeleted(dirItem)
+      }
+      toast({
+        title: 'Success',
+        description: `${dirItem.name} deleted successfully.`,
+        variant: 'default'
+      })
+    } else {
+      toast({
+        title: 'Error',
+        description: `Failed to delete ${dirItem.name}.`,
+        variant: 'destructive'
+      })
+    }
+  }
+
   return (
     <div className={cn('', className)}>
       {directoryItems.map((item) => (
-        <TreeItem key={item.fullPath} item={item} onSelect={handleSelect} selectedId={selectedId} />
+        <TreeItem
+          key={item.fullPath}
+          item={item}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          onDelete={handleDelete}
+        />
       ))}
     </div>
   )

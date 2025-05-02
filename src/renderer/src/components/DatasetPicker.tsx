@@ -5,18 +5,23 @@ import { FieldInUse } from '../../../types/types'
 import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function DatasetPicker() {
-  const dataTree = useDatasetDirectoryStore((state) => state.datasetDirectory.datasetDirectory)
+  const { reloadAsync, datasetDirectory } = useDatasetDirectoryStore()
   const { setFields, setFileInfo } = useDatasetStore()
+
+  const handleReload = async () => {
+    await reloadAsync()
+  }
 
   return (
     <ScrollArea>
       <TreeViewV0
-        directoryItems={dataTree}
+        directoryItems={datasetDirectory.datasetDirectory}
         onFileOpened={async (selectedFile) => {
           const newData = JSON.parse(selectedFile.content || '') as FieldInUse[]
           setFileInfo(selectedFile)
           setFields(newData)
         }}
+        onFileDeleted={async () => await handleReload()}
       />
     </ScrollArea>
   )

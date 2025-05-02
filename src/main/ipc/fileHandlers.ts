@@ -14,6 +14,7 @@ import {
 export function registerFileHandlers(): void {
   ipcMain.on(IPC_CHANNELS.FILE.OPEN, handleOpenFile)
   ipcMain.on(IPC_CHANNELS.FILE.SAVE, handeSaveFile)
+  ipcMain.on(IPC_CHANNELS.FILE.DELETE, handleDeleteFile)
 }
 
 async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<void> {
@@ -25,6 +26,16 @@ async function handleOpenFile(event: IpcMainEvent, args: OpenFileArgs): Promise<
     content: fileContent
   }
   event.reply(IPC_CHANNELS.FILE.OPEN, file)
+}
+
+async function handleDeleteFile(event: IpcMainEvent, args: OpenFileArgs): Promise<void> {
+  const filePath = args.fullPath
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath)
+    event.reply(IPC_CHANNELS.FILE.DELETE, FileSavingStatus.SUCCESS)
+  } else {
+    event.reply(IPC_CHANNELS.FILE.DELETE, FileSavingStatus.UNKNOWN_ERROR)
+  }
 }
 
 async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise<void> {

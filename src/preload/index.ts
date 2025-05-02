@@ -40,6 +40,14 @@ if (process.contextIsolated) {
             resolve(result)
           })
         })
+      },
+      deleteFile: (args: OpenFileArgs) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.FILE.DELETE, args)
+          ipcRenderer.once(IPC_CHANNELS.FILE.DELETE, (_event, result) => {
+            resolve(result)
+          })
+        })
       }
     })
   } catch (error) {

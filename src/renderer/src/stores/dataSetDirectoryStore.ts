@@ -8,6 +8,7 @@ interface DatasetDirectoryStore {
     basePath: string
   }
   setDatasetDirectory: (datasetDirectory: DirectoryItem[], baseBath: string) => void
+  reloadAsync: () => void
 }
 
 const useDatasetDirectoryStore = create<DatasetDirectoryStore>()(
@@ -16,6 +17,16 @@ const useDatasetDirectoryStore = create<DatasetDirectoryStore>()(
       datasetDirectory: {
         datasetDirectory: [],
         basePath: ''
+      },
+      reloadAsync: async () => {
+        const currnetBasepath = useDatasetDirectoryStore.getState().datasetDirectory.basePath
+        const directories = await window.electronAPI.openFolderAsync(currnetBasepath)
+        set({
+          datasetDirectory: {
+            datasetDirectory: directories.datasetDirectory,
+            basePath: directories.basePath
+          }
+        })
       },
       setDatasetDirectory: (dataSetDirectory, basePath) =>
         set({ datasetDirectory: { datasetDirectory: dataSetDirectory, basePath } })
