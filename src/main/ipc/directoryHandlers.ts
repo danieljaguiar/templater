@@ -24,7 +24,7 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
 
   const folder = folderPath.toString()
   const templatesDirectoryPath = join(folder, 'Templates')
-  const datasetDirectoryPath = join(folder, 'Data')
+  const datasetDirectoryPath = join(folder, 'Datasets')
 
   if (!fs.existsSync(templatesDirectoryPath)) {
     fs.mkdirSync(templatesDirectoryPath)
