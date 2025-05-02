@@ -22,16 +22,8 @@ export default function DatasetPicker() {
               return
             }
 
-            let newData = JSON.parse(fileInfo.content) as FieldInUse[]
+            const newData = JSON.parse(fileInfo.content) as FieldInUse[]
 
-            newData = newData.map((item) => {
-              const existingItem = fields.find((d) => d.name === item.name)
-              if (existingItem) {
-                return { ...item, inTemplate: existingItem.inTemplate, inDisk: true }
-              } else {
-                return { ...item, inTemplate: false, inDisk: true }
-              }
-            })
             setFileInfo(fileInfo)
             setFields(newData)
           } else {

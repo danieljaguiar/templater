@@ -26,7 +26,26 @@ const useDatasetStore = create<DatasetStore>((set) => ({
       return { fields: updatedDataset.filter((f) => f.inDisk || f.value.trim() !== '') }
     })
   },
-  setFields: (fields) => set({ fields }),
+  setFields: (fields) =>
+    set((state) => {
+      // Create a map of the incoming fields for easy lookup
+      const fieldsMap = new Map(fields.map((field) => [field.name, field]))
+
+      // Find fields in current state that have inTemplate=true
+      const inTemplateFields = state.fields.filter((field) => field.inTemplate)
+
+      // Create a new array that includes:
+      // 1. All incoming fields with their original values
+      // 2. Any template fields from state not in the incoming fields (with empty value)
+      const mergedFields = [
+        ...fields,
+        ...inTemplateFields
+          .filter((field) => !fieldsMap.has(field.name))
+          .map((field) => ({ ...field, value: '' }))
+      ]
+
+      return { fields: mergedFields }
+    }),
   addOrUpdateField: (field) =>
     set((state) => {
       const existingFieldIndex = state.fields.findIndex((f) => f.name === field.name)
