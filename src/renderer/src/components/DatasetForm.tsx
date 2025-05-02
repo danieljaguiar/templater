@@ -1,3 +1,4 @@
+import { toast } from '@/hooks/use-toast'
 import useDatasetDirectoryStore from '@/stores/datasetDirectoryStore'
 import useDatasetStore from '@/stores/datasetStore'
 import { useEffect, useState } from 'react'
@@ -97,6 +98,11 @@ export default function DatasetForm() {
     if (fileSaveResponse !== FileSavingStatus.SUCCESS) {
       setFileSaveError('Error saving file: ' + fileSaveResponse)
       console.error('Error saving file:', fileSaveResponse)
+      toast({
+        title: 'Error saving file',
+        description: fileSaveResponse,
+        variant: 'destructive'
+      })
       return
     }
 
@@ -109,6 +115,18 @@ export default function DatasetForm() {
         basePath: fileToSaveLocal.basePath
       } as BaseDirectoryItem
       setFileInfo(baseFile)
+      // toast file created
+      toast({
+        title: 'File created',
+        description: `File ${fileToSaveLocal.newFileName} created successfully.`,
+        variant: 'default'
+      })
+    } else {
+      toast({
+        title: 'File saved',
+        description: `File ${fileToSaveLocal.name} saved successfully.`,
+        variant: 'default'
+      })
     }
 
     const datasetDirectory = await window.electronAPI.openFolderAsync(datasetDirectoryBasePath)
@@ -205,7 +223,16 @@ export default function DatasetForm() {
       </div>
       <Separator className="my-4" />
       <div className="flex items-center justify-between">
-        <pre className="text-sm text-muted-foreground">{JSON.stringify(fileInfo, null, 2)}</pre>
+        <pre className="text-sm text-muted-foreground">
+          {JSON.stringify(
+            {
+              fileInfo,
+              fields
+            },
+            null,
+            2
+          )}
+        </pre>
       </div>
     </ScrollArea>
   )
