@@ -49,7 +49,7 @@ function App(): JSX.Element {
 }
 
 function PaneWrapper(props: { children: React.ReactNode }) {
-  return <div className="p-2">{props.children}</div>
+  return <div className="p-2 h-full">{props.children}</div>
 }
 
 export default App
