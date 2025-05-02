@@ -167,7 +167,7 @@ export default function TempalteViewer(props: TemplateViewerProps) {
         <Button onClick={() => props.editRequested()}>Edit</Button>
         <Button onClick={() => handleCopyToClipboardAsPlainText()}>Copy</Button>
       </div>
-      <pre className="whitespace-pre-wrap break-words">
+      <pre className="whitespace-pre-wrap break-words select-text">
         {TextBlocks.map((block, index) => {
           const common = 'px-0.5 py-1'
           if (block.type === TextType.text) {
