@@ -4,7 +4,7 @@ import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { FieldInUse, GetFullPathFromBaseFileFolderInfo } from '../../../types/types'
 import { TreeViewV0 } from './ui/tree-viewV0'
 
-export default function DataPicker() {
+export default function DatasetPicker() {
   const dataTree = useDatasetDirectoryStore((state) => state.datasetDirectory.datasetDirectory)
   const { fields: data, setFields: setData, setFileInfo } = useDatasetStore()
 
