@@ -6,7 +6,7 @@ import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function DatasetPicker() {
   const dataTree = useDatasetDirectoryStore((state) => state.datasetDirectory.datasetDirectory)
-  const { fields, setFields: setData, setFileInfo } = useDatasetStore()
+  const { fields, setFields, setFileInfo } = useDatasetStore()
 
   return (
     <ScrollArea>
@@ -33,7 +33,7 @@ export default function DatasetPicker() {
               }
             })
             setFileInfo(fileInfo)
-            setData(newData)
+            setFields(newData)
           } else {
             console.error('File not found or could not be opened.')
           }
