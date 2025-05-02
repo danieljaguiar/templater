@@ -1,5 +1,5 @@
 import DatasetForm from './components/DatasetForm'
-import DataPicker from './components/DatasetPicker'
+import DatasetPicker from './components/DatasetPicker'
 import { TemplatePane } from './components/TemplatePane'
 import TemplatePicker from './components/TemplatePicker'
 import { ThemeProvider } from './components/theme-provider'
@@ -31,7 +31,7 @@ function App(): JSX.Element {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={10}>
-            <DataPicker />
+            <DatasetPicker />
           </ResizablePanel>
         </ResizablePanelGroup>
         <Toaster />
