@@ -82,7 +82,6 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
     }
 
     // Save the file content
-    console.log('Saving file to:', fullFilePath)
     fs.writeFileSync(fullFilePath, fileInfo.content, 'utf-8')
     event.reply(IPC_CHANNELS.FILE.SAVE, FileSavingStatus.SUCCESS)
   } catch (error) {

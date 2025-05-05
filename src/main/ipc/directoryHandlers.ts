@@ -5,17 +5,19 @@ import { IPC_CHANNELS } from '../../shared/ipc/channels'
 import {
   DirectoryItem,
   DirectoryItemType,
-  ExtractBaseFileFolderInfoFromFullPath
+  ExtractBaseFileFolderInfoFromFullPath,
+  OpenDirectoryReplyData,
+  OpenFolderArgs
 } from '../../types/types'
 
 export function registerDirectoryHandlers(): void {
   ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenFolder)
 }
 
-async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Promise<void> {
-  let folderPath = folderPathArg
+async function handleOpenFolder(event: IpcMainEvent, folderPathArg: OpenFolderArgs): Promise<void> {
+  let folderPath = folderPathArg.path
   // if no folderpath then open dialog
-  if (!folderPath) {
+  if (!folderPath || folderPath.trim() === '') {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory', 'createDirectory', 'promptToCreate', 'showHiddenFiles']
     })
@@ -23,26 +25,15 @@ async function handleOpenFolder(event: IpcMainEvent, folderPathArg?: string): Pr
   }
 
   const folder = folderPath.toString()
-  const templatesDirectoryPath = join(folder, 'Templates')
-  const datasetDirectoryPath = join(folder, 'Datasets')
-
-  if (!fs.existsSync(templatesDirectoryPath)) {
-    fs.mkdirSync(templatesDirectoryPath)
-  }
-
-  if (!fs.existsSync(datasetDirectoryPath)) {
-    fs.mkdirSync(datasetDirectoryPath)
-  }
 
   // Get folder structure for templates directory
-  const templateDirectory = getDirectoryStructure(templatesDirectoryPath)
-  const datasetDirectory = getDirectoryStructure(datasetDirectoryPath)
+  const directoryItems = getDirectoryStructure(folder)
 
-  event.reply(IPC_CHANNELS.DIRECTORY.OPEN, {
-    templateDirectory,
-    datasetDirectory: datasetDirectory,
+  event.reply(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, {
+    directoryItems,
+    type: folderPathArg.type,
     basePath: folder.replace(/\\/g, '/')
-  })
+  } as OpenDirectoryReplyData)
 }
 
 function getDirectoryStructure(dir: string): DirectoryItem[] {

@@ -8,6 +8,11 @@ export interface FieldInUse extends Field {
   inDisk: boolean
 }
 
+export enum DirectoryType {
+  TEMPLATE = 'template',
+  DATASET = 'dataset'
+}
+
 //#region IPC
 
 export enum DirectoryItemType {
@@ -40,6 +45,11 @@ export interface OpenFileArgs {
   fullPath: string
 }
 
+export interface OpenFolderArgs {
+  path?: string
+  type: DirectoryType
+}
+
 export interface OpenFileReplyData {
   file: BaseDirectoryItem
 }
@@ -56,8 +66,8 @@ export interface DirectoryItem extends BaseDirectoryItem {
 
 export interface OpenDirectoryReplyData {
   basePath: string
-  templateDirectory: DirectoryItem[]
-  datasetDirectory: DirectoryItem[]
+  type: DirectoryType
+  directoryItems: DirectoryItem[]
 }
 
 //#endregion

@@ -1,9 +1,7 @@
 import { toast } from '@/hooks/use-toast'
 import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
-import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect, useState } from 'react'
-import { DirectoryItemType } from '../../../types/types'
 import { Button } from './ui/button'
 
 enum TextType {
@@ -22,8 +20,7 @@ interface TemplateViewerProps {
 }
 
 export default function TempalteViewer(props: TemplateViewerProps) {
-  const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
-  const { templateDirectory } = useTemplateDirectoryStore()
+  const { selectedTemplate } = useSelectedTemplateStore()
   const fields = useDatasetStore((state) => state.fields)
   const addOrUpdateData = useDatasetStore((state) => state.addOrUpdateField)
 
@@ -130,17 +127,6 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     })
   }
 
-  const handleNewFile = () => {
-    setSelectedTemplate({
-      name: '',
-      content: '',
-      extension: 'txt',
-      type: DirectoryItemType.FILE,
-      basePath: templateDirectory.basePath + '/templates'
-    })
-    props.editRequested()
-  }
-
   useEffect(() => {
     if (
       selectedTemplate !== null &&
@@ -168,7 +154,6 @@ export default function TempalteViewer(props: TemplateViewerProps) {
   return (
     <div>
       <div className="flex justify-between items-center mb-2 pb-4">
-        <Button onClick={() => handleNewFile()}>New</Button>
         <Button onClick={() => props.editRequested()}>Edit</Button>
         <Button onClick={() => handleCopyToClipboardAsPlainText()}>Copy</Button>
       </div>

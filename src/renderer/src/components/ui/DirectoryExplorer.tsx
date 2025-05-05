@@ -1,15 +1,19 @@
+import { useLocalStorage } from '@/hooks/use-local-storage'
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { ContextMenuLabel } from '@radix-ui/react-context-menu'
-import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
+import { ChevronDown, ChevronRight, File, Folder, FolderOpen, RefreshCw } from 'lucide-react'
 import * as React from 'react'
 import {
   BaseDirectoryItem,
   DirectoryItem,
   DirectoryItemType,
+  DirectoryType,
   FileSavingStatus,
-  GetFullPathFromBaseFileFolderInfo
+  GetFullPathFromBaseFileFolderInfo,
+  OpenDirectoryReplyData
 } from '../../../../types/types'
+import { Button } from './button'
 import {
   ContextMenu,
   ContextMenuContent,
@@ -136,21 +140,26 @@ export function DirectoryExplorerItem({
 }
 
 interface DirectoryExplorerProps {
-  directoryItems: DirectoryItem[]
   className?: string
+  directoryType: DirectoryType
   onFileOpened?: (item: BaseDirectoryItem) => void
   onFileDeleted?: (item: BaseDirectoryItem) => void
+  onFileEdited?: (item: BaseDirectoryItem) => void
 }
 
 export function DirectoryExplorer({
-  directoryItems,
   className,
+  directoryType,
   onFileOpened,
-  onFileDeleted
+  onFileDeleted,
+  onFileEdited
 }: DirectoryExplorerProps) {
+  const storageKey = `directory-explorer-${directoryType}`
+  const [basePath, setBasePath] = useLocalStorage<string>(storageKey, '')
+  const [directoryItems, setDirectoryItems] = React.useState<DirectoryItem[] | undefined>(undefined)
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
-  const handleSelect = async (dirItem: DirectoryItem) => {
+  const selectHandler = async (dirItem: DirectoryItem) => {
     setSelectedId(dirItem.fullPath)
     if (onFileOpened && dirItem.type === 'file') {
       const fileInfo = await window.electronAPI.openFile({
@@ -168,8 +177,7 @@ export function DirectoryExplorer({
     }
   }
 
-  const handleDelete = async (dirItem: DirectoryItem) => {
-    console.log('🚀 ~ handleDelete ~ dirItem:', dirItem)
+  const deleteHandler = async (dirItem: DirectoryItem) => {
     const res = await window.electronAPI.deleteFile({
       fullPath: GetFullPathFromBaseFileFolderInfo(dirItem)
     })
@@ -191,17 +199,74 @@ export function DirectoryExplorer({
     }
   }
 
+  const openFolderHandler = (): void => {
+    window.electronAPI.openFolder({
+      type: directoryType,
+      path: basePath
+    })
+  }
+
+  React.useEffect(() => {
+    const handleOpenDirectory = async (res: OpenDirectoryReplyData) => {
+      if (!res) return
+
+      if (res.type !== directoryType) {
+        return
+      }
+      setDirectoryItems(res.directoryItems)
+      setBasePath(res.basePath)
+    }
+
+    window.electronAPI.onOpenFolder(handleOpenDirectory)
+
+    return () => {}
+  }, [])
+
+  const reloadTemplateDirectoryHandler = (): void => {
+    if (basePath === '') return
+    window.electronAPI.openFolder({
+      type: directoryType,
+      path: basePath
+    })
+  }
+
+  React.useEffect(() => {
+    reloadTemplateDirectoryHandler()
+  }, [])
+
   return (
     <div className={cn('', className)}>
-      {directoryItems.map((item) => (
-        <DirectoryExplorerItem
-          key={item.fullPath}
-          item={item}
-          selectedId={selectedId}
-          onSelect={handleSelect}
-          onDelete={handleDelete}
-        />
-      ))}
+      <div>
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" onClick={openFolderHandler} title="Open Folder">
+            <FolderOpen className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={reloadTemplateDirectoryHandler}
+            disabled={!basePath}
+            title="Reload"
+          >
+            <RefreshCw className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+      {!directoryItems ? (
+        <div className="flex items-center justify-center h-full text-muted-foreground/70 italic">
+          Please open a directory to view its contents.
+        </div>
+      ) : (
+        directoryItems.map((item) => (
+          <DirectoryExplorerItem
+            key={item.fullPath}
+            item={item}
+            selectedId={selectedId}
+            onSelect={selectHandler}
+            onDelete={deleteHandler}
+          />
+        ))
+      )}
     </div>
   )
 }

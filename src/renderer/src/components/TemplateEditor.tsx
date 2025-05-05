@@ -1,7 +1,6 @@
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
-import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
@@ -10,8 +9,7 @@ export interface TemplateEditorProps {
 }
 
 export default function TemplateEditor(props: TemplateEditorProps) {
-  const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
-  const { templateDirectory } = useTemplateDirectoryStore()
+  const { selectedTemplate } = useSelectedTemplateStore()
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')

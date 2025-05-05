@@ -3,11 +3,13 @@ import {
   FileSavingStatus,
   FileToSave,
   OpenDirectoryReplyData,
-  OpenFileArgs
+  OpenFileArgs,
+  OpenFolderArgs
 } from '../../types/types'
 
 interface ElectronAPI {
-  openFolderAsync: (path?: string) => Promise<OpenDirectoryReplyData>
+  openFolder: (args: OpenFolderArgs) => void
+  onOpenFolder: (callback: (data: OpenDirectoryReplyData) => void) => void
   openFile: (args: OpenFileArgs) => Promise<FileInterface>
   deleteFile: (args: OpenFileArgs) => Promise<FileSavingStatus>
   saveFile: (fileInfo: FileToSave) => Promise<FileSavingStatus>

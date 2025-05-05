@@ -1,5 +1,4 @@
 import { toast } from '@/hooks/use-toast'
-import useDatasetDirectoryStore from '@/stores/datasetDirectoryStore'
 import useDatasetStore from '@/stores/datasetStore'
 import { Copy } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -25,10 +24,6 @@ export default function DatasetForm() {
     setFileInfo
   } = useDatasetStore()
   const [stateFileName, setStateFileName] = useState<string>('')
-  const datasetDirectoryBasePath = useDatasetDirectoryStore(
-    (state) => state.datasetDirectory.basePath
-  )
-  const setDatasetDirectory = useDatasetDirectoryStore((state) => state.setDatasetDirectory)
   const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
   const [fileSaveError, setFileSaveError] = useState<string | null>(null)
@@ -69,12 +64,11 @@ export default function DatasetForm() {
       setFileSaveError('File name cannot be empty')
       return
     }
-    let fileToSaveLocal: FileToSave = fileInfo ?? {
-      name: '',
-      type: DirectoryItemType.FILE,
-      extension: 'json',
-      basePath: datasetDirectoryBasePath + '/Datasets'
+    if (!fileInfo) {
+      setFileSaveError('No file info available')
+      return
     }
+    let fileToSaveLocal: FileToSave = fileInfo
 
     fileToSaveLocal = {
       ...fileToSaveLocal,
@@ -128,11 +122,6 @@ export default function DatasetForm() {
         description: `File ${fileToSaveLocal.name} saved successfully.`,
         variant: 'default'
       })
-    }
-
-    const datasetDirectory = await window.electronAPI.openFolderAsync(datasetDirectoryBasePath)
-    if (datasetDirectory) {
-      setDatasetDirectory(datasetDirectory.datasetDirectory, datasetDirectory.basePath)
     }
   }
 
