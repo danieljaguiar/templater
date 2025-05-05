@@ -1,8 +1,8 @@
 import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
+import { DirectoryExplorer } from './ui/DirectoryExplorer'
 import { ScrollArea } from './ui/scroll-area'
-import { TreeViewV0 } from './ui/tree-viewV0'
 
 export default function TemplatePicker() {
   const templateTree = useTemplateDirectoryStore(
@@ -15,7 +15,7 @@ export default function TemplatePicker() {
 
   return (
     <ScrollArea className="h-full">
-      <TreeViewV0
+      <DirectoryExplorer
         directoryItems={templateTree}
         onFileOpened={async (dirItem) => {
           resetDataTemplateInUse()

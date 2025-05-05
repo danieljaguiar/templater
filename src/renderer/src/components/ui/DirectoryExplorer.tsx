@@ -25,7 +25,13 @@ interface TreeItemProps {
   onDelete?: (item: DirectoryItem) => void
 }
 
-export function TreeItem({ item, level = 0, onSelect, selectedId, onDelete }: TreeItemProps) {
+export function DirectoryExplorerItem({
+  item,
+  level = 0,
+  onSelect,
+  selectedId,
+  onDelete
+}: TreeItemProps) {
   const [expanded, setExpanded] = React.useState(false)
   const isFolder = item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && item.children && item.children.length > 0
@@ -115,7 +121,7 @@ export function TreeItem({ item, level = 0, onSelect, selectedId, onDelete }: Tr
       {expanded && hasChildren && (
         <div>
           {item.children?.map((child) => (
-            <TreeItem
+            <DirectoryExplorerItem
               key={child.fullPath}
               item={child}
               level={level + 1}
@@ -129,19 +135,19 @@ export function TreeItem({ item, level = 0, onSelect, selectedId, onDelete }: Tr
   )
 }
 
-interface TreeViewProps {
+interface DirectoryExplorerProps {
   directoryItems: DirectoryItem[]
   className?: string
   onFileOpened?: (item: BaseDirectoryItem) => void
   onFileDeleted?: (item: BaseDirectoryItem) => void
 }
 
-export function TreeViewV0({
+export function DirectoryExplorer({
   directoryItems,
   className,
   onFileOpened,
   onFileDeleted
-}: TreeViewProps) {
+}: DirectoryExplorerProps) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
 
   const handleSelect = async (dirItem: DirectoryItem) => {
@@ -188,7 +194,7 @@ export function TreeViewV0({
   return (
     <div className={cn('', className)}>
       {directoryItems.map((item) => (
-        <TreeItem
+        <DirectoryExplorerItem
           key={item.fullPath}
           item={item}
           selectedId={selectedId}
