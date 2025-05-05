@@ -5,6 +5,7 @@ import TemplatePicker from './components/TemplatePicker'
 import { ThemeProvider } from './components/theme-provider'
 import TopBar from './components/TopBar'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './components/ui/resizable'
+import { ScrollArea } from './components/ui/scroll-area'
 import { Toaster } from './components/ui/toaster'
 
 function App(): JSX.Element {
@@ -49,7 +50,11 @@ function App(): JSX.Element {
 }
 
 function PaneWrapper(props: { children: React.ReactNode }) {
-  return <div className="p-2 h-full">{props.children}</div>
+  return (
+    <div className="pl-4 pr-1 py-2 h-full">
+      <ScrollArea className="h-full pr-4">{props.children}</ScrollArea>
+    </div>
+  )
 }
 
 export default App

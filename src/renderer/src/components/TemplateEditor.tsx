@@ -1,5 +1,4 @@
 import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import useTemplateDirectoryStore from '@/stores/templateDirectoryStore'
@@ -78,16 +77,14 @@ export default function TemplateEditor(props: TemplateEditorProps) {
         <label htmlFor="fileContent" className="text-sm font-medium">
           Content
         </label>
-        <ScrollArea className="h-[400px] w-full rounded-md border">
-          <Textarea
-            id="fileContent"
-            value={fileContent}
-            onChange={(e) => {
-              setFileContent(e.target.value)
-            }}
-            className="min-h-[400px] resize-none border-0"
-          />
-        </ScrollArea>
+        <Textarea
+          id="fileContent"
+          value={fileContent}
+          onChange={(e) => {
+            setFileContent(e.target.value)
+          }}
+          className="min-h-[400px] resize-none border-0"
+        />
       </div>
     </div>
   )
