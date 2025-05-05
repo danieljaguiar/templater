@@ -1,6 +1,7 @@
 import { toast } from '@/hooks/use-toast'
 import useDatasetDirectoryStore from '@/stores/datasetDirectoryStore'
 import useDatasetStore from '@/stores/datasetStore'
+import { Copy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
@@ -9,9 +10,9 @@ import {
   FileSavingStatus,
   FileToSave
 } from '../../../types/types'
+import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { ScrollArea } from './ui/scroll-area'
 import { Separator } from './ui/separator'
 
 export default function DatasetForm() {
@@ -139,22 +140,40 @@ export default function DatasetForm() {
   const renderField = (dataItem: FieldInUse) => (
     <div className="grid w-full items-center gap-1.5" key={dataItem.name}>
       <Label htmlFor={dataItem.name}>{dataItem.name}</Label>
-      <Input
-        type="text"
-        id={dataItem.name}
-        value={dataItem.value}
-        onChange={(e) =>
-          handleChange({
-            ...dataItem,
-            value: e.target.value
-          })
-        }
-      />
+      <div className="flex items-center justify-between">
+        <Input
+          className="flex-1"
+          type="text"
+          id={dataItem.name}
+          value={dataItem.value}
+          onChange={(e) =>
+            handleChange({
+              ...dataItem,
+              value: e.target.value
+            })
+          }
+        />
+        <Button
+          className=""
+          size={'icon'}
+          onClick={() => {
+            navigator.clipboard.writeText(dataItem.value).then(() => {
+              toast({
+                title: 'Copied to clipboard',
+                description: `Field ${dataItem.name} copied to clipboard.`,
+                variant: 'default'
+              })
+            })
+          }}
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 
   return (
-    <ScrollArea className="h-full">
+    <>
       <div className="space-y-4 ">
         {/* Top bar with button to save to file */}
         <div className="flex items-center justify-between ">
@@ -234,6 +253,6 @@ export default function DatasetForm() {
           )}
         </pre>
       </div>
-    </ScrollArea>
+    </>
   )
 }
