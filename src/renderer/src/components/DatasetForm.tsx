@@ -4,9 +4,9 @@ import { Copy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
+  DirectoryItemSavingStatus,
   DirectoryItemType,
   FieldInUse,
-  FileSavingStatus,
   FileToSave
 } from '../../../types/types'
 import { Button } from './ui/button'
@@ -90,7 +90,7 @@ export default function DatasetForm() {
     }
 
     const fileSaveResponse = await window.electronAPI.saveFile(fileToSaveLocal)
-    if (fileSaveResponse !== FileSavingStatus.SUCCESS) {
+    if (fileSaveResponse !== DirectoryItemSavingStatus.SUCCESS) {
       setFileSaveError('Error saving file: ' + fileSaveResponse)
       console.error('Error saving file:', fileSaveResponse)
       toast({

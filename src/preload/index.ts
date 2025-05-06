@@ -1,4 +1,4 @@
-import { FileToSave, OpenDirectoryArgs, OpenFileArgs } from '@/types/types'
+import { FileToSave, NewFolderArgs, OpenDirectoryArgs, OpenFileArgs } from '@/types/types'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc/channels'
@@ -19,6 +19,14 @@ if (process.contextIsolated) {
         ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, args),
       onOpenDirectory: (callback) => {
         ipcRenderer.on(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, (_event, data) => callback(data))
+      },
+      newFolder: (args: NewFolderArgs) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, args)
+          ipcRenderer.once(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, (_event, result) => {
+            resolve(result)
+          })
+        })
       },
 
       // FILE HANDLERS

@@ -15,6 +15,11 @@ export enum DirectoryType {
 
 //#region IPC
 
+export interface NewFolderArgs {
+  basePath: string
+  name: string
+}
+
 export enum DirectoryItemType {
   FILE = 'file',
   FOLDER = 'folder'
@@ -30,7 +35,7 @@ export interface BaseDirectoryItem {
 
 //#region FILE HANDLERS
 
-export enum FileSavingStatus {
+export enum DirectoryItemSavingStatus {
   SUCCESS = 'success',
   CONFLICT = 'conflict',
   FILE_NOT_FOUND = 'file-not-found',

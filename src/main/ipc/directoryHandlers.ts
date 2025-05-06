@@ -4,14 +4,27 @@ import { join } from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
 import {
   DirectoryItem,
+  DirectoryItemSavingStatus,
   DirectoryItemType,
   ExtractBasePathFromDirectoryItem,
+  NewFolderArgs,
   OpenDirectoryArgs,
   OpenDirectoryReplyData
 } from '../../types/types'
 
 export function registerDirectoryHandlers(): void {
   ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenDirectory)
+  ipcMain.on(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, handleNewFolder)
+}
+
+async function handleNewFolder(event: IpcMainEvent, args: NewFolderArgs): Promise<void> {
+  const folderPath = args.basePath
+  const folderName = args.name
+
+  const fullPath = join(folderPath, folderName)
+
+  fs.mkdirSync(fullPath, { recursive: true })
+  event.reply(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, DirectoryItemSavingStatus.SUCCESS)
 }
 
 async function handleOpenDirectory(

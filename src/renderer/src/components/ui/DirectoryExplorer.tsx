@@ -7,9 +7,9 @@ import * as React from 'react'
 import {
   BaseDirectoryItem,
   DirectoryItem,
+  DirectoryItemSavingStatus,
   DirectoryItemType,
   DirectoryType,
-  FileSavingStatus,
   GetFullPathFromBaseDirectoryItemInfo,
   OpenDirectoryReplyData
 } from '../../../../types/types'
@@ -38,10 +38,10 @@ interface TreeItemProps {
   onSelect?: (item: DirectoryItem) => void
   onDelete?: (item: DirectoryItem) => void
   onMove?: (item: DirectoryItem) => void
+  onNewFolder?: (item: DirectoryItem) => void
 }
 
 export function DirectoryExplorerItem(props: TreeItemProps) {
-  console.log('DirectoryExplorerItem', props.level, props.item.name)
   const [expanded, setExpanded] = React.useState(false)
   const isFolder = props.item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && props.item.children && props.item.children.length > 0
@@ -56,6 +56,12 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
   const handleSelect = () => {
     if (props.onSelect) {
       props.onSelect(props.item)
+    }
+  }
+
+  const handleNewFolder = () => {
+    if (props.onNewFolder) {
+      props.onNewFolder(props.item)
     }
   }
 
@@ -144,7 +150,15 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
           >
             Delete {props.item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
           </ContextMenuItem>
-          <ContextMenuItem inset>New Folder</ContextMenuItem>
+          <ContextMenuItem
+            inset
+            onClick={(e) => {
+              e.stopPropagation()
+              handleNewFolder()
+            }}
+          >
+            New Folder
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
 
@@ -192,6 +206,7 @@ export function DirectoryExplorer({
   const [itemToMoveTarget, setItemToMoveTarget] = React.useState<DirectoryItem | undefined>(
     undefined
   )
+  const [newFolderBasePath, setNewFolderBasePath] = React.useState<string>('')
 
   const selectHandler = async (dirItem: DirectoryItem) => {
     setSelectedId(dirItem.fullPath)
@@ -211,11 +226,15 @@ export function DirectoryExplorer({
     }
   }
 
+  const newFolderHandler = (dirItem: DirectoryItem) => {
+    setNewFolderBasePath(dirItem.basePath)
+  }
+
   const deleteHandler = async (dirItem: DirectoryItem) => {
     const res = await window.electronAPI.deleteFile({
       fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
     })
-    if (res === FileSavingStatus.SUCCESS) {
+    if (res === DirectoryItemSavingStatus.SUCCESS) {
       if (onFileDeleted) {
         onFileDeleted(dirItem)
       }
@@ -297,7 +316,7 @@ export function DirectoryExplorer({
       ) : (
         <>
           <FolderSelector
-            open={!!itemToMoveSource}
+            open={itemToMoveSource !== undefined}
             onOpenChange={(open) => {
               if (!open) {
                 setItemToMoveSource(undefined)
@@ -315,6 +334,36 @@ export function DirectoryExplorer({
             }}
           />
 
+          <NewFolderNameDialog
+            open={newFolderBasePath !== ''}
+            onOpenChange={(open) => {
+              if (!open) {
+                setNewFolderBasePath('')
+              }
+            }}
+            onCreate={async (name) => {
+              const res = await window.electronAPI.newFolder({
+                basePath: newFolderBasePath,
+                name
+              })
+              if (res === DirectoryItemSavingStatus.SUCCESS) {
+                setNewFolderBasePath('')
+                toast({
+                  title: 'Success',
+                  description: `Folder ${name} created successfully.`,
+                  variant: 'default'
+                })
+                reloadTemplateDirectoryHandler()
+              } else {
+                toast({
+                  title: 'Error',
+                  description: `Failed to create folder ${name}.`,
+                  variant: 'destructive'
+                })
+              }
+            }}
+          />
+
           {/* Main tree */}
           {directoryItems.map((item) => (
             <DirectoryExplorerItem
@@ -323,6 +372,7 @@ export function DirectoryExplorer({
               selectedId={selectedId}
               onSelect={selectHandler}
               onDelete={deleteHandler}
+              onNewFolder={newFolderHandler}
               onMove={moveItemHandler}
             />
           ))}
@@ -363,6 +413,37 @@ export function FolderSelector(props: FolderSelectorProps) {
             />
           ))}
         </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function NewFolderNameDialog(props: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCreate: (name: string) => void
+}) {
+  const [folderName, setFolderName] = React.useState<string>('')
+  const handleCreate = () => {
+    props.onCreate(folderName)
+    setFolderName('')
+  }
+
+  return (
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogTrigger>New Folder</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New Folder</DialogTitle>
+          <DialogDescription>Enter the name of the new folder.</DialogDescription>
+        </DialogHeader>
+        <input
+          type="text"
+          value={folderName}
+          onChange={(e) => setFolderName(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 w-full"
+        />
+        <Button onClick={handleCreate}>Create</Button>
       </DialogContent>
     </Dialog>
   )

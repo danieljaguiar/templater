@@ -1,5 +1,6 @@
 export const IPC_CHANNELS = {
   DIRECTORY: {
+    NEW_FOLDER: 'new-folder',
     OPEN: 'open-folder',
     OPEN_REPLY: 'open-folder-reply'
   },
