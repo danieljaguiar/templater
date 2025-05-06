@@ -20,26 +20,32 @@ import {
   ContextMenuItem,
   ContextMenuTrigger
 } from './context-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from './dialog'
 
 interface TreeItemProps {
   item: DirectoryItem
+  hideContextMenu?: boolean
+  discardType?: DirectoryItemType
   selectedId?: string
   level?: number
   onSelect?: (item: DirectoryItem) => void
   onDelete?: (item: DirectoryItem) => void
+  onMove?: (item: DirectoryItem) => void
 }
 
-export function DirectoryExplorerItem({
-  item,
-  level = 0,
-  onSelect,
-  selectedId,
-  onDelete
-}: TreeItemProps) {
+export function DirectoryExplorerItem(props: TreeItemProps) {
+  console.log('DirectoryExplorerItem', props.level, props.item.name)
   const [expanded, setExpanded] = React.useState(false)
-  const isFolder = item.type === DirectoryItemType.FOLDER
-  const hasChildren = isFolder && item.children && item.children.length > 0
-  const isSelected = selectedId === GetFullPathFromBaseFileFolderInfo(item)
+  const isFolder = props.item.type === DirectoryItemType.FOLDER
+  const hasChildren = isFolder && props.item.children && props.item.children.length > 0
+  const isSelected = props.selectedId === GetFullPathFromBaseFileFolderInfo(props.item)
 
   const handleToggle = () => {
     if (isFolder) {
@@ -48,21 +54,30 @@ export function DirectoryExplorerItem({
   }
 
   const handleSelect = () => {
-    if (onSelect) {
-      onSelect(item)
+    if (props.onSelect) {
+      props.onSelect(props.item)
     }
   }
+
+  if (props.discardType && props.item.type === props.discardType) return null
 
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger>
+        <ContextMenuTrigger
+          onContextMenu={(event) => {
+            if (props.hideContextMenu) {
+              event.preventDefault()
+              return
+            }
+          }}
+        >
           <div
             className={cn(
               'flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-muted/20 transition-colors',
               isSelected && 'ring-muted/80 dark:bg-accent bg-accent/40 ring-2'
             )}
-            style={{ paddingLeft: `${level * 12 + 8}px` }}
+            style={{ paddingLeft: `${(props.level ? props.level : 0) * 12 + 8}px` }}
             onClick={handleSelect}
           >
             {isFolder && hasChildren ? (
@@ -89,34 +104,45 @@ export function DirectoryExplorerItem({
               <File className="h-4 w-4 text-gray-500 mr-2 shrink-0" />
             )}
 
-            <span className="truncate">{item.name}</span>
+            <span className="truncate">{props.item.name}</span>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">
           <ContextMenuLabel className="text-xs text-muted-foreground/70 italic pl-1">
-            {item.name}
+            {props.item.name}
           </ContextMenuLabel>
-          {item.type === DirectoryItemType.FILE && (
+          {props.item.type === DirectoryItemType.FILE && (
             <ContextMenuItem
               inset
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
                 handleSelect()
               }}
             >
               Open
             </ContextMenuItem>
           )}
-          <ContextMenuItem inset>Move</ContextMenuItem>
           <ContextMenuItem
             inset
             onClick={(e) => {
               e.stopPropagation()
-              if (onDelete) {
-                onDelete(item)
+              if (props.onMove) {
+                props.onMove(props.item)
               }
             }}
           >
-            Delete {item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
+            Move
+          </ContextMenuItem>
+          <ContextMenuItem
+            inset
+            onClick={(e) => {
+              e.stopPropagation()
+              if (props.onDelete) {
+                props.onDelete(props.item)
+              }
+            }}
+          >
+            Delete {props.item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
           </ContextMenuItem>
           <ContextMenuItem inset>New Folder</ContextMenuItem>
         </ContextMenuContent>
@@ -124,13 +150,15 @@ export function DirectoryExplorerItem({
 
       {expanded && hasChildren && (
         <div>
-          {item.children?.map((child) => (
+          {props.item.children?.map((child) => (
             <DirectoryExplorerItem
               key={child.fullPath}
               item={child}
-              level={level + 1}
-              onSelect={onSelect}
-              selectedId={selectedId}
+              level={props.level || 0 + 1}
+              onSelect={props.onSelect}
+              selectedId={props.selectedId}
+              onDelete={props.onDelete}
+              discardType={props.discardType}
             />
           ))}
         </div>
@@ -158,6 +186,12 @@ export function DirectoryExplorer({
   const [basePath, setBasePath] = useLocalStorage<string>(storageKey, '')
   const [directoryItems, setDirectoryItems] = React.useState<DirectoryItem[] | undefined>(undefined)
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
+  const [itemToMoveSource, setItemToMoveSource] = React.useState<DirectoryItem | undefined>(
+    undefined
+  )
+  const [itemToMoveTarget, setItemToMoveTarget] = React.useState<DirectoryItem | undefined>(
+    undefined
+  )
 
   const selectHandler = async (dirItem: DirectoryItem) => {
     setSelectedId(dirItem.fullPath)
@@ -222,6 +256,10 @@ export function DirectoryExplorer({
     return () => {}
   }, [])
 
+  const moveItemHandler = async (item: DirectoryItem) => {
+    setItemToMoveSource(item)
+  }
+
   const reloadTemplateDirectoryHandler = (): void => {
     if (basePath === '') return
     window.electronAPI.openFolder({
@@ -257,16 +295,75 @@ export function DirectoryExplorer({
           Please open a directory to view its contents.
         </div>
       ) : (
-        directoryItems.map((item) => (
-          <DirectoryExplorerItem
-            key={item.fullPath}
-            item={item}
-            selectedId={selectedId}
-            onSelect={selectHandler}
-            onDelete={deleteHandler}
+        <>
+          <FolderSelector
+            open={!!itemToMoveSource}
+            onOpenChange={(open) => {
+              if (!open) {
+                setItemToMoveSource(undefined)
+              }
+            }}
+            directoryItems={directoryItems}
+            onSelect={(item) => {
+              // if (itemToMoveSource && itemToMoveTarget) {
+              //   window.electronAPI.moveFile({
+              //     source: itemToMoveSource,
+              //     target: itemToMoveTarget
+              //   })
+              // }
+              setItemToMoveSource(undefined)
+            }}
           />
-        ))
+
+          {/* Main tree */}
+          {directoryItems.map((item) => (
+            <DirectoryExplorerItem
+              key={item.fullPath}
+              item={item}
+              selectedId={selectedId}
+              onSelect={selectHandler}
+              onDelete={deleteHandler}
+              onMove={moveItemHandler}
+            />
+          ))}
+        </>
       )}
     </div>
+  )
+}
+
+interface FolderSelectorProps {
+  className?: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  directoryItems: DirectoryItem[]
+  onSelect: (item: DirectoryItem) => void
+}
+
+export function FolderSelector(props: FolderSelectorProps) {
+  return (
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogTrigger>Open</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete your account and remove your
+            data from our servers.
+          </DialogDescription>
+        </DialogHeader>
+        <div className={cn('flex flex-col space-y-2', props.className)}>
+          {props.directoryItems.map((item) => (
+            <DirectoryExplorerItem
+              key={item.fullPath}
+              item={item}
+              hideContextMenu={true}
+              onSelect={props.onSelect}
+              discardType={DirectoryItemType.FILE}
+            />
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
