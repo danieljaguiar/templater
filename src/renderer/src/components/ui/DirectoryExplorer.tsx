@@ -20,14 +20,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger
 } from './context-menu'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from './dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog'
 
 interface TreeItemProps {
   item: DirectoryItem
@@ -498,7 +491,6 @@ export function FolderSelector(props: FolderSelectorProps) {
   ]
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogTrigger>Open</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you absolutely sure?</DialogTitle>
@@ -536,7 +528,6 @@ function NewFolderNameDialog(props: {
 
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogTrigger>New Folder</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>New Folder</DialogTitle>
@@ -570,7 +561,6 @@ function RenameDialog(props: {
 
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogTrigger>Rename</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Rename {props.item?.name}</DialogTitle>
