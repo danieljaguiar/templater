@@ -493,11 +493,8 @@ export function FolderSelector(props: FolderSelectorProps) {
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone. This will permanently delete your account and remove your
-            data from our servers.
-          </DialogDescription>
+          <DialogTitle>Select Folder</DialogTitle>
+          <DialogDescription>Select a folder to move the item to.</DialogDescription>
         </DialogHeader>
         <div className={cn('flex flex-col space-y-2', props.className)}>
           {rootDirectory.map((item) => (
