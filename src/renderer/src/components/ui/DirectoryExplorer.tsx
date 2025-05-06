@@ -43,7 +43,7 @@ interface TreeItemProps {
 }
 
 export function DirectoryExplorerItem(props: TreeItemProps) {
-  const [expanded, setExpanded] = React.useState(props.level === 0 ? true : false)
+  const [expanded, setExpanded] = React.useState(!props.level ? true : false)
   const isFolder = props.item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && props.item.children && props.item.children.length > 0
   const isSelected = props.selectedId === GetFullPathFromBaseDirectoryItemInfo(props.item)
@@ -193,7 +193,7 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
               key={child.fullPath}
               {...props}
               item={child}
-              level={props.level || 0 + 1}
+              level={(props.level ? props.level : 0) + 1}
             />
           ))}
         </div>
