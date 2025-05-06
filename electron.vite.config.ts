@@ -22,7 +22,8 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        '@': resolve('src/renderer/src')
+        '@': resolve('src/renderer/src'),
+        '@types': resolve('src/types/types.ts')
       }
     },
     plugins: [react()]

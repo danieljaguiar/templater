@@ -1,4 +1,4 @@
-import { BaseDirectoryItem, FieldInUse } from 'src/types/types'
+import { BaseDirectoryItem, FieldInUse } from '@types'
 import { create } from 'zustand'
 
 interface DatasetStore {

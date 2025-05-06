@@ -1,4 +1,4 @@
-import { BaseDirectoryItem } from 'src/types/types'
+import { BaseDirectoryItem } from '@types'
 import { create } from 'zustand'
 
 interface SelectedTempalteStore {

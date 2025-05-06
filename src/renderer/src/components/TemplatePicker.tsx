@@ -1,7 +1,7 @@
 import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import { DirectoryType } from '../../../types/types'
-import { DirectoryExplorer } from './ui/DirectoryExplorer'
+import { DirectoryExplorer } from './directoryManager/DirectoryExplorer'
 import { ScrollArea } from './ui/scroll-area'
 
 export default function TemplatePicker() {

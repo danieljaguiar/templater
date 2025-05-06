@@ -1,9 +1,6 @@
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
-import { ContextMenuLabel } from '@radix-ui/react-context-menu'
-import { ChevronDown, ChevronRight, File, Folder, FolderOpen, RefreshCw } from 'lucide-react'
-import * as React from 'react'
 import {
   BaseDirectoryItem,
   DirectoryItem,
@@ -12,188 +9,14 @@ import {
   DirectoryType,
   GetFullPathFromBaseDirectoryItemInfo,
   OpenDirectoryReplyData
-} from '../../../../types/types'
-import { Button } from './button'
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger
-} from './context-menu'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './dialog'
-
-interface TreeItemProps {
-  item: DirectoryItem
-  hideContextMenu?: boolean
-  discardType?: DirectoryItemType
-  selectedId?: string
-  level?: number
-  onSelect?: (item: DirectoryItem) => void
-  onDelete?: (item: DirectoryItem) => void
-  onMove?: (item: DirectoryItem) => void
-  onRename?: (item: DirectoryItem) => void
-  onNewFolder?: (item: DirectoryItem) => void
-}
-
-export function DirectoryExplorerItem(props: TreeItemProps) {
-  const [expanded, setExpanded] = React.useState(!props.level ? true : false)
-  const isFolder = props.item.type === DirectoryItemType.FOLDER
-  const hasChildren = isFolder && props.item.children && props.item.children.length > 0
-  const isSelected = props.selectedId === GetFullPathFromBaseDirectoryItemInfo(props.item)
-
-  const handleToggle = () => {
-    if (isFolder) {
-      setExpanded(!expanded)
-    }
-  }
-
-  const handleSelect = () => {
-    if (props.onSelect) {
-      props.onSelect(props.item)
-    }
-  }
-
-  const handleNewFolder = () => {
-    if (props.onNewFolder) {
-      props.onNewFolder(props.item)
-    }
-  }
-
-  const handleDelete = () => {
-    if (props.onDelete) {
-      props.onDelete(props.item)
-    }
-  }
-
-  const handleRename = () => {
-    if (props.onRename) {
-      props.onRename(props.item)
-    }
-  }
-
-  if (props.discardType && props.item.type === props.discardType) return null
-
-  return (
-    <>
-      <ContextMenu>
-        <ContextMenuTrigger
-          onContextMenu={(event) => {
-            if (props.hideContextMenu) {
-              event.preventDefault()
-              return
-            }
-          }}
-        >
-          <div
-            className={cn(
-              'flex items-center py-1 px-2 rounded-md cursor-pointer hover:bg-muted/20 transition-colors',
-              isSelected && 'ring-muted/80 dark:bg-accent bg-accent/40 ring-2'
-            )}
-            style={{ paddingLeft: `${(props.level ? props.level : 0) * 12 + 8}px` }}
-            onClick={handleSelect}
-          >
-            {isFolder && hasChildren ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleToggle()
-                }}
-                className="mr-1 p-1 rounded-sm hover:bg-muted/90"
-              >
-                {expanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
-            ) : (
-              <span className="w-7 min-w-7" />
-            )}
-
-            {isFolder ? (
-              <Folder className="h-4 w-4 text-blue-500 mr-2 shrink-0" />
-            ) : (
-              <File className="h-4 w-4 text-gray-500 mr-2 shrink-0" />
-            )}
-
-            <span className="truncate">{props.item.name}</span>
-          </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent className="w-48">
-          <ContextMenuLabel className="text-xs text-muted-foreground/70 italic pl-1">
-            {props.item.name}
-          </ContextMenuLabel>
-          {props.item.type === DirectoryItemType.FILE && (
-            <ContextMenuItem
-              inset
-              onClick={(e) => {
-                e.stopPropagation()
-                handleSelect()
-              }}
-            >
-              Open
-            </ContextMenuItem>
-          )}
-          <ContextMenuItem
-            inset
-            onClick={(e) => {
-              e.stopPropagation()
-              if (props.onMove) {
-                props.onMove(props.item)
-              }
-            }}
-          >
-            Move
-          </ContextMenuItem>
-          <ContextMenuItem
-            inset
-            onClick={(e) => {
-              e.stopPropagation()
-              if (props.onRename) {
-                props.onRename(props.item)
-              }
-            }}
-          >
-            Rename
-          </ContextMenuItem>
-          <ContextMenuItem
-            inset
-            onClick={(e) => {
-              e.stopPropagation()
-              if (props.onDelete) {
-                props.onDelete(props.item)
-              }
-            }}
-          >
-            Delete {props.item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
-          </ContextMenuItem>
-          <ContextMenuItem
-            inset
-            onClick={(e) => {
-              e.stopPropagation()
-              handleNewFolder()
-            }}
-          >
-            New Folder
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-
-      {expanded && hasChildren && (
-        <div>
-          {props.item.children?.map((child) => (
-            <DirectoryExplorerItem
-              key={child.fullPath}
-              {...props}
-              item={child}
-              level={(props.level ? props.level : 0) + 1}
-            />
-          ))}
-        </div>
-      )}
-    </>
-  )
-}
+} from '@types'
+import { FolderOpen, RefreshCw } from 'lucide-react'
+import * as React from 'react'
+import { Button } from '../ui/button'
+import { DirectoryItemRow } from './DirectoryItemRow'
+import FolderSelector from './FolderSelectorDialog'
+import NewDirectoryItemDialog from './NewDirectoryItemDialog'
+import RenameDialog from './RenameDirectoryItemDialog'
 
 interface DirectoryExplorerProps {
   className?: string
@@ -422,7 +245,7 @@ export function DirectoryExplorer({
             onRename={processItemRename}
           />
 
-          <NewFolderNameDialog
+          <NewDirectoryItemDialog
             open={newFolderBasePath !== ''}
             onOpenChange={(open) => {
               if (!open) {
@@ -454,7 +277,7 @@ export function DirectoryExplorer({
 
           {/* Main tree */}
           {directoryItems.map((item) => (
-            <DirectoryExplorerItem
+            <DirectoryItemRow
               key={item.fullPath}
               item={item}
               selectedId={selectedId}
@@ -468,109 +291,5 @@ export function DirectoryExplorer({
         </>
       )}
     </div>
-  )
-}
-
-interface FolderSelectorProps {
-  className?: string
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  directoryItems: DirectoryItem[]
-  onSelect: (item: DirectoryItem) => void
-}
-
-export function FolderSelector(props: FolderSelectorProps) {
-  const rootDirectory: DirectoryItem[] = [
-    {
-      basePath: props.directoryItems[0].basePath,
-      name: 'Root',
-      fullPath: props.directoryItems[0].basePath,
-      type: DirectoryItemType.FOLDER,
-      children: props.directoryItems
-    }
-  ]
-  return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Select Folder</DialogTitle>
-          <DialogDescription>Select a folder to move the item to.</DialogDescription>
-        </DialogHeader>
-        <div className={cn('flex flex-col space-y-2', props.className)}>
-          {rootDirectory.map((item) => (
-            <DirectoryExplorerItem
-              key={item.fullPath}
-              item={item}
-              hideContextMenu={true}
-              onSelect={props.onSelect}
-              discardType={DirectoryItemType.FILE}
-            />
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function NewFolderNameDialog(props: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onCreate: (name: string) => void
-}) {
-  const [folderName, setFolderName] = React.useState<string>('')
-  const handleCreate = () => {
-    props.onCreate(folderName)
-    setFolderName('')
-  }
-
-  return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>New Folder</DialogTitle>
-          <DialogDescription>Enter the name of the new folder.</DialogDescription>
-        </DialogHeader>
-        <input
-          type="text"
-          value={folderName}
-          onChange={(e) => setFolderName(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full"
-        />
-        <Button onClick={handleCreate}>Create</Button>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function RenameDialog(props: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onRename: (name: string) => void
-  item: DirectoryItem | undefined
-}) {
-  const [newName, setNewName] = React.useState<string>('')
-  const handleRename = () => {
-    if (props.item) {
-      props.onRename(newName)
-      setNewName('')
-    }
-  }
-
-  return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Rename {props.item?.name}</DialogTitle>
-          <DialogDescription>Enter the new name for the item.</DialogDescription>
-        </DialogHeader>
-        <input
-          type="text"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full"
-        />
-        <Button onClick={handleRename}>Rename</Button>
-      </DialogContent>
-    </Dialog>
   )
 }
