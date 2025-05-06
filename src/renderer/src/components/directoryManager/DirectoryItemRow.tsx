@@ -24,7 +24,7 @@ interface DirectoryItemProps {
   onDelete?: (item: DirectoryItem) => void
   onMove?: (item: DirectoryItem) => void
   onRename?: (item: DirectoryItem) => void
-  onNewFolder?: (item: DirectoryItem) => void
+  onNewDirectoryItem?: (itemBase: DirectoryItem, newItemType: DirectoryItemType) => void
 }
 
 export function DirectoryItemRow(props: DirectoryItemProps) {
@@ -45,9 +45,9 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
     }
   }
 
-  const handleNewFolder = () => {
-    if (props.onNewFolder) {
-      props.onNewFolder(props.item)
+  const handleNewDirectoryItem = (type: DirectoryItemType) => {
+    if (props.onNewDirectoryItem) {
+      props.onNewDirectoryItem(props.item, type)
     }
   }
 
@@ -163,7 +163,16 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
             inset
             onClick={(e) => {
               e.stopPropagation()
-              handleNewFolder()
+              handleNewDirectoryItem(DirectoryItemType.FILE)
+            }}
+          >
+            New File
+          </ContextMenuItem>
+          <ContextMenuItem
+            inset
+            onClick={(e) => {
+              e.stopPropagation()
+              handleNewDirectoryItem(DirectoryItemType.FOLDER)
             }}
           >
             New Folder

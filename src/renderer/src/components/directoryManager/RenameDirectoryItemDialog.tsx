@@ -9,7 +9,11 @@ export default function RenameDialog(props: {
   onRename: (name: string) => void
   item: DirectoryItem | undefined
 }) {
-  const [newName, setNewName] = React.useState<string>('')
+  if (!props.item) {
+    return null
+  }
+
+  const [newName, setNewName] = React.useState<string>(props.item.name)
   const handleRename = () => {
     if (props.item) {
       props.onRename(newName)

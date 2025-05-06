@@ -15,6 +15,13 @@ export enum DirectoryType {
 
 //#region IPC
 
+export interface NewDirectoryItemArgs {
+  basePath: string
+  directoryType: DirectoryType
+  name: string
+  type: DirectoryItemType
+}
+
 export interface RenameAndMoveArgs {
   sourcePath: string
   destinationPath: string

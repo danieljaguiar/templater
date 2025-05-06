@@ -2,6 +2,7 @@ import {
   DirectoryItemIPCReponse,
   FileInterface,
   FileToSave,
+  NewFolderArgs,
   OpenDirectoryArgs,
   OpenDirectoryReplyData,
   OpenFileArgs,

@@ -1,12 +1,20 @@
+import { DirectoryItemType, DirectoryType, NewDirectoryItemArgs } from '@types'
 import React from 'react'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
 
 export default function NewDirectoryItemDialog(props: {
   open: boolean
+  newItemArgs: NewDirectoryItemArgs | null
   onOpenChange: (open: boolean) => void
   onCreate: (name: string) => void
 }) {
+  if (!props.newItemArgs) {
+    return null
+  }
+
+  const fileTypeName =
+    props.newItemArgs.directoryType === DirectoryType.DATASET ? 'dataset' : 'template'
   const [folderName, setFolderName] = React.useState<string>('')
   const handleCreate = () => {
     props.onCreate(folderName)
@@ -17,8 +25,16 @@ export default function NewDirectoryItemDialog(props: {
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New Folder</DialogTitle>
-          <DialogDescription>Enter the name of the new folder.</DialogDescription>
+          <DialogTitle>
+            {props.newItemArgs.type === DirectoryItemType.FOLDER
+              ? 'New Folder'
+              : `New ${fileTypeName}`}
+          </DialogTitle>
+          <DialogDescription>
+            {props.newItemArgs.type === DirectoryItemType.FOLDER
+              ? `Create a new folder in the ${fileTypeName} directory`
+              : `Create a new ${fileTypeName} file`}
+          </DialogDescription>
         </DialogHeader>
         <input
           type="text"

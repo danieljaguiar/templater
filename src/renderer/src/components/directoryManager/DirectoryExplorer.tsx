@@ -8,6 +8,7 @@ import {
   DirectoryItemType,
   DirectoryType,
   GetFullPathFromBaseDirectoryItemInfo,
+  NewDirectoryItemArgs,
   OpenDirectoryReplyData
 } from '@types'
 import { FolderOpen, RefreshCw } from 'lucide-react'
@@ -24,6 +25,7 @@ interface DirectoryExplorerProps {
   onFileOpened?: (item: BaseDirectoryItem) => void
   onFileDeleted?: (item: BaseDirectoryItem) => void
   onFileEdited?: (item: BaseDirectoryItem) => void
+  onFileCreated?: (item: BaseDirectoryItem) => void
   onFolderDeleted?: (item: BaseDirectoryItem) => void
 }
 
@@ -33,6 +35,7 @@ export function DirectoryExplorer({
   onFileOpened,
   onFileDeleted,
   onFolderDeleted,
+  onFileCreated,
   onFileEdited
 }: DirectoryExplorerProps) {
   const storageKey = `directory-explorer-${directoryType}`
@@ -43,7 +46,8 @@ export function DirectoryExplorer({
     undefined
   )
   const [itemToRename, setItemToRename] = React.useState<DirectoryItem | undefined>(undefined)
-  const [newFolderBasePath, setNewFolderBasePath] = React.useState<string>('')
+  const [newDirectoryItemData, setNewDirectoryItemData] =
+    React.useState<NewDirectoryItemArgs | null>(null)
 
   const selectHandler = async (dirItem: DirectoryItem) => {
     setSelectedId(dirItem.fullPath)
@@ -63,9 +67,78 @@ export function DirectoryExplorer({
     }
   }
 
-  const newFolderHandler = (dirItem: DirectoryItem) => {
+  const newDirectoryItemHandler = (dirItem: DirectoryItem, type: DirectoryItemType) => {
     const path = dirItem.type === DirectoryItemType.FILE ? dirItem.basePath : dirItem.fullPath
-    setNewFolderBasePath(path)
+    setNewDirectoryItemData({
+      directoryType,
+      basePath: path,
+      name: '',
+      type
+    })
+  }
+
+  const processDirectoryItem = async (name) => {
+    if (!newDirectoryItemData) return
+    if (name === '') {
+      toast({
+        title: 'Error',
+        description: 'Name cannot be empty.',
+        variant: 'destructive'
+      })
+      return
+    }
+    if (newDirectoryItemData.type === DirectoryItemType.FOLDER) {
+      const res = await window.electronAPI.newFolder({
+        basePath: newDirectoryItemData.basePath,
+        name
+      })
+      if (res === DirectoryItemIPCReponse.SUCCESS) {
+        setNewDirectoryItemData(null)
+        toast({
+          title: 'Success',
+          description: `Folder ${name} created successfully.`,
+          variant: 'default'
+        })
+        reloadTemplateDirectoryHandler()
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to create folder ${name}.`,
+          variant: 'destructive'
+        })
+      }
+    } else {
+      const newFile: BaseDirectoryItem = {
+        basePath: newDirectoryItemData.basePath,
+        name,
+        type: DirectoryItemType.FILE,
+        extension: directoryType === DirectoryType.DATASET ? 'json' : 'txt',
+        content: directoryType === DirectoryType.DATASET ? '[]' : ''
+      }
+      const res = await window.electronAPI.saveFile(newFile)
+      if (res === DirectoryItemIPCReponse.SUCCESS) {
+        setNewDirectoryItemData(null)
+        toast({
+          title: 'Success',
+          description: `File ${name} created successfully.`,
+          variant: 'default'
+        })
+        if (onFileCreated) onFileCreated(newFile)
+        reloadTemplateDirectoryHandler()
+      } else if (res === DirectoryItemIPCReponse.CONFLICT) {
+        toast({
+          title: 'Error',
+          description: `File ${name} already exists.`,
+          variant: 'destructive'
+        })
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to create file ${name}.`,
+          variant: 'destructive'
+        })
+      }
+    }
   }
 
   const deleteHandler = async (dirItem: DirectoryItem) => {
@@ -246,33 +319,14 @@ export function DirectoryExplorer({
           />
 
           <NewDirectoryItemDialog
-            open={newFolderBasePath !== ''}
+            open={newDirectoryItemData !== null}
+            newItemArgs={newDirectoryItemData}
             onOpenChange={(open) => {
               if (!open) {
-                setNewFolderBasePath('')
+                setNewDirectoryItemData(null)
               }
             }}
-            onCreate={async (name) => {
-              const res = await window.electronAPI.newFolder({
-                basePath: newFolderBasePath,
-                name
-              })
-              if (res === DirectoryItemIPCReponse.SUCCESS) {
-                setNewFolderBasePath('')
-                toast({
-                  title: 'Success',
-                  description: `Folder ${name} created successfully.`,
-                  variant: 'default'
-                })
-                reloadTemplateDirectoryHandler()
-              } else {
-                toast({
-                  title: 'Error',
-                  description: `Failed to create folder ${name}.`,
-                  variant: 'destructive'
-                })
-              }
-            }}
+            onCreate={processDirectoryItem}
           />
 
           {/* Main tree */}
@@ -283,7 +337,7 @@ export function DirectoryExplorer({
               selectedId={selectedId}
               onSelect={selectHandler}
               onDelete={deleteHandler}
-              onNewFolder={newFolderHandler}
+              onNewDirectoryItem={newDirectoryItemHandler}
               onMove={moveItemHandler}
               onRename={renameItemHandler}
             />
