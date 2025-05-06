@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 import useDatasetStore from '@/stores/datasetStore'
 import { Copy, SaveIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -12,7 +13,6 @@ import {
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { Separator } from './ui/separator'
 
 export default function DatasetForm() {
   // Get fields from the store
@@ -23,10 +23,8 @@ export default function DatasetForm() {
     reset,
     setFileInfo
   } = useDatasetStore()
-  const [stateFileName, setStateFileName] = useState<string>('')
   const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
-  const [fileSaveError, setFileSaveError] = useState<string | null>(null)
 
   // Sort and separate dataset when it changes
   useEffect(() => {
@@ -41,41 +39,20 @@ export default function DatasetForm() {
     setSortedNonTemplateData(nonTemplateData)
   }, [fields])
 
-  useEffect(() => {
-    if (fileInfo) {
-      setStateFileName(fileInfo.name)
-      setFileSaveError(null)
-    }
-  }, [fileInfo])
-
   // Handle input change
   const handleChange = (item: FieldInUse) => {
     const updatedItem = { ...item, value: item.value } // Trim whitespace
     addOrUpdateData(updatedItem) // Update the store with the new value
   }
 
-  const handleNewFile = async () => {
-    reset()
-    setStateFileName('')
-  }
-
   const handleFileSave = async () => {
-    if (stateFileName.trim() === '') {
-      setFileSaveError('File name cannot be empty')
-      return
-    }
     if (!fileInfo) {
-      setFileSaveError('No file info available')
       return
     }
     let fileToSaveLocal: FileToSave = fileInfo
 
     fileToSaveLocal = {
       ...fileToSaveLocal,
-      newFileName:
-        stateFileName !== fileToSaveLocal.name || fileToSaveLocal.name === ''
-          ? stateFileName
-          : undefined,
       extension: fileToSaveLocal.extension || 'json',
       content: JSON.stringify(
         fields
@@ -91,8 +68,6 @@ export default function DatasetForm() {
 
     const fileSaveResponse = await window.electronAPI.saveFile(fileToSaveLocal)
     if (fileSaveResponse !== DirectoryItemIPCReponse.SUCCESS) {
-      setFileSaveError('Error saving file: ' + fileSaveResponse)
-      console.error('Error saving file:', fileSaveResponse)
       toast({
         title: 'Error saving file',
         description: fileSaveResponse,
@@ -128,10 +103,20 @@ export default function DatasetForm() {
   // Render input field
   const renderField = (dataItem: FieldInUse) => (
     <div className="grid w-full items-center gap-1.5" key={dataItem.name}>
-      <Label htmlFor={dataItem.name}>{dataItem.name}</Label>
+      <Label
+        htmlFor={dataItem.name}
+        className={cn(dataItem.inTemplate ? 'text-primary' : 'text-muted-foreground/60')}
+      >
+        {dataItem.name}
+      </Label>
       <div className="flex items-center justify-between">
         <Input
-          className="flex-1"
+          className={cn(
+            'flex-1',
+            dataItem.inTemplate
+              ? 'bg-background'
+              : 'bg-muted/50 text-muted-foreground/60 border-muted/10 '
+          )}
           type="text"
           id={dataItem.name}
           value={dataItem.value}
@@ -177,62 +162,26 @@ export default function DatasetForm() {
           </Button>
         </div>
 
-        {/* FileName input */}
-        <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="fileName">File Name</Label>
-          <Input
-            type="text"
-            id="fileName"
-            value={stateFileName}
-            onChange={
-              (e) => setStateFileName(e.target.value) // Update the file name in the store
-            }
-          />
-          {fileSaveError && <p className="text-sm text-red-500">{fileSaveError}</p>}
+        {/* Dataset Filename as div, not input*/}
+        <div>
+          <Label className="text-2xl font-medium text-muted-foreground/70 ">
+            {fileInfo && fileInfo.name}
+          </Label>
         </div>
 
         {/* Template */}
         <div>
-          <div>
-            <div>Template Fields</div>
-          </div>
-          <div>
-            {sortedTemplateData.length > 0 ? (
-              <div className="space-y-4">{sortedTemplateData.map(renderField)}</div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No template fields found.</p>
-            )}
-          </div>
+          <div className="space-y-4">{sortedTemplateData.map(renderField)}</div>
         </div>
-
-        <Separator />
 
         {/* Non-Template */}
         <div>
-          <div>
-            <div>Additional Fields</div>
-          </div>
-          <div>
-            {sortedNonTemplateData.length > 0 ? (
-              <div className="space-y-4">{sortedNonTemplateData.map(renderField)}</div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No additional fields found.</p>
-            )}
-          </div>
-        </div>
-      </div>
-      <Separator className="my-4" />
-      <div className="flex items-center justify-between">
-        <pre className="text-sm text-muted-foreground">
-          {JSON.stringify(
-            {
-              fileInfo,
-              fields
-            },
-            null,
-            2
+          {sortedNonTemplateData.length > 0 ? (
+            <div className="space-y-4">{sortedNonTemplateData.map(renderField)}</div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No additional fields found.</p>
           )}
-        </pre>
+        </div>
       </div>
     </>
   )
