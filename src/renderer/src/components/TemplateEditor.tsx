@@ -1,6 +1,8 @@
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/hooks/use-toast'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
+import { DirectoryItemIPCReponse } from '@types'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
@@ -40,7 +42,27 @@ export default function TemplateEditor(props: TemplateEditorProps) {
       extension: selectedTemplate.extension || 'json',
       content: fileContent
     })
-    props.editingFinished()
+    if (fileSaveResponse === DirectoryItemIPCReponse.SUCCESS) {
+      toast({
+        title: 'File saved',
+        description: `File ${fileName} saved successfully.`,
+        variant: 'default'
+      })
+      props.editingFinished()
+    } else if (fileSaveResponse === DirectoryItemIPCReponse.CONFLICT) {
+      toast({
+        title: 'File already exists',
+        description: `File ${fileName} already exists. Please choose a different name.`,
+        variant: 'destructive'
+      })
+    } else {
+      toast({
+        title: 'Error saving file',
+        description: fileSaveResponse,
+        variant: 'destructive'
+      })
+      console.error('Error saving file:', fileSaveResponse)
+    }
   }
 
   const handleCancel = () => {
@@ -81,7 +103,7 @@ export default function TemplateEditor(props: TemplateEditorProps) {
           onChange={(e) => {
             setFileContent(e.target.value)
           }}
-          className="min-h-[400px] resize-none border-0"
+          className="min-h-[400px] resize-none "
         />
       </div>
     </div>

@@ -130,11 +130,10 @@ export default function TempalteViewer(props: TemplateViewerProps) {
   useEffect(() => {
     if (
       selectedTemplate !== null &&
-      selectedTemplate.content &&
       (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
     ) {
       setFileName(selectedTemplate.name)
-      setFileContent(selectedTemplate.content)
+      setFileContent(selectedTemplate.content || '')
     }
   }, [selectedTemplate, fileName, fileContent])
 

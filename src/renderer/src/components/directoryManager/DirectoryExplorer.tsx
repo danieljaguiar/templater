@@ -11,7 +11,7 @@ import {
   NewDirectoryItemArgs,
   OpenDirectoryReplyData
 } from '@types'
-import { FolderOpen, RefreshCw } from 'lucide-react'
+import { FilePlus, FolderOpen, RefreshCw } from 'lucide-react'
 import * as React from 'react'
 import { Button } from '../ui/button'
 import { DirectoryItemRow } from './DirectoryItemRow'
@@ -77,7 +77,7 @@ export function DirectoryExplorer({
     })
   }
 
-  const processDirectoryItem = async (name) => {
+  const processNewDirectoryItem = async (name) => {
     if (!newDirectoryItemData) return
     if (name === '') {
       toast({
@@ -282,6 +282,25 @@ export function DirectoryExplorer({
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => {
+              newDirectoryItemHandler(
+                {
+                  name: '',
+                  fullPath: basePath || '',
+                  type: DirectoryItemType.FILE,
+                  basePath: basePath || ''
+                },
+                DirectoryItemType.FILE
+              )
+            }}
+            disabled={!basePath}
+            title="Reload"
+          >
+            <FilePlus className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={reloadTemplateDirectoryHandler}
             disabled={!basePath}
             title="Reload"
@@ -326,7 +345,7 @@ export function DirectoryExplorer({
                 setNewDirectoryItemData(null)
               }
             }}
-            onCreate={processDirectoryItem}
+            onCreate={processNewDirectoryItem}
           />
 
           {/* Main tree */}

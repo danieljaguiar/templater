@@ -39,7 +39,7 @@ async function handleDeleteFile(event: IpcMainEvent, args: OpenFileArgs): Promis
 }
 
 async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise<void> {
-  if (!fileInfo || !fileInfo.basePath || !fileInfo.type || !fileInfo.content) {
+  if (!fileInfo || !fileInfo.basePath || !fileInfo.type) {
     console.error('Invalid file information provided:', fileInfo)
     event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.UNKNOWN_ERROR)
     return
@@ -88,7 +88,7 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
     }
 
     // Save the file content
-    fs.writeFileSync(fullFilePath, fileInfo.content, 'utf-8')
+    fs.writeFileSync(fullFilePath, fileInfo.content || '', 'utf-8')
     event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.SUCCESS)
   } catch (error) {
     console.error('Error saving file:', error)
