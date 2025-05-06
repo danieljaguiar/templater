@@ -1,6 +1,6 @@
 import { toast } from '@/hooks/use-toast'
 import useDatasetStore from '@/stores/datasetStore'
-import { Copy } from 'lucide-react'
+import { Copy, SaveIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
@@ -166,23 +166,15 @@ export default function DatasetForm() {
       <div className="space-y-4 ">
         {/* Top bar with button to save to file */}
         <div className="flex items-center justify-between ">
-          <button
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          <Button
+            size={'icon'}
+            variant={'ghost'}
             onClick={() => {
               handleFileSave() // Save the file when the button is clicked
             }}
           >
-            Save
-          </button>
-
-          <button
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            onClick={() => {
-              handleNewFile()
-            }}
-          >
-            New
-          </button>
+            <SaveIcon className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* FileName input */}
