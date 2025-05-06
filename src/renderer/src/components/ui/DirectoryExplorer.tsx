@@ -187,6 +187,7 @@ interface DirectoryExplorerProps {
   onFileOpened?: (item: BaseDirectoryItem) => void
   onFileDeleted?: (item: BaseDirectoryItem) => void
   onFileEdited?: (item: BaseDirectoryItem) => void
+  onFolderDeleted?: (item: BaseDirectoryItem) => void
 }
 
 export function DirectoryExplorer({
@@ -194,6 +195,7 @@ export function DirectoryExplorer({
   directoryType,
   onFileOpened,
   onFileDeleted,
+  onFolderDeleted,
   onFileEdited
 }: DirectoryExplorerProps) {
   const storageKey = `directory-explorer-${directoryType}`
@@ -227,17 +229,21 @@ export function DirectoryExplorer({
   }
 
   const newFolderHandler = (dirItem: DirectoryItem) => {
-    setNewFolderBasePath(dirItem.basePath)
+    const path = dirItem.type === DirectoryItemType.FILE ? dirItem.basePath : dirItem.fullPath
+    setNewFolderBasePath(path)
   }
 
   const deleteHandler = async (dirItem: DirectoryItem) => {
-    const res = await window.electronAPI.deleteFile({
-      fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
-    })
+    const fullPath = GetFullPathFromBaseDirectoryItemInfo(dirItem)
+
+    const res =
+      dirItem.type === DirectoryItemType.FILE
+        ? await window.electronAPI.deleteFile({ fullPath })
+        : await window.electronAPI.deleteFolder(fullPath)
     if (res === DirectoryItemIPCReponse.SUCCESS) {
-      if (onFileDeleted) {
-        onFileDeleted(dirItem)
-      }
+      if (dirItem.type === DirectoryItemType.FILE && onFileDeleted) onFileDeleted(dirItem)
+      if (dirItem.type === DirectoryItemType.FOLDER && onFolderDeleted) onFolderDeleted(dirItem)
+      reloadTemplateDirectoryHandler()
       toast({
         title: 'Success',
         description: `${dirItem.name} deleted successfully.`,

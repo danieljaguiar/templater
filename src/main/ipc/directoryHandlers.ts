@@ -15,6 +15,7 @@ import {
 export function registerDirectoryHandlers(): void {
   ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenDirectory)
   ipcMain.on(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, handleNewFolder)
+  ipcMain.on(IPC_CHANNELS.DIRECTORY.DELETE_FOLDER, handleDeleteFolder)
 }
 
 async function handleNewFolder(event: IpcMainEvent, args: NewFolderArgs): Promise<void> {
@@ -25,6 +26,15 @@ async function handleNewFolder(event: IpcMainEvent, args: NewFolderArgs): Promis
 
   fs.mkdirSync(fullPath, { recursive: true })
   event.reply(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, DirectoryItemIPCReponse.SUCCESS)
+}
+
+async function handleDeleteFolder(event: IpcMainEvent, path: string): Promise<void> {
+  try {
+    fs.rmdirSync(path, { recursive: true })
+    event.reply(IPC_CHANNELS.DIRECTORY.DELETE_FOLDER, DirectoryItemIPCReponse.SUCCESS)
+  } catch (error) {
+    event.reply(IPC_CHANNELS.DIRECTORY.DELETE_FOLDER, DirectoryItemIPCReponse.UNKNOWN_ERROR)
+  }
 }
 
 async function handleOpenDirectory(

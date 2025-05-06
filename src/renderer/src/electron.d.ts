@@ -9,6 +9,7 @@ import {
 
 interface ElectronAPI {
   newFolder: (args: NewFolderArgs) => Promise<DirectoryItemIPCReponse>
+  deleteFolder: (path: string) => Promise<DirectoryItemIPCReponse>
   openDirectory: (args: OpenDirectoryArgs) => void
   onOpenDirectory: (callback: (data: OpenDirectoryReplyData) => void) => void
   openFile: (args: OpenFileArgs) => Promise<FileInterface>

@@ -28,6 +28,14 @@ if (process.contextIsolated) {
           })
         })
       },
+      deleteFolder: (path: string) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.DIRECTORY.DELETE_FOLDER, path)
+          ipcRenderer.once(IPC_CHANNELS.DIRECTORY.DELETE_FOLDER, (_event, result) => {
+            resolve(result)
+          })
+        })
+      },
 
       // FILE HANDLERS
       openFile: (args: OpenFileArgs) => {
