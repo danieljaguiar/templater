@@ -1,4 +1,10 @@
-import { FileToSave, NewFolderArgs, OpenDirectoryArgs, OpenFileArgs } from '@/types/types'
+import {
+  FileToSave,
+  NewFolderArgs,
+  OpenDirectoryArgs,
+  OpenFileArgs,
+  RenameAndMoveArgs
+} from '@/types/types'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc/channels'
@@ -19,6 +25,14 @@ if (process.contextIsolated) {
         ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, args),
       onOpenDirectory: (callback) => {
         ipcRenderer.on(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, (_event, data) => callback(data))
+      },
+      renameOrMoveItem: (args: RenameAndMoveArgs) => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.DIRECTORY.RENAME_OR_MOVE, args)
+          ipcRenderer.once(IPC_CHANNELS.DIRECTORY.RENAME_OR_MOVE, (_event, result) => {
+            resolve(result)
+          })
+        })
       },
       newFolder: (args: NewFolderArgs) => {
         return new Promise((resolve) => {

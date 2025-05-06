@@ -9,13 +9,27 @@ import {
   ExtractBasePathFromDirectoryItem,
   NewFolderArgs,
   OpenDirectoryArgs,
-  OpenDirectoryReplyData
+  OpenDirectoryReplyData,
+  RenameAndMoveArgs
 } from '../../types/types'
 
 export function registerDirectoryHandlers(): void {
   ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenDirectory)
   ipcMain.on(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, handleNewFolder)
   ipcMain.on(IPC_CHANNELS.DIRECTORY.DELETE_FOLDER, handleDeleteFolder)
+  ipcMain.on(IPC_CHANNELS.DIRECTORY.RENAME_OR_MOVE, handleRenameAndMove)
+}
+
+async function handleRenameAndMove(event: IpcMainEvent, args: RenameAndMoveArgs): Promise<void> {
+  const sourcePath = args.sourcePath
+  const destinationPath = args.destinationPath
+
+  try {
+    fs.renameSync(sourcePath, destinationPath)
+    event.reply(IPC_CHANNELS.DIRECTORY.RENAME_OR_MOVE, DirectoryItemIPCReponse.SUCCESS)
+  } catch (error) {
+    event.reply(IPC_CHANNELS.DIRECTORY.RENAME_OR_MOVE, DirectoryItemIPCReponse.UNKNOWN_ERROR)
+  }
 }
 
 async function handleNewFolder(event: IpcMainEvent, args: NewFolderArgs): Promise<void> {

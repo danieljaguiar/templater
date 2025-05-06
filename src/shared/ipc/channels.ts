@@ -2,6 +2,7 @@ export const IPC_CHANNELS = {
   DIRECTORY: {
     NEW_FOLDER: 'new-folder',
     DELETE_FOLDER: 'delete-folder',
+    RENAME_OR_MOVE: 'move-item',
     OPEN: 'open-folder',
     OPEN_REPLY: 'open-folder-reply'
   },

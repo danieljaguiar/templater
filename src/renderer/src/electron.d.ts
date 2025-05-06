@@ -4,12 +4,14 @@ import {
   FileToSave,
   OpenDirectoryArgs,
   OpenDirectoryReplyData,
-  OpenFileArgs
+  OpenFileArgs,
+  RenameAndMoveArgs
 } from '../../types/types'
 
 interface ElectronAPI {
   newFolder: (args: NewFolderArgs) => Promise<DirectoryItemIPCReponse>
   deleteFolder: (path: string) => Promise<DirectoryItemIPCReponse>
+  renameOrMoveItem: (args: RenameAndMoveArgs) => Promise<DirectoryItemIPCReponse>
   openDirectory: (args: OpenDirectoryArgs) => void
   onOpenDirectory: (callback: (data: OpenDirectoryReplyData) => void) => void
   openFile: (args: OpenFileArgs) => Promise<FileInterface>

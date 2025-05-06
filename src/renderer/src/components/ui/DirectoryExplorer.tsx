@@ -38,11 +38,12 @@ interface TreeItemProps {
   onSelect?: (item: DirectoryItem) => void
   onDelete?: (item: DirectoryItem) => void
   onMove?: (item: DirectoryItem) => void
+  onRename?: (item: DirectoryItem) => void
   onNewFolder?: (item: DirectoryItem) => void
 }
 
 export function DirectoryExplorerItem(props: TreeItemProps) {
-  const [expanded, setExpanded] = React.useState(false)
+  const [expanded, setExpanded] = React.useState(props.level === 0 ? true : false)
   const isFolder = props.item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && props.item.children && props.item.children.length > 0
   const isSelected = props.selectedId === GetFullPathFromBaseDirectoryItemInfo(props.item)
@@ -62,6 +63,18 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
   const handleNewFolder = () => {
     if (props.onNewFolder) {
       props.onNewFolder(props.item)
+    }
+  }
+
+  const handleDelete = () => {
+    if (props.onDelete) {
+      props.onDelete(props.item)
+    }
+  }
+
+  const handleRename = () => {
+    if (props.onRename) {
+      props.onRename(props.item)
     }
   }
 
@@ -143,6 +156,17 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
             inset
             onClick={(e) => {
               e.stopPropagation()
+              if (props.onRename) {
+                props.onRename(props.item)
+              }
+            }}
+          >
+            Rename
+          </ContextMenuItem>
+          <ContextMenuItem
+            inset
+            onClick={(e) => {
+              e.stopPropagation()
               if (props.onDelete) {
                 props.onDelete(props.item)
               }
@@ -167,12 +191,9 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
           {props.item.children?.map((child) => (
             <DirectoryExplorerItem
               key={child.fullPath}
+              {...props}
               item={child}
               level={props.level || 0 + 1}
-              onSelect={props.onSelect}
-              selectedId={props.selectedId}
-              onDelete={props.onDelete}
-              discardType={props.discardType}
             />
           ))}
         </div>
@@ -205,9 +226,7 @@ export function DirectoryExplorer({
   const [itemToMoveSource, setItemToMoveSource] = React.useState<DirectoryItem | undefined>(
     undefined
   )
-  const [itemToMoveTarget, setItemToMoveTarget] = React.useState<DirectoryItem | undefined>(
-    undefined
-  )
+  const [itemToRename, setItemToRename] = React.useState<DirectoryItem | undefined>(undefined)
   const [newFolderBasePath, setNewFolderBasePath] = React.useState<string>('')
 
   const selectHandler = async (dirItem: DirectoryItem) => {
@@ -265,6 +284,85 @@ export function DirectoryExplorer({
     })
   }
 
+  const renameItemHandler = (item: DirectoryItem) => {
+    setItemToRename(item)
+  }
+
+  const processItemRename = async (name: string) => {
+    if (itemToRename) {
+      const newPath =
+        itemToRename.type === DirectoryItemType.FILE
+          ? `${itemToRename.basePath}/${name}${itemToRename.extension && itemToRename.extension !== '' ? '.' + itemToRename.extension : ''}`
+          : `${itemToRename.basePath}/${name}`
+
+      const res = await window.electronAPI.renameOrMoveItem({
+        sourcePath: itemToRename.fullPath,
+        destinationPath: newPath
+      })
+      if (res === DirectoryItemIPCReponse.SUCCESS) {
+        toast({
+          title: 'Success',
+          description: `${itemToRename.name} renamed to ${name} successfully.`,
+          variant: 'default'
+        })
+        reloadTemplateDirectoryHandler()
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to rename ${itemToRename.name}.`,
+          variant: 'destructive'
+        })
+      }
+    }
+    setItemToRename(undefined)
+  }
+
+  const moveItemHandler = async (item: DirectoryItem) => {
+    setItemToMoveSource(item)
+  }
+
+  const processItemMove = async (itemDestination) => {
+    if (itemToMoveSource) {
+      const sourcePath = itemToMoveSource.fullPath
+      const destinationPath = itemDestination.fullPath
+      if (sourcePath === destinationPath) {
+        toast({
+          title: 'Error',
+          description: `Cannot move ${itemToMoveSource.name} to the same location.`,
+          variant: 'destructive'
+        })
+        return
+      }
+      const res = await window.electronAPI.renameOrMoveItem({
+        sourcePath,
+        destinationPath: `${destinationPath}/${itemToMoveSource.name}`
+      })
+      if (res === DirectoryItemIPCReponse.SUCCESS) {
+        toast({
+          title: 'Success',
+          description: `${itemToMoveSource.name} moved successfully.`,
+          variant: 'default'
+        })
+        reloadTemplateDirectoryHandler()
+      } else {
+        toast({
+          title: 'Error',
+          description: `Failed to move ${itemToMoveSource.name}.`,
+          variant: 'destructive'
+        })
+      }
+    }
+    setItemToMoveSource(undefined)
+  }
+
+  const reloadTemplateDirectoryHandler = (): void => {
+    if (basePath === '') return
+    window.electronAPI.openDirectory({
+      type: directoryType,
+      path: basePath
+    })
+  }
+
   React.useEffect(() => {
     const handleOpenDirectory = async (res: OpenDirectoryReplyData) => {
       if (!res) return
@@ -280,18 +378,6 @@ export function DirectoryExplorer({
 
     return () => {}
   }, [])
-
-  const moveItemHandler = async (item: DirectoryItem) => {
-    setItemToMoveSource(item)
-  }
-
-  const reloadTemplateDirectoryHandler = (): void => {
-    if (basePath === '') return
-    window.electronAPI.openDirectory({
-      type: directoryType,
-      path: basePath
-    })
-  }
 
   React.useEffect(() => {
     reloadTemplateDirectoryHandler()
@@ -329,15 +415,18 @@ export function DirectoryExplorer({
               }
             }}
             directoryItems={directoryItems}
-            onSelect={(item) => {
-              // if (itemToMoveSource && itemToMoveTarget) {
-              //   window.electronAPI.moveFile({
-              //     source: itemToMoveSource,
-              //     target: itemToMoveTarget
-              //   })
-              // }
-              setItemToMoveSource(undefined)
+            onSelect={processItemMove}
+          />
+
+          <RenameDialog
+            open={itemToRename !== undefined}
+            onOpenChange={(open) => {
+              if (!open) {
+                setItemToRename(undefined)
+              }
             }}
+            item={itemToRename}
+            onRename={processItemRename}
           />
 
           <NewFolderNameDialog
@@ -380,6 +469,7 @@ export function DirectoryExplorer({
               onDelete={deleteHandler}
               onNewFolder={newFolderHandler}
               onMove={moveItemHandler}
+              onRename={renameItemHandler}
             />
           ))}
         </>
@@ -397,6 +487,15 @@ interface FolderSelectorProps {
 }
 
 export function FolderSelector(props: FolderSelectorProps) {
+  const rootDirectory: DirectoryItem[] = [
+    {
+      basePath: props.directoryItems[0].basePath,
+      name: 'Root',
+      fullPath: props.directoryItems[0].basePath,
+      type: DirectoryItemType.FOLDER,
+      children: props.directoryItems
+    }
+  ]
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogTrigger>Open</DialogTrigger>
@@ -409,7 +508,7 @@ export function FolderSelector(props: FolderSelectorProps) {
           </DialogDescription>
         </DialogHeader>
         <div className={cn('flex flex-col space-y-2', props.className)}>
-          {props.directoryItems.map((item) => (
+          {rootDirectory.map((item) => (
             <DirectoryExplorerItem
               key={item.fullPath}
               item={item}
@@ -450,6 +549,40 @@ function NewFolderNameDialog(props: {
           className="border border-gray-300 rounded-md p-2 w-full"
         />
         <Button onClick={handleCreate}>Create</Button>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function RenameDialog(props: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onRename: (name: string) => void
+  item: DirectoryItem | undefined
+}) {
+  const [newName, setNewName] = React.useState<string>('')
+  const handleRename = () => {
+    if (props.item) {
+      props.onRename(newName)
+      setNewName('')
+    }
+  }
+
+  return (
+    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogTrigger>Rename</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Rename {props.item?.name}</DialogTitle>
+          <DialogDescription>Enter the new name for the item.</DialogDescription>
+        </DialogHeader>
+        <input
+          type="text"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 w-full"
+        />
+        <Button onClick={handleRename}>Rename</Button>
       </DialogContent>
     </Dialog>
   )
