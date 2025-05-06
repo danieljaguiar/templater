@@ -5,16 +5,19 @@ import { IPC_CHANNELS } from '../../shared/ipc/channels'
 import {
   DirectoryItem,
   DirectoryItemType,
-  ExtractBaseFileFolderInfoFromFullPath,
-  OpenDirectoryReplyData,
-  OpenFolderArgs
+  ExtractBasePathFromDirectoryItem,
+  OpenDirectoryArgs,
+  OpenDirectoryReplyData
 } from '../../types/types'
 
 export function registerDirectoryHandlers(): void {
-  ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenFolder)
+  ipcMain.on(IPC_CHANNELS.DIRECTORY.OPEN, handleOpenDirectory)
 }
 
-async function handleOpenFolder(event: IpcMainEvent, folderPathArg: OpenFolderArgs): Promise<void> {
+async function handleOpenDirectory(
+  event: IpcMainEvent,
+  folderPathArg: OpenDirectoryArgs
+): Promise<void> {
   let folderPath = folderPathArg.path
   // if no folderpath then open dialog
   if (!folderPath || folderPath.trim() === '') {
@@ -47,7 +50,7 @@ function getDirectoryStructure(dir: string): DirectoryItem[] {
     const type: DirectoryItemType = stats.isDirectory()
       ? DirectoryItemType.FOLDER
       : DirectoryItemType.FILE
-    const base = ExtractBaseFileFolderInfoFromFullPath(itemFullPathForwardSlash, type)
+    const base = ExtractBasePathFromDirectoryItem(itemFullPathForwardSlash, type)
     if (type === DirectoryItemType.FOLDER) {
       structure.push({
         ...base,

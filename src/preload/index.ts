@@ -1,4 +1,4 @@
-import { FileToSave, OpenFileArgs, OpenFolderArgs } from '@/types/types'
+import { FileToSave, OpenDirectoryArgs, OpenFileArgs } from '@/types/types'
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc/channels'
@@ -14,9 +14,10 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
-      // FOLDER HANDLERS
-      openFolder: (args: OpenFolderArgs) => ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, args),
-      onOpenFolder: (callback) => {
+      // DIRECTORY HANDLERS
+      openDirectory: (args: OpenDirectoryArgs) =>
+        ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, args),
+      onOpenDirectory: (callback) => {
         ipcRenderer.on(IPC_CHANNELS.DIRECTORY.OPEN_REPLY, (_event, data) => callback(data))
       },
 

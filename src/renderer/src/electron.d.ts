@@ -2,14 +2,14 @@ import {
   FileInterface,
   FileSavingStatus,
   FileToSave,
+  OpenDirectoryArgs,
   OpenDirectoryReplyData,
-  OpenFileArgs,
-  OpenFolderArgs
+  OpenFileArgs
 } from '../../types/types'
 
 interface ElectronAPI {
-  openFolder: (args: OpenFolderArgs) => void
-  onOpenFolder: (callback: (data: OpenDirectoryReplyData) => void) => void
+  openDirectory: (args: OpenDirectoryArgs) => void
+  onOpenDirectory: (callback: (data: OpenDirectoryReplyData) => void) => void
   openFile: (args: OpenFileArgs) => Promise<FileInterface>
   deleteFile: (args: OpenFileArgs) => Promise<FileSavingStatus>
   saveFile: (fileInfo: FileToSave) => Promise<FileSavingStatus>

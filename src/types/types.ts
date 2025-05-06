@@ -45,7 +45,7 @@ export interface OpenFileArgs {
   fullPath: string
 }
 
-export interface OpenFolderArgs {
+export interface OpenDirectoryArgs {
   path?: string
   type: DirectoryType
 }
@@ -76,7 +76,7 @@ export interface OpenDirectoryReplyData {
 
 //#endregion
 
-export function ExtractBaseFileFolderInfoFromFullPath(
+export function ExtractBasePathFromDirectoryItem(
   fullPath: string,
   type: DirectoryItemType
 ): BaseDirectoryItem {
@@ -95,7 +95,7 @@ export function ExtractBaseFileFolderInfoFromFullPath(
   return ret
 }
 
-export function GetFullPathFromBaseFileFolderInfo(baseFileFolder: BaseDirectoryItem): string {
-  const { basePath, name, extension } = baseFileFolder
+export function GetFullPathFromBaseDirectoryItemInfo(directoryItem: BaseDirectoryItem): string {
+  const { basePath, name, extension } = directoryItem
   return `${basePath}/${name}${extension ? '.' + extension : ''}`
 }

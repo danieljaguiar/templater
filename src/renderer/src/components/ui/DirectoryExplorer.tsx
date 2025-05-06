@@ -10,7 +10,7 @@ import {
   DirectoryItemType,
   DirectoryType,
   FileSavingStatus,
-  GetFullPathFromBaseFileFolderInfo,
+  GetFullPathFromBaseDirectoryItemInfo,
   OpenDirectoryReplyData
 } from '../../../../types/types'
 import { Button } from './button'
@@ -45,7 +45,7 @@ export function DirectoryExplorerItem(props: TreeItemProps) {
   const [expanded, setExpanded] = React.useState(false)
   const isFolder = props.item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && props.item.children && props.item.children.length > 0
-  const isSelected = props.selectedId === GetFullPathFromBaseFileFolderInfo(props.item)
+  const isSelected = props.selectedId === GetFullPathFromBaseDirectoryItemInfo(props.item)
 
   const handleToggle = () => {
     if (isFolder) {
@@ -197,7 +197,7 @@ export function DirectoryExplorer({
     setSelectedId(dirItem.fullPath)
     if (onFileOpened && dirItem.type === 'file') {
       const fileInfo = await window.electronAPI.openFile({
-        fullPath: GetFullPathFromBaseFileFolderInfo(dirItem)
+        fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
       })
       if (fileInfo) {
         onFileOpened(fileInfo)
@@ -213,7 +213,7 @@ export function DirectoryExplorer({
 
   const deleteHandler = async (dirItem: DirectoryItem) => {
     const res = await window.electronAPI.deleteFile({
-      fullPath: GetFullPathFromBaseFileFolderInfo(dirItem)
+      fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
     })
     if (res === FileSavingStatus.SUCCESS) {
       if (onFileDeleted) {
@@ -234,7 +234,7 @@ export function DirectoryExplorer({
   }
 
   const openFolderHandler = (): void => {
-    window.electronAPI.openFolder({
+    window.electronAPI.openDirectory({
       type: directoryType,
       path: basePath
     })
@@ -251,7 +251,7 @@ export function DirectoryExplorer({
       setBasePath(res.basePath)
     }
 
-    window.electronAPI.onOpenFolder(handleOpenDirectory)
+    window.electronAPI.onOpenDirectory(handleOpenDirectory)
 
     return () => {}
   }, [])
@@ -262,7 +262,7 @@ export function DirectoryExplorer({
 
   const reloadTemplateDirectoryHandler = (): void => {
     if (basePath === '') return
-    window.electronAPI.openFolder({
+    window.electronAPI.openDirectory({
       type: directoryType,
       path: basePath
     })
