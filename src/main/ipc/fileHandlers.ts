@@ -3,7 +3,7 @@ import fs from 'fs'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
 import {
   BaseDirectoryItem,
-  DirectoryItemSavingStatus,
+  DirectoryItemIPCReponse,
   DirectoryItemType,
   ExtractBasePathFromDirectoryItem,
   FileToSave,
@@ -32,16 +32,16 @@ async function handleDeleteFile(event: IpcMainEvent, args: OpenFileArgs): Promis
   const filePath = args.fullPath
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath)
-    event.reply(IPC_CHANNELS.FILE.DELETE, DirectoryItemSavingStatus.SUCCESS)
+    event.reply(IPC_CHANNELS.FILE.DELETE, DirectoryItemIPCReponse.SUCCESS)
   } else {
-    event.reply(IPC_CHANNELS.FILE.DELETE, DirectoryItemSavingStatus.UNKNOWN_ERROR)
+    event.reply(IPC_CHANNELS.FILE.DELETE, DirectoryItemIPCReponse.UNKNOWN_ERROR)
   }
 }
 
 async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise<void> {
   if (!fileInfo || !fileInfo.basePath || !fileInfo.type || !fileInfo.content) {
     console.error('Invalid file information provided:', fileInfo)
-    event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemSavingStatus.UNKNOWN_ERROR)
+    event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.UNKNOWN_ERROR)
     return
   }
 
@@ -57,7 +57,7 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
       })
       if (fs.existsSync(fullFilePath)) {
         // File already exists, return conflict status
-        event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemSavingStatus.CONFLICT)
+        event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.CONFLICT)
         return
       }
     } else if ((!fileInfo.newFileName || fileInfo.newFileName === '') && fileInfo.name) {
@@ -72,7 +72,7 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
       // Check if the new file name already exists
       if (fs.existsSync(fullFilePath)) {
         // File already exists, return conflict status
-        event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemSavingStatus.CONFLICT)
+        event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.CONFLICT)
         return
       }
 
@@ -84,14 +84,14 @@ async function handeSaveFile(event: IpcMainEvent, fileInfo: FileToSave): Promise
     } else {
       // fail
       console.error('File name is empty and no new file name provided.')
-      event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemSavingStatus.UNKNOWN_ERROR)
+      event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.UNKNOWN_ERROR)
     }
 
     // Save the file content
     fs.writeFileSync(fullFilePath, fileInfo.content, 'utf-8')
-    event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemSavingStatus.SUCCESS)
+    event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.SUCCESS)
   } catch (error) {
     console.error('Error saving file:', error)
-    event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemSavingStatus.UNKNOWN_ERROR)
+    event.reply(IPC_CHANNELS.FILE.SAVE, DirectoryItemIPCReponse.UNKNOWN_ERROR)
   }
 }

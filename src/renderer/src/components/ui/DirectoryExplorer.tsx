@@ -7,7 +7,7 @@ import * as React from 'react'
 import {
   BaseDirectoryItem,
   DirectoryItem,
-  DirectoryItemSavingStatus,
+  DirectoryItemIPCReponse,
   DirectoryItemType,
   DirectoryType,
   GetFullPathFromBaseDirectoryItemInfo,
@@ -234,7 +234,7 @@ export function DirectoryExplorer({
     const res = await window.electronAPI.deleteFile({
       fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
     })
-    if (res === DirectoryItemSavingStatus.SUCCESS) {
+    if (res === DirectoryItemIPCReponse.SUCCESS) {
       if (onFileDeleted) {
         onFileDeleted(dirItem)
       }
@@ -346,7 +346,7 @@ export function DirectoryExplorer({
                 basePath: newFolderBasePath,
                 name
               })
-              if (res === DirectoryItemSavingStatus.SUCCESS) {
+              if (res === DirectoryItemIPCReponse.SUCCESS) {
                 setNewFolderBasePath('')
                 toast({
                   title: 'Success',

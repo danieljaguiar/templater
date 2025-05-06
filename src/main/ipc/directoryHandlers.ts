@@ -4,7 +4,7 @@ import { join } from 'path'
 import { IPC_CHANNELS } from '../../shared/ipc/channels'
 import {
   DirectoryItem,
-  DirectoryItemSavingStatus,
+  DirectoryItemIPCReponse,
   DirectoryItemType,
   ExtractBasePathFromDirectoryItem,
   NewFolderArgs,
@@ -24,7 +24,7 @@ async function handleNewFolder(event: IpcMainEvent, args: NewFolderArgs): Promis
   const fullPath = join(folderPath, folderName)
 
   fs.mkdirSync(fullPath, { recursive: true })
-  event.reply(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, DirectoryItemSavingStatus.SUCCESS)
+  event.reply(IPC_CHANNELS.DIRECTORY.NEW_FOLDER, DirectoryItemIPCReponse.SUCCESS)
 }
 
 async function handleOpenDirectory(

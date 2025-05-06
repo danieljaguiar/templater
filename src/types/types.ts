@@ -35,10 +35,10 @@ export interface BaseDirectoryItem {
 
 //#region FILE HANDLERS
 
-export enum DirectoryItemSavingStatus {
+export enum DirectoryItemIPCReponse {
   SUCCESS = 'success',
   CONFLICT = 'conflict',
-  FILE_NOT_FOUND = 'file-not-found',
+  NOT_FOUND = 'not-found',
   UNKNOWN_ERROR = 'unknown-error'
 }
 
