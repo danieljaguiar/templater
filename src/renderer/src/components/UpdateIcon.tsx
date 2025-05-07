@@ -38,7 +38,7 @@ export default function UpdateIcon() {
     setShowUpdateDialog(true)
   }
 
-  //   if (!updateAvailable) return null
+  if (!updateAvailable) return null
 
   return (
     <div>
