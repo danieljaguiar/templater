@@ -16,7 +16,7 @@ import { Label } from './ui/label'
 
 export default function DatasetForm() {
   // Get fields from the store
-  const { fields, addOrUpdateField, fileInfo, setFileInfo } = useDatasetStore()
+  const { fields, addOrUpdateField, fileInfo, setFileInfo, reset } = useDatasetStore()
   const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
 
@@ -36,7 +36,7 @@ export default function DatasetForm() {
   const handleCloseDataset = () => {
     setSortedTemplateData([]) // Clear the sorted template data
     setSortedNonTemplateData([]) // Clear the sorted non-template data
-    setFileInfo(null) // Reset the file info in the store
+    reset() // Reset the dataset store
   }
 
   // Handle input change

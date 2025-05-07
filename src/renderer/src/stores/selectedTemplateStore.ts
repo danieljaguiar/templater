@@ -42,7 +42,11 @@ const useSelectedTemplateStore = create<SelectedTempalteStore>((set) => ({
       placeholders: placeholders
     })
   },
-  resetSelectedTemplate: () => set({ selectedTemplate: null, placeholders: [] })
+  resetSelectedTemplate: () => {
+    set({ selectedTemplate: null, placeholders: [] })
+    const { removeFieldsNotInUseAndResetTemplateFlag } = useDatasetStore.getState()
+    removeFieldsNotInUseAndResetTemplateFlag()
+  }
 }))
 
 export default useSelectedTemplateStore

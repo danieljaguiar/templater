@@ -93,11 +93,8 @@ const useDatasetStore = create<DatasetStore>((set) => ({
       }
     }),
   reset: () =>
-    set((state) => {
-      const resetedFields = state.fields.map((d) => {
-        return { ...d, inDisk: false, value: '' }
-      })
-      return { fields: resetedFields, fileInfo: null }
+    set(() => {
+      return { fields: [], fileInfo: null }
     })
 }))
 

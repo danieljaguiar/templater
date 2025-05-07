@@ -18,7 +18,7 @@ interface DirectoryItemProps {
   item: DirectoryItem
   hideContextMenu?: boolean
   discardType?: DirectoryItemType
-  selectedId?: string
+  selectedId?: string | null
   level?: number
   onSelect?: (item: DirectoryItem) => void
   onDelete?: (item: DirectoryItem) => void
@@ -31,7 +31,7 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
   const [expanded, setExpanded] = React.useState(!props.level ? true : false)
   const isFolder = props.item.type === DirectoryItemType.FOLDER
   const hasChildren = isFolder && props.item.children && props.item.children.length > 0
-  const isSelected = props.selectedId === GetFullPathFromBaseDirectoryItemInfo(props.item)
+  const [isSelected, setIsSelected] = React.useState(false)
 
   const handleToggle = () => {
     if (isFolder) {
@@ -51,17 +51,19 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
     }
   }
 
-  const handleDelete = () => {
-    if (props.onDelete) {
-      props.onDelete(props.item)
+  React.useEffect(() => {
+    console.log(props.selectedId)
+    if (props.selectedId) {
+      const fullPath = GetFullPathFromBaseDirectoryItemInfo(props.item)
+      const isSelected = fullPath === props.selectedId
+      if (isSelected) {
+        console.log('Selected item:', props.item.name)
+      }
+      setIsSelected(fullPath === props.selectedId)
+    } else {
+      setIsSelected(false)
     }
-  }
-
-  const handleRename = () => {
-    if (props.onRename) {
-      props.onRename(props.item)
-    }
-  }
+  }, [props.selectedId, props.item])
 
   if (props.discardType && props.item.type === props.discardType) return null
 

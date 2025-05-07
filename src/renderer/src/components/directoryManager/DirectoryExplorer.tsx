@@ -22,6 +22,8 @@ import RenameDialog from './RenameDirectoryItemDialog'
 interface DirectoryExplorerProps {
   className?: string
   directoryType: DirectoryType
+  selectedId?: string | null
+  onSelect: (item: DirectoryItem) => void
   onFileOpened?: (item: BaseDirectoryItem) => void
   onFileDeleted?: (item: BaseDirectoryItem) => void
   onFileEdited?: (item: BaseDirectoryItem) => void
@@ -33,7 +35,6 @@ export function DirectoryExplorer(props: DirectoryExplorerProps) {
   const storageKey = `directory-explorer-${props.directoryType}`
   const [basePath, setBasePath] = useLocalStorage<string>(storageKey, '')
   const [directoryItems, setDirectoryItems] = React.useState<DirectoryItem[] | undefined>(undefined)
-  const [selectedId, setSelectedId] = React.useState<string | undefined>()
   const [itemToMoveSource, setItemToMoveSource] = React.useState<DirectoryItem | undefined>(
     undefined
   )
@@ -42,7 +43,7 @@ export function DirectoryExplorer(props: DirectoryExplorerProps) {
     React.useState<NewDirectoryItemArgs | null>(null)
 
   const selectHandler = async (dirItem: DirectoryItem) => {
-    setSelectedId(dirItem.fullPath)
+    props.onSelect(dirItem)
     if (props.onFileOpened && dirItem.type === 'file') {
       const fileInfo = await window.electronAPI.openFile({
         fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
@@ -347,7 +348,7 @@ export function DirectoryExplorer(props: DirectoryExplorerProps) {
             <DirectoryItemRow
               key={item.fullPath}
               item={item}
-              selectedId={selectedId}
+              selectedId={props.selectedId}
               onSelect={selectHandler}
               onDelete={deleteHandler}
               onNewDirectoryItem={newDirectoryItemHandler}
