@@ -29,15 +29,8 @@ interface DirectoryExplorerProps {
   onFolderDeleted?: (item: BaseDirectoryItem) => void
 }
 
-export function DirectoryExplorer({
-  className,
-  directoryType,
-  onFileOpened,
-  onFileDeleted,
-  onFolderDeleted,
-  onFileCreated
-}: DirectoryExplorerProps) {
-  const storageKey = `directory-explorer-${directoryType}`
+export function DirectoryExplorer(props: DirectoryExplorerProps) {
+  const storageKey = `directory-explorer-${props.directoryType}`
   const [basePath, setBasePath] = useLocalStorage<string>(storageKey, '')
   const [directoryItems, setDirectoryItems] = React.useState<DirectoryItem[] | undefined>(undefined)
   const [selectedId, setSelectedId] = React.useState<string | undefined>()
@@ -50,12 +43,12 @@ export function DirectoryExplorer({
 
   const selectHandler = async (dirItem: DirectoryItem) => {
     setSelectedId(dirItem.fullPath)
-    if (onFileOpened && dirItem.type === 'file') {
+    if (props.onFileOpened && dirItem.type === 'file') {
       const fileInfo = await window.electronAPI.openFile({
         fullPath: GetFullPathFromBaseDirectoryItemInfo(dirItem)
       })
       if (fileInfo) {
-        onFileOpened(fileInfo)
+        props.onFileOpened(fileInfo)
       } else {
         toast({
           title: 'Error',
@@ -69,7 +62,7 @@ export function DirectoryExplorer({
   const newDirectoryItemHandler = (dirItem: DirectoryItem, type: DirectoryItemType) => {
     const path = dirItem.type === DirectoryItemType.FILE ? dirItem.basePath : dirItem.fullPath
     setNewDirectoryItemData({
-      directoryType,
+      directoryType: props.directoryType,
       basePath: path,
       name: '',
       type
@@ -111,8 +104,8 @@ export function DirectoryExplorer({
         basePath: newDirectoryItemData.basePath,
         name,
         type: DirectoryItemType.FILE,
-        extension: directoryType === DirectoryType.DATASET ? 'json' : 'txt',
-        content: directoryType === DirectoryType.DATASET ? '[]' : ''
+        extension: props.directoryType === DirectoryType.DATASET ? 'json' : 'txt',
+        content: props.directoryType === DirectoryType.DATASET ? '[]' : ''
       }
       const res = await window.electronAPI.saveFile(newFile)
       if (res === DirectoryItemIPCReponse.SUCCESS) {
@@ -122,7 +115,7 @@ export function DirectoryExplorer({
           description: `File ${name} created successfully.`,
           variant: 'default'
         })
-        if (onFileCreated) onFileCreated(newFile)
+        if (props.onFileCreated) props.onFileCreated(newFile)
         reloadTemplateDirectoryHandler()
       } else if (res === DirectoryItemIPCReponse.CONFLICT) {
         toast({
@@ -148,8 +141,10 @@ export function DirectoryExplorer({
         ? await window.electronAPI.deleteFile({ fullPath })
         : await window.electronAPI.deleteFolder(fullPath)
     if (res === DirectoryItemIPCReponse.SUCCESS) {
-      if (dirItem.type === DirectoryItemType.FILE && onFileDeleted) onFileDeleted(dirItem)
-      if (dirItem.type === DirectoryItemType.FOLDER && onFolderDeleted) onFolderDeleted(dirItem)
+      if (dirItem.type === DirectoryItemType.FILE && props.onFileDeleted)
+        props.onFileDeleted(dirItem)
+      if (dirItem.type === DirectoryItemType.FOLDER && props.onFolderDeleted)
+        props.onFolderDeleted(dirItem)
       reloadTemplateDirectoryHandler()
       toast({
         title: 'Success',
@@ -167,7 +162,7 @@ export function DirectoryExplorer({
 
   const openFolderHandler = (): void => {
     window.electronAPI.openDirectory({
-      type: directoryType,
+      type: props.directoryType,
       path: basePath
     })
   }
@@ -246,7 +241,7 @@ export function DirectoryExplorer({
   const reloadTemplateDirectoryHandler = (): void => {
     if (basePath === '') return
     window.electronAPI.openDirectory({
-      type: directoryType,
+      type: props.directoryType,
       path: basePath
     })
   }
@@ -255,7 +250,7 @@ export function DirectoryExplorer({
     const handleOpenDirectory = async (res: OpenDirectoryReplyData) => {
       if (!res) return
 
-      if (res.type !== directoryType) {
+      if (res.type !== props.directoryType) {
         return
       }
       setDirectoryItems(res.directoryItems)
@@ -272,7 +267,7 @@ export function DirectoryExplorer({
   }, [])
 
   return (
-    <div className={cn('', className)}>
+    <div className={cn('', props.className)}>
       <div>
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="icon" onClick={openFolderHandler} title="Open Folder">
