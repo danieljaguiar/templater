@@ -154,13 +154,12 @@ export default function DatasetForm() {
         {/* Top bar with button to save to file */}
         <div className="flex items-center justify-between ">
           <Button
-            size={'icon'}
             variant={'ghost'}
             onClick={() => {
               handleFileSave() // Save the file when the button is clicked
             }}
           >
-            <SaveIcon className="h-4 w-4" />
+            <SaveIcon className="h-4 w-4" /> Save
           </Button>
         </div>
 

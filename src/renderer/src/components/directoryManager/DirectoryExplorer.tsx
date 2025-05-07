@@ -35,8 +35,7 @@ export function DirectoryExplorer({
   onFileOpened,
   onFileDeleted,
   onFolderDeleted,
-  onFileCreated,
-  onFileEdited
+  onFileCreated
 }: DirectoryExplorerProps) {
   const storageKey = `directory-explorer-${directoryType}`
   const [basePath, setBasePath] = useLocalStorage<string>(storageKey, '')

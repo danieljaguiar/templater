@@ -8,6 +8,14 @@ export const TemplatePane = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const { selectedTemplate } = useSelectedTemplateStore()
 
+  if (!selectedTemplate) {
+    return (
+      <div className="text-sm text-muted-foreground/70 p-4 border rounded-md bg-muted/10 border-muted/20 flex items-center justify-center h-full">
+        No template selected
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full">
       <ScrollArea>

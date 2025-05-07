@@ -42,7 +42,7 @@ const useSelectedTemplateStore = create<SelectedTempalteStore>((set) => ({
       placeholders: placeholders
     })
   },
-  resetSelectedTemplate: () => set({ selectedTemplate: null })
+  resetSelectedTemplate: () => set({ selectedTemplate: null, placeholders: [] })
 }))
 
 export default useSelectedTemplateStore

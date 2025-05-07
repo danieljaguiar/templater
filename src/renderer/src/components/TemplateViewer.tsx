@@ -1,6 +1,7 @@
 import { toast } from '@/hooks/use-toast'
 import useDatasetStore from '@/stores/datasetStore'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
+import { CopyIcon, PenIcon, SquareX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
@@ -20,12 +21,15 @@ interface TemplateViewerProps {
 }
 
 export default function TempalteViewer(props: TemplateViewerProps) {
-  const { selectedTemplate } = useSelectedTemplateStore()
+  const { selectedTemplate, resetSelectedTemplate } = useSelectedTemplateStore()
   const fields = useDatasetStore((state) => state.fields)
 
-  const [fileName, setFileName] = useState<string>('')
-  const [fileContent, setFileContent] = useState<string>('')
   const [TextBlocks, setTextBlocks] = useState<TextBlocks[]>([])
+
+  const handleCloseTemplate = () => {
+    setTextBlocks([])
+    resetSelectedTemplate()
+  }
 
   const replacePlaceholders = () => {
     const blocks: TextBlocks[] = []
@@ -114,26 +118,23 @@ export default function TempalteViewer(props: TemplateViewerProps) {
   }
 
   useEffect(() => {
-    if (
-      selectedTemplate !== null &&
-      (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
-    ) {
-      setFileName(selectedTemplate.name)
-      setFileContent(selectedTemplate.content || '')
-    }
-  }, [selectedTemplate, fileName, fileContent])
-
-  useEffect(() => {
     // update the text blocks when data changes
     const blocks = replacePlaceholders() // Pass false to not update data store during this call
     setTextBlocks(blocks)
-  }, [fields, fileContent])
+  }, [fields])
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-2 pb-4">
-        <Button onClick={() => props.editRequested()}>Edit</Button>
-        <Button onClick={() => handleCopyToClipboardAsPlainText()}>Copy</Button>
+      <div className="flex justify-start items-center mb-2 pb-4">
+        <Button variant={'ghost'} onClick={() => props.editRequested()}>
+          <PenIcon className="h-4 w-4" /> Edit
+        </Button>
+        <Button variant={'ghost'} onClick={() => handleCopyToClipboardAsPlainText()}>
+          <CopyIcon className="h-4 w-4" /> Copy
+        </Button>
+        <Button variant={'ghost'} onClick={() => handleCloseTemplate()}>
+          <SquareX className="h-4 w-4" /> Close
+        </Button>
       </div>
       <pre className="whitespace-pre-wrap break-words select-text">
         {TextBlocks.map((block, index) => {
