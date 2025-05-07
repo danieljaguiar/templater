@@ -38,7 +38,7 @@ function createWindow(): void {
   })
 
   //check if is dev
-  if (is.dev) {
+  if (!is.dev) {
     initAutoUpdater(mainWindow)
   }
 
