@@ -13,7 +13,6 @@ app.setAboutPanelOptions({
 })
 
 export function initAutoUpdater(mainWindow: Electron.BrowserWindow): void {
-  console.log('Initializing auto updater...')
   // Check for updates immediately when app starts
   autoUpdater.checkForUpdatesAndNotify()
 
@@ -25,11 +24,6 @@ export function initAutoUpdater(mainWindow: Electron.BrowserWindow): void {
     // 2 minutes
     2 * 60 * 1000
   )
-
-  autoUpdater.on('checking-for-update', () => {
-    console.log('[console]Checking for updates...')
-    log.info('Checking for updates...')
-  })
 
   // Listen for update events
   autoUpdater.on('update-available', () => {
