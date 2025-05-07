@@ -1,4 +1,8 @@
 export const IPC_CHANNELS = {
+  UPDATE: {
+    INSTALL_NOW: 'install-now',
+    UPDATE_AVAILABLE: 'update-available'
+  },
   DIRECTORY: {
     NEW_FOLDER: 'new-folder',
     DELETE_FOLDER: 'delete-folder',

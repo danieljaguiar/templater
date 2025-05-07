@@ -10,6 +10,8 @@ import {
 } from '../../types/types'
 
 interface ElectronAPI {
+  onUpdateAvailable: (callback: (updateAvailable: boolean) => void) => void
+  installUpdateNow: (now: boolean) => void
   newFolder: (args: NewFolderArgs) => Promise<DirectoryItemIPCReponse>
   deleteFolder: (path: string) => Promise<DirectoryItemIPCReponse>
   renameOrMoveItem: (args: RenameAndMoveArgs) => Promise<DirectoryItemIPCReponse>

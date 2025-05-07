@@ -20,6 +20,13 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
+      // UPDATER
+      onUpdateAvailable: (callback) => {
+        ipcRenderer.on(IPC_CHANNELS.UPDATE.UPDATE_AVAILABLE, (_event, data) => callback(data))
+      },
+      installUpdateNow: (now: boolean) => {
+        ipcRenderer.send(IPC_CHANNELS.UPDATE.INSTALL_NOW, now)
+      },
       // DIRECTORY HANDLERS
       openDirectory: (args: OpenDirectoryArgs) =>
         ipcRenderer.send(IPC_CHANNELS.DIRECTORY.OPEN, args),

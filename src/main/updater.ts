@@ -1,6 +1,7 @@
-import { app, dialog } from 'electron'
+import { app, ipcMain } from 'electron'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
+import { IPC_CHANNELS } from '../shared/ipc/channels'
 
 // Configure logging
 log.transports.file.level = 'info'
@@ -33,19 +34,18 @@ export function initAutoUpdater(mainWindow: Electron.BrowserWindow): void {
 
   autoUpdater.on('update-downloaded', () => {
     log.info('Update downloaded')
+    autoUpdater.autoInstallOnAppQuit = true
+    mainWindow.webContents.send(IPC_CHANNELS.UPDATE.UPDATE_AVAILABLE)
+  })
 
-    dialog
-      .showMessageBox({
-        type: 'info',
-        title: 'Update Ready',
-        message: 'A new version has been downloaded. Restart the application to apply the updates.',
-        buttons: ['Restart', 'Later']
-      })
-      .then((result) => {
-        if (result.response === 0) {
-          autoUpdater.quitAndInstall()
-        }
-      })
+  ipcMain.on(IPC_CHANNELS.UPDATE.INSTALL_NOW, (event, now) => {
+    if (now) {
+      log.info('Installing update now')
+      autoUpdater.quitAndInstall()
+    } else {
+      // install on exit
+      log.info('Installing update on exit')
+    }
   })
 
   autoUpdater.on('error', (err) => {
