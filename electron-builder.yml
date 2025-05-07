@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: ual-reader
+productName: templater
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: ual-reader
+  executableName: templater
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
