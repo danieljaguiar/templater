@@ -1,7 +1,7 @@
 import { toast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import useDatasetStore from '@/stores/datasetStore'
-import { Copy, SaveIcon } from 'lucide-react'
+import { Copy, SaveIcon, SquareX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
@@ -32,6 +32,12 @@ export default function DatasetForm() {
     setSortedTemplateData(templateData)
     setSortedNonTemplateData(nonTemplateData)
   }, [fields])
+
+  const handleCloseDataset = () => {
+    setSortedTemplateData([]) // Clear the sorted template data
+    setSortedNonTemplateData([]) // Clear the sorted non-template data
+    setFileInfo(null) // Reset the file info in the store
+  }
 
   // Handle input change
   const handleChange = (item: FieldInUse) => {
@@ -152,7 +158,7 @@ export default function DatasetForm() {
     <>
       <div className="space-y-4 ">
         {/* Top bar with button to save to file */}
-        <div className="flex items-center justify-between ">
+        <div className="flex items-center ">
           <Button
             variant={'ghost'}
             onClick={() => {
@@ -160,6 +166,14 @@ export default function DatasetForm() {
             }}
           >
             <SaveIcon className="h-4 w-4" /> Save
+          </Button>
+          <Button
+            variant={'ghost'}
+            onClick={() => {
+              handleCloseDataset() // Close the dataset when the button is clicked
+            }}
+          >
+            <SquareX className="h-4 w-4" /> Close
           </Button>
         </div>
 
