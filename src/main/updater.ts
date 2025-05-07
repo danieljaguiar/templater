@@ -13,6 +13,7 @@ app.setAboutPanelOptions({
 })
 
 export function initAutoUpdater(mainWindow: Electron.BrowserWindow): void {
+  console.log('Initializing auto updater...')
   // Check for updates immediately when app starts
   autoUpdater.checkForUpdatesAndNotify()
 
