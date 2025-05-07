@@ -21,8 +21,14 @@ export function initAutoUpdater(mainWindow: Electron.BrowserWindow): void {
     () => {
       autoUpdater.checkForUpdatesAndNotify()
     },
-    60 * 60 * 1000
+    // 2 minutes
+    2 * 60 * 1000
   )
+
+  autoUpdater.on('checking-for-update', () => {
+    console.log('[console]Checking for updates...')
+    log.info('Checking for updates...')
+  })
 
   // Listen for update events
   autoUpdater.on('update-available', () => {
