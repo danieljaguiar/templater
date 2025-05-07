@@ -43,8 +43,11 @@ jobs:
 
       # Clean and reinstall to avoid file system conflicts
       - name: Clean install
+        shell: powershell
         run: |
-          if exist "node_modules" rd /s /q "node_modules"
+          if (Test-Path -Path "node_modules") { 
+            Remove-Item -Recurse -Force "node_modules" 
+          }
           pnpm install --no-frozen-lockfile
 
       # Add the missing peer dependency
