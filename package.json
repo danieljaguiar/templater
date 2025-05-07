@@ -1,6 +1,6 @@
 {
   "name": "templater",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -18,9 +18,7 @@
     "postinstall": "electron-builder install-app-deps",
     "publish:win": "electron-builder --win --publish always",
     "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "pnpm run build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:win": "pnpm run build && electron-builder --win"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
