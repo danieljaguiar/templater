@@ -52,7 +52,6 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
   }
 
   React.useEffect(() => {
-    console.log(props.selectedId)
     if (props.selectedId) {
       const fullPath = GetFullPathFromBaseDirectoryItemInfo(props.item)
       const isSelected = fullPath === props.selectedId
