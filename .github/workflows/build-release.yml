@@ -1,9 +1,6 @@
-name: Build/Release
+name: Build/release
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: push
 
 jobs:
   release:
@@ -11,57 +8,24 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v1
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
         with:
-          node-version: 20
+          node-version: 10
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      # Clean and reinstall to avoid file system conflicts
-      - name: Clean install
-        shell: powershell
-        run: |
-          if (Test-Path -Path "node_modules") { 
-            Remove-Item -Recurse -Force "node_modules" 
-          }
-          pnpm install --no-frozen-lockfile
-
-      # Add the missing peer dependency
-      - name: Install missing peer dependencies
-        run: pnpm add -D electron-builder-squirrel-windows@26.0.12
-
-      - name: Build/Release Electron app
+      - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           # GitHub token, automatically provided to the action
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          use_vue_cli: false
-          build_script_name: build
-          package_root: '.'
