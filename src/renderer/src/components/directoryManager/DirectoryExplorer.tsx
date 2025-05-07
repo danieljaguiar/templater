@@ -164,7 +164,7 @@ export function DirectoryExplorer(props: DirectoryExplorerProps) {
   const openFolderHandler = (): void => {
     window.electronAPI.openDirectory({
       type: props.directoryType,
-      path: basePath
+      path: ''
     })
   }
 
