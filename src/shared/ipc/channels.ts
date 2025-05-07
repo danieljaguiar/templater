@@ -1,5 +1,6 @@
 export const IPC_CHANNELS = {
   UPDATE: {
+    GET_CURRENT_VERSION: 'get-current-version',
     INSTALL_NOW: 'install-now',
     UPDATE_AVAILABLE: 'update-available'
   },

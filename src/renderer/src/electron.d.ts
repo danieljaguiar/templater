@@ -10,6 +10,7 @@ import {
 } from '../../types/types'
 
 interface ElectronAPI {
+  getCurrentVersion: () => Promise<string>
   onUpdateAvailable: (callback: (updateAvailable: boolean) => void) => void
   installUpdateNow: (now: boolean) => void
   newFolder: (args: NewFolderArgs) => Promise<DirectoryItemIPCReponse>

@@ -21,6 +21,14 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
       // UPDATER
+      getCurrentVersion: () => {
+        return new Promise((resolve) => {
+          ipcRenderer.send(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION)
+          ipcRenderer.once(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION, (_event, version) => {
+            resolve(version)
+          })
+        })
+      },
       onUpdateAvailable: (callback) => {
         ipcRenderer.on(IPC_CHANNELS.UPDATE.UPDATE_AVAILABLE, (_event, data) => callback(data))
       },

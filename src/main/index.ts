@@ -1,8 +1,9 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
+import { IPC_CHANNELS } from '../shared/ipc/channels'
 import { registerIpcHandlers } from './ipc'
 import { initAutoUpdater } from './updater'
 
@@ -66,6 +67,9 @@ app.whenReady().then(() => {
   })
 
   registerIpcHandlers()
+  ipcMain.on(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION, (event) => {
+    event.reply(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION, app.getVersion())
+  })
 
   createWindow()
 
