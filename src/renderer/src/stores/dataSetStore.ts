@@ -1,5 +1,6 @@
 import { BaseDirectoryItem, FieldInUse } from '@types'
 import { create } from 'zustand'
+import useSelectedTemplateStore from './selectedTemplateStore'
 
 interface DatasetStore {
   fields: FieldInUse[]
@@ -7,7 +8,7 @@ interface DatasetStore {
   setFileInfo: (fileInfo: BaseDirectoryItem | null) => void
   setFields: (fields: FieldInUse[]) => void
   addOrUpdateField: (field: FieldInUse) => void
-  removeField: (field: FieldInUse) => void
+  mergePlaceholdersToFields: (placeholders: string[]) => void
   removeFieldsNotInUseAndResetTemplateFlag: () => void
   reset: () => void
 }
@@ -27,24 +28,58 @@ const useDatasetStore = create<DatasetStore>((set) => ({
     })
   },
   setFields: (fields) =>
+    set(() => {
+      const { placeholders } = useSelectedTemplateStore.getState()
+
+      // Update the existing fields and set inTemplate to true for those that are in the template
+      // if the field is not in the template, set inTemplate to false
+      // if the field is not in the dataset, add it to the dataset
+
+      const fieldsProcessedWithPlaceholder = fields.map((field) => {
+        const isInTemplate = placeholders.includes(field.name)
+        return { ...field, inTemplate: isInTemplate }
+      })
+
+      const placeholdersMissing = placeholders.filter((placeholder) => {
+        return !fields.some((field) => field.name === placeholder)
+      })
+
+      const fieldsWithMissingPlaceholders = placeholdersMissing.map((placeholder) => {
+        return {
+          name: placeholder,
+          value: '',
+          inDisk: false,
+          inTemplate: true
+        }
+      })
+
+      return {
+        fields: [...fieldsProcessedWithPlaceholder, ...fieldsWithMissingPlaceholders]
+      }
+    }),
+  mergePlaceholdersToFields: (placeholders) =>
     set((state) => {
-      // Create a map of the incoming fields for easy lookup
-      const fieldsMap = new Map(fields.map((field) => [field.name, field]))
+      const fieldsProcessedWithPlaceholder = state.fields.map((field) => {
+        const isInTemplate = placeholders.includes(field.name)
+        return { ...field, inTemplate: isInTemplate }
+      })
 
-      // Find fields in current state that have inTemplate=true
-      const inTemplateFields = state.fields.filter((field) => field.inTemplate)
+      const placeholdersMissing = placeholders.filter((placeholder) => {
+        return !state.fields.some((field) => field.name === placeholder)
+      })
 
-      // Create a new array that includes:
-      // 1. All incoming fields with their original values
-      // 2. Any template fields from state not in the incoming fields (with empty value)
-      const mergedFields = [
-        ...fields,
-        ...inTemplateFields
-          .filter((field) => !fieldsMap.has(field.name))
-          .map((field) => ({ ...field, value: '' }))
-      ]
+      const fieldsWithMissingPlaceholders = placeholdersMissing.map((placeholder) => {
+        return {
+          name: placeholder,
+          value: '',
+          inDisk: false,
+          inTemplate: true
+        }
+      })
 
-      return { fields: mergedFields }
+      return {
+        fields: [...fieldsProcessedWithPlaceholder, ...fieldsWithMissingPlaceholders]
+      }
     }),
   addOrUpdateField: (field) =>
     set((state) => {
@@ -57,8 +92,6 @@ const useDatasetStore = create<DatasetStore>((set) => ({
         return { fields: [...state.fields, field] }
       }
     }),
-  removeField: (field) =>
-    set((state) => ({ fields: state.fields.filter((f) => f.name !== field.name) })),
   reset: () =>
     set((state) => {
       const resetedFields = state.fields.map((d) => {

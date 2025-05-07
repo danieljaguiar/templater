@@ -22,14 +22,16 @@ interface TemplateViewerProps {
 export default function TempalteViewer(props: TemplateViewerProps) {
   const { selectedTemplate } = useSelectedTemplateStore()
   const fields = useDatasetStore((state) => state.fields)
-  const addOrUpdateData = useDatasetStore((state) => state.addOrUpdateField)
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')
   const [TextBlocks, setTextBlocks] = useState<TextBlocks[]>([])
 
-  const replacePlaceholders = (text: string, updateDataStore = false) => {
+  const replacePlaceholders = () => {
     const blocks: TextBlocks[] = []
+    if (!selectedTemplate) return blocks
+    if (!selectedTemplate.content) return blocks
+    if (selectedTemplate.content === '') return blocks
     let currentPos = 0
     let match: RegExpExecArray | null
 
@@ -37,12 +39,12 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     const placeholderRegex = /(?<!@)@@([a-zA-Z0-9_]+)/g
 
     // Process all placeholders in the text
-    while ((match = placeholderRegex.exec(text)) !== null) {
+    while ((match = placeholderRegex.exec(selectedTemplate?.content)) !== null) {
       // Add text before the placeholder
       if (match.index > currentPos) {
         blocks.push({
           type: TextType.text,
-          text: text.substring(currentPos, match.index)
+          text: selectedTemplate.content.substring(currentPos, match.index)
         })
       }
 
@@ -53,14 +55,6 @@ export default function TempalteViewer(props: TemplateViewerProps) {
       const placeholderData = fields.find((item) => item.name === placeholderName)
 
       if (placeholderData !== undefined) {
-        // Update the data store to mark it as in use, but only if updateDataStore is true
-        if (updateDataStore && !placeholderData.inTemplate) {
-          addOrUpdateData({
-            ...placeholderData,
-            inTemplate: true
-          })
-        }
-
         // Check if it is non empty to use its value
         if (placeholderData.value.trim() !== '') {
           blocks.push({
@@ -76,14 +70,6 @@ export default function TempalteViewer(props: TemplateViewerProps) {
       } else {
         // If the placeholder does not exist, add it to the data store with an empty value
         // but only if updateDataStore is true
-        if (updateDataStore) {
-          addOrUpdateData({
-            name: placeholderName,
-            value: '',
-            inTemplate: true,
-            inDisk: false
-          })
-        }
 
         blocks.push({
           type: TextType.pendingPlaceholder,
@@ -96,10 +82,10 @@ export default function TempalteViewer(props: TemplateViewerProps) {
     }
 
     // Add any remaining text after the last placeholder
-    if (currentPos < text.length) {
+    if (currentPos < selectedTemplate.content.length) {
       blocks.push({
         type: TextType.text,
-        text: text.substring(currentPos)
+        text: selectedTemplate.content.substring(currentPos)
       })
     }
 
@@ -139,16 +125,9 @@ export default function TempalteViewer(props: TemplateViewerProps) {
 
   useEffect(() => {
     // update the text blocks when data changes
-    const blocks = replacePlaceholders(fileContent, false) // Pass false to not update data store during this call
+    const blocks = replacePlaceholders() // Pass false to not update data store during this call
     setTextBlocks(blocks)
   }, [fields, fileContent])
-
-  // Separate effect to update data store when fileContent changes, but NOT when data changes
-  useEffect(() => {
-    if (fileContent) {
-      replacePlaceholders(fileContent, true) // Pass true to update data store
-    }
-  }, [fileContent]) // Only depend on fileContent, not data
 
   return (
     <div>

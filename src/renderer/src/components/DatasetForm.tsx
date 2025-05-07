@@ -16,13 +16,7 @@ import { Label } from './ui/label'
 
 export default function DatasetForm() {
   // Get fields from the store
-  const {
-    fields,
-    addOrUpdateField: addOrUpdateData,
-    fileInfo,
-    reset,
-    setFileInfo
-  } = useDatasetStore()
+  const { fields, addOrUpdateField, fileInfo, setFileInfo } = useDatasetStore()
   const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
 
@@ -42,7 +36,7 @@ export default function DatasetForm() {
   // Handle input change
   const handleChange = (item: FieldInUse) => {
     const updatedItem = { ...item, value: item.value } // Trim whitespace
-    addOrUpdateData(updatedItem) // Update the store with the new value
+    addOrUpdateField(updatedItem) // Update the store with the new value
   }
 
   const handleFileSave = async () => {
@@ -145,6 +139,14 @@ export default function DatasetForm() {
       </div>
     </div>
   )
+
+  if (!fileInfo) {
+    return (
+      <div className="text-sm text-muted-foreground/70 p-4 border rounded-md bg-muted/10 border-muted/20 flex items-center justify-center h-full">
+        No dataset selected.
+      </div>
+    )
+  }
 
   return (
     <>
