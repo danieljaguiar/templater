@@ -4,6 +4,7 @@ import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { registerIpcHandlers } from './ipc'
+import { initAutoUpdater } from './updater'
 
 function createWindow(): void {
   let mainWindowState = windowStateKeeper({
@@ -35,6 +36,11 @@ function createWindow(): void {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
+
+  //check if is dev
+  if (is.dev) {
+    initAutoUpdater(mainWindow)
+  }
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
