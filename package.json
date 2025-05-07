@@ -1,6 +1,6 @@
 {
   "name": "templater",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -14,7 +14,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "npm run typecheck && electron-vite build",
+    "build": "pnpm run build && electron-builder --win",
     "postinstall": "electron-builder install-app-deps",
     "publish:win": "electron-builder --win --publish always",
     "build:unpack": "npm run build && electron-builder --dir",
