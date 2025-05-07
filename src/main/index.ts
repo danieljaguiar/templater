@@ -38,9 +38,7 @@ function createWindow(): void {
   })
 
   //check if is dev
-  console.log('is dev', is.dev)
   if (!is.dev) {
-    console.log('is not dev')
     initAutoUpdater(mainWindow)
   }
 
