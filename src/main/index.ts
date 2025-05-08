@@ -2,7 +2,7 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
-import icon from '../../resources/icon.png?asset'
+import icon from '../../resources/icon2.png?asset'
 import { IPC_CHANNELS } from '../shared/ipc/channels'
 import { registerIpcHandlers } from './ipc'
 import { initAutoUpdater } from './updater'
@@ -20,11 +20,12 @@ function createWindow(): void {
     height: mainWindowState.height,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    ...(process.platform === 'linux' ? { icon } : { icon }),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
-    }
+    },
+    title: `Templater - ${app.getVersion()} [Alpha]`
   })
 
   mainWindowState.manage(mainWindow)
