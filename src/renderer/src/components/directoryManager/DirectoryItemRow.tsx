@@ -104,12 +104,12 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
             )}
 
             {isFolder ? (
-              <Folder className="h-4 w-4 text-blue-500 mr-2 shrink-0" />
+              <Folder className="h-4 w-4 text-primary mr-2 shrink-0" />
             ) : (
-              <File className="h-4 w-4 text-gray-500 mr-2 shrink-0" />
+              <File className="h-4 w-4 text-foreground/50 mr-2 shrink-0" />
             )}
 
-            <span className="truncate">{props.item.name}</span>
+            <span className="truncate dark:text-foreground/80">{props.item.name}</span>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">

@@ -150,7 +150,7 @@ export default function TempalteViewer(props: TemplateViewerProps) {
             )
           } else if (block.type === TextType.completedPlaceholder) {
             return (
-              <span key={index} className={`bg-green-900/30 ${common}`}>
+              <span key={index} className={`bg-green-900/30 dark:bg-green-800/60 ${common}`}>
                 {block.text}
               </span>
             )
