@@ -5,7 +5,11 @@ import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { IPC_CHANNELS } from '../shared/ipc/channels'
 import { registerIpcHandlers } from './ipc'
+
+import { AppLogger, Source } from './logger'
 import { initAutoUpdater } from './updater'
+
+const logger = new AppLogger(Source.BOOT)
 
 function createWindow(): void {
   let mainWindowState = windowStateKeeper({
@@ -57,6 +61,7 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  logger.info('App is ready')
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
 
