@@ -8,8 +8,8 @@ export enum Level {
 
 export enum Source {
   UPDATER = 'updater',
-  BOOT = 'boot',
-  DIRECTORY = 'dirmanager'
+  LIFECYCLE = 'lifecycle',
+  DIRECTORY = 'dir_manager'
 }
 
 export class AppLogger {

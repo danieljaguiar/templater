@@ -9,7 +9,7 @@ import { registerIpcHandlers } from './ipc'
 import { AppLogger, Source } from './logger'
 import { initAutoUpdater } from './updater'
 
-const logger = new AppLogger(Source.BOOT)
+const logger = new AppLogger(Source.LIFECYCLE)
 
 function createWindow(): void {
   let mainWindowState = windowStateKeeper({
@@ -35,6 +35,7 @@ function createWindow(): void {
   mainWindowState.manage(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
+    logger.info('Main window is ready to show')
     mainWindow.show()
   })
 
@@ -91,6 +92,7 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    logger.info('All windows closed, quitting app')
     app.quit()
   }
 })
