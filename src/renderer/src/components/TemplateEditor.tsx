@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
-import { DirectoryItemIPCReponse } from '@types'
+import { DirectoryItemIPCReponse, FileToSave } from '@types'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 
@@ -11,7 +11,7 @@ export interface TemplateEditorProps {
 }
 
 export default function TemplateEditor(props: TemplateEditorProps) {
-  const { selectedTemplate } = useSelectedTemplateStore()
+  const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
 
   const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')
@@ -35,19 +35,22 @@ export default function TemplateEditor(props: TemplateEditorProps) {
   const handleSave = async () => {
     if (!selectedTemplate) return
 
-    const fileSaveResponse = await window.electronAPI.saveFile({
+    const fileToSave: FileToSave = {
       ...selectedTemplate,
       newFileName:
         fileName !== selectedTemplate.name || selectedTemplate.name === '' ? fileName : undefined,
       extension: selectedTemplate.extension || 'json',
       content: fileContent
-    })
+    }
+
+    const fileSaveResponse = await window.electronAPI.saveFile(fileToSave)
     if (fileSaveResponse === DirectoryItemIPCReponse.SUCCESS) {
       toast({
         title: 'File saved',
         description: `File ${fileName} saved successfully.`,
         variant: 'default'
       })
+      setSelectedTemplate(fileToSave)
       props.editingFinished()
     } else if (fileSaveResponse === DirectoryItemIPCReponse.CONFLICT) {
       toast({
