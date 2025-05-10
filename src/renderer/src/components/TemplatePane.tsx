@@ -1,5 +1,5 @@
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import TemplateEditor from './TemplateEditor'
 import TempalteViewer from './TemplateViewer'
 import { ScrollArea } from './ui/scroll-area'
@@ -7,6 +7,12 @@ import { ScrollArea } from './ui/scroll-area'
 export const TemplatePane = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const { selectedTemplate } = useSelectedTemplateStore()
+
+  useEffect(() => {
+    if (selectedTemplate) {
+      setIsEditing(false)
+    }
+  }, [selectedTemplate])
 
   if (!selectedTemplate) {
     return (
