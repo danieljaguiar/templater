@@ -1,6 +1,17 @@
 import { cn } from '@/lib/utils'
 import { ContextMenuLabel } from '@radix-ui/react-context-menu'
-import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
+import {
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  File,
+  FilePlus,
+  FileX,
+  Folder,
+  FolderPlus,
+  FolderX,
+  SquarePen
+} from 'lucide-react'
 import * as React from 'react'
 import {
   DirectoryItem,
@@ -11,6 +22,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger
 } from '../ui/context-menu'
 
@@ -118,17 +130,16 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
           </ContextMenuLabel>
           {props.item.type === DirectoryItemType.FILE && (
             <ContextMenuItem
-              inset
               onClick={(e) => {
                 e.stopPropagation()
                 handleSelect()
               }}
             >
+              <ContextMenuIcon icon={File} />
               Open
             </ContextMenuItem>
           )}
           <ContextMenuItem
-            inset
             onClick={(e) => {
               e.stopPropagation()
               if (props.onMove) {
@@ -136,10 +147,10 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
               }
             }}
           >
+            <ContextMenuIcon icon={ArrowRight} />
             Move
           </ContextMenuItem>
           <ContextMenuItem
-            inset
             onClick={(e) => {
               e.stopPropagation()
               if (props.onRename) {
@@ -147,10 +158,10 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
               }
             }}
           >
+            <ContextMenuIcon icon={SquarePen} />
             Rename
           </ContextMenuItem>
           <ContextMenuItem
-            inset
             onClick={(e) => {
               e.stopPropagation()
               if (props.onDelete) {
@@ -158,24 +169,26 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
               }
             }}
           >
+            <ContextMenuIcon icon={props.item.type === DirectoryItemType.FILE ? FileX : FolderX} />
             Delete {props.item.type === DirectoryItemType.FILE ? 'File' : 'Folder'}
           </ContextMenuItem>
+          <ContextMenuSeparator />
           <ContextMenuItem
-            inset
             onClick={(e) => {
               e.stopPropagation()
               handleNewDirectoryItem(DirectoryItemType.FILE)
             }}
           >
+            <ContextMenuIcon icon={FilePlus} />
             New File
           </ContextMenuItem>
           <ContextMenuItem
-            inset
             onClick={(e) => {
               e.stopPropagation()
               handleNewDirectoryItem(DirectoryItemType.FOLDER)
             }}
           >
+            <ContextMenuIcon icon={FolderPlus} />
             New Folder
           </ContextMenuItem>
         </ContextMenuContent>
@@ -194,5 +207,13 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
         </div>
       )}
     </>
+  )
+}
+
+function ContextMenuIcon({ icon: Icon }: { icon: React.ElementType }) {
+  return (
+    <span className="mr-2">
+      <Icon className="h-4 w-4 text-muted-foreground" />
+    </span>
   )
 }
