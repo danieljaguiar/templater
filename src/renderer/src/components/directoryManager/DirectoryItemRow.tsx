@@ -52,6 +52,11 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
   }
 
   const handleSelect = () => {
+    if (isFolder) {
+      handleToggle()
+      return
+    }
+
     if (props.onSelect) {
       props.onSelect(props.item)
     }
