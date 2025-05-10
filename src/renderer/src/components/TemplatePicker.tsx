@@ -3,6 +3,7 @@ import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
 import React from 'react'
 import {
   BaseDirectoryItem,
+  DirectoryItemType,
   DirectoryType,
   GetFullPathFromBaseDirectoryItemInfo
 } from '../../../types/types'
@@ -18,6 +19,8 @@ export default function TemplatePicker() {
   const { setSelectedTemplate, selectedTemplate } = useSelectedTemplateStore()
 
   const handleTemplateSelected = async (dirItem: BaseDirectoryItem) => {
+    if (!dirItem) return
+    if (dirItem.type !== DirectoryItemType.FILE) return
     resetDataTemplateInUse()
     if (dirItem) {
       setSelectedTemplate(dirItem)
