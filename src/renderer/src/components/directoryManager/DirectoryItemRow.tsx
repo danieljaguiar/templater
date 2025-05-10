@@ -42,7 +42,11 @@ interface DirectoryItemProps {
 export function DirectoryItemRow(props: DirectoryItemProps) {
   const [expanded, setExpanded] = React.useState(!props.level ? true : false)
   const isFolder = props.item.type === DirectoryItemType.FOLDER
-  const hasChildren = isFolder && props.item.children && props.item.children.length > 0
+  const hasChildren =
+    isFolder &&
+    props.item.children &&
+    props.item.children.length > 0 &&
+    props.item.children.filter((c) => c.type !== props.discardType).length > 0
   const [isSelected, setIsSelected] = React.useState(false)
 
   const handleToggle = () => {
