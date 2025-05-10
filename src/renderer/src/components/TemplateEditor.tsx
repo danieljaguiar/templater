@@ -1,4 +1,3 @@
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/hooks/use-toast'
 import useSelectedTemplateStore from '@/stores/selectedTemplateStore'
@@ -13,22 +12,13 @@ export interface TemplateEditorProps {
 export default function TemplateEditor(props: TemplateEditorProps) {
   const { selectedTemplate, setSelectedTemplate } = useSelectedTemplateStore()
 
-  const [fileName, setFileName] = useState<string>('')
   const [fileContent, setFileContent] = useState<string>('')
 
   // Set up the IPC listener when component mounts
   useEffect(() => {
     // Only update the local state if file exists and either the name or content has changed
-    if (
-      selectedTemplate !== null &&
-      (fileName !== selectedTemplate.name || fileContent !== selectedTemplate.content)
-    ) {
-      if (selectedTemplate.content === null || selectedTemplate.content === undefined) {
-        console.error('File content is null.')
-        return
-      }
-      setFileName(selectedTemplate.name)
-      setFileContent(selectedTemplate.content)
+    if (selectedTemplate !== null) {
+      setFileContent(selectedTemplate.content || '')
     }
   }, [selectedTemplate]) // Include all dependencies that are referenced
 
@@ -37,8 +27,6 @@ export default function TemplateEditor(props: TemplateEditorProps) {
 
     const fileToSave: FileToSave = {
       ...selectedTemplate,
-      newFileName:
-        fileName !== selectedTemplate.name || selectedTemplate.name === '' ? fileName : undefined,
       extension: selectedTemplate.extension || 'json',
       content: fileContent
     }
@@ -47,7 +35,7 @@ export default function TemplateEditor(props: TemplateEditorProps) {
     if (fileSaveResponse === DirectoryItemIPCReponse.SUCCESS) {
       toast({
         title: 'File saved',
-        description: `File ${fileName} saved successfully.`,
+        description: `File ${selectedTemplate.name} saved successfully.`,
         variant: 'default'
       })
       setSelectedTemplate(fileToSave)
@@ -55,7 +43,7 @@ export default function TemplateEditor(props: TemplateEditorProps) {
     } else if (fileSaveResponse === DirectoryItemIPCReponse.CONFLICT) {
       toast({
         title: 'File already exists',
-        description: `File ${fileName} already exists. Please choose a different name.`,
+        description: `File ${selectedTemplate.name} already exists. Please choose a different name.`,
         variant: 'destructive'
       })
     } else {
@@ -69,11 +57,6 @@ export default function TemplateEditor(props: TemplateEditorProps) {
   }
 
   const handleCancel = () => {
-    // Reset to original values
-    if (selectedTemplate) {
-      setFileName(selectedTemplate.name)
-      setFileContent(selectedTemplate.content!) // HACK: This "!" is a temporary fix to avoid null error
-    }
     props.editingFinished()
   }
 
@@ -88,12 +71,6 @@ export default function TemplateEditor(props: TemplateEditorProps) {
             Cancel
           </Button>
         </div>
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="fileName" className="text-sm font-medium">
-          File Name
-        </label>
-        <Input id="fileName" value={fileName} onChange={(e) => setFileName(e.target.value)} />
       </div>
 
       <div className="space-y-2">
