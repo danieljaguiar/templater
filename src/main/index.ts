@@ -12,7 +12,7 @@ import { initAutoUpdater } from './updater'
 
 const logger = new AppLogger(Source.LIFECYCLE)
 
-function createWindow(): BrowserWindow {
+function createWindow(): [BrowserWindow, windowStateKeeper.State] {
   let mainWindowState = windowStateKeeper({
     defaultWidth: 1000,
     defaultHeight: 800
@@ -33,8 +33,6 @@ function createWindow(): BrowserWindow {
     title: `Templater - ${app.getVersion()} [Alpha]`
   })
 
-  mainWindowState.manage(mainWindow)
-
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -53,7 +51,7 @@ function createWindow(): BrowserWindow {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  return mainWindow
+  return [mainWindow, mainWindowState]
 }
 
 // This method will be called when Electron has finished
@@ -77,13 +75,14 @@ app.whenReady().then(() => {
     event.reply(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION, app.getVersion())
   })
 
+  const [mainWindow, mainWindowStateMgr] = createWindow()
+
   ipcMain.on(IPC_CHANNELS.RENDERER.READY, () => {
     logger.info('Renderer is ready')
-    mainWindow.show()
     splashWindow.close()
+    mainWindowStateMgr.manage(mainWindow)
+    mainWindow.show()
   })
-
-  const mainWindow = createWindow()
 
   mainWindow.on('ready-to-show', () => {
     logger.info('Main window loaded')
