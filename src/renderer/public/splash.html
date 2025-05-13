@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Splash Screen</title>
+    <style>
+      @keyframes pulsate {
+        0% {
+          opacity: 0.5;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0.5;
+        }
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+          sans-serif;
+        background-color: white;
+        border: 1px solid black;
+        height: 100vh; /* Make body take full viewport height */
+        margin: 0; /* Remove default body margin */
+        display: flex; /* Enable flexbox */
+        flex-direction: column; /* Stack children vertically */
+        justify-content: center; /* Center children vertically */
+        align-items: center; /* Center children horizontally */
+        text-align: center; /* Center text within children */
+        box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+      }
+
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 0.5em;
+        color: #333;
+      }
+
+      p {
+        font-size: 1.2em;
+        color: #555;
+        animation: pulsate 2s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to Templater</h1>
+    <p>Loading...</p>
+  </body>
+</html>

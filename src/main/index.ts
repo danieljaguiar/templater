@@ -7,11 +7,12 @@ import { IPC_CHANNELS } from '../shared/ipc/channels'
 import { registerIpcHandlers } from './ipc'
 
 import { AppLogger, Source } from './logger'
+import { createSplashWindow } from './splash'
 import { initAutoUpdater } from './updater'
 
 const logger = new AppLogger(Source.LIFECYCLE)
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   let mainWindowState = windowStateKeeper({
     defaultWidth: 1000,
     defaultHeight: 800
@@ -34,11 +35,6 @@ function createWindow(): void {
 
   mainWindowState.manage(mainWindow)
 
-  mainWindow.on('ready-to-show', () => {
-    logger.info('Main window is ready to show')
-    mainWindow.show()
-  })
-
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -56,6 +52,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return mainWindow
 }
 
 // This method will be called when Electron has finished
@@ -64,6 +62,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   logger.info('App is ready')
   // Set app user model id for windows
+  const splashWindow = createSplashWindow()
   electronApp.setAppUserModelId('com.electron')
 
   // Default open or close DevTools by F12 in development
@@ -78,7 +77,13 @@ app.whenReady().then(() => {
     event.reply(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION, app.getVersion())
   })
 
-  createWindow()
+  const mainWindow = createWindow()
+
+  mainWindow.on('ready-to-show', () => {
+    logger.info('Main window is ready to show')
+    mainWindow.show()
+    splashWindow.close()
+  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
