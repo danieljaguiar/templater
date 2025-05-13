@@ -1,4 +1,7 @@
 export const IPC_CHANNELS = {
+  RENDERER: {
+    READY: 'renderer-ready'
+  },
   UPDATE: {
     GET_CURRENT_VERSION: 'get-current-version',
     INSTALL_NOW: 'install-now',

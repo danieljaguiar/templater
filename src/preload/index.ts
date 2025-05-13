@@ -20,6 +20,10 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
+      // RENDERER
+      rendererIsReady: () => {
+        ipcRenderer.send(IPC_CHANNELS.RENDERER.READY)
+      },
       // UPDATER
       getCurrentVersion: () => {
         return new Promise((resolve) => {

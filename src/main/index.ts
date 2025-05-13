@@ -77,12 +77,16 @@ app.whenReady().then(() => {
     event.reply(IPC_CHANNELS.UPDATE.GET_CURRENT_VERSION, app.getVersion())
   })
 
+  ipcMain.on(IPC_CHANNELS.RENDERER.READY, () => {
+    logger.info('Renderer is ready')
+    mainWindow.show()
+    splashWindow.close()
+  })
+
   const mainWindow = createWindow()
 
   mainWindow.on('ready-to-show', () => {
-    logger.info('Main window is ready to show')
-    mainWindow.show()
-    splashWindow.close()
+    logger.info('Main window loaded')
   })
 
   app.on('activate', function () {

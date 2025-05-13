@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import DatasetForm from './components/DatasetForm'
 import DatasetPicker from './components/DatasetPicker'
 import { TemplatePane } from './components/TemplatePane'
@@ -10,6 +11,11 @@ import { Toaster } from './components/ui/toaster'
 import { cn } from './lib/utils'
 
 function App(): JSX.Element {
+  useEffect(() => {
+    if (window) {
+      window.electronAPI.rendererIsReady()
+    }
+  }, [])
   return (
     <ThemeProvider defaultTheme="system">
       <div className="h-screen">

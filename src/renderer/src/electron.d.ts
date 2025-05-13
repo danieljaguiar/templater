@@ -11,6 +11,7 @@ import {
 
 interface ElectronAPI {
   getCurrentVersion: () => Promise<string>
+  rendererIsReady: () => void
   onUpdateAvailable: (callback: (updateAvailable: boolean) => void) => void
   installUpdateNow: (now: boolean) => void
   newFolder: (args: NewFolderArgs) => Promise<DirectoryItemIPCReponse>
