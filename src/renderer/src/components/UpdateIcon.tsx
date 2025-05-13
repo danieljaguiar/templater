@@ -7,6 +7,7 @@ export default function UpdateIcon() {
   const [updateAvailable, setUpdateAvailable] = React.useState(false)
   const [showUpdateDialog, setShowUpdateDialog] = React.useState(false)
   const [isBlinking, setIsBlinking] = React.useState(false)
+  const [isUpdating, setIsUpdating] = React.useState(false)
 
   React.useEffect(() => {
     const handleUpdateAvailable = () => {
@@ -38,6 +39,11 @@ export default function UpdateIcon() {
     setShowUpdateDialog(true)
   }
 
+  const handleCloseUpdateDialog = () => {
+    if (isUpdating) return
+    setShowUpdateDialog(false)
+  }
+
   if (!updateAvailable) return null
 
   return (
@@ -50,7 +56,7 @@ export default function UpdateIcon() {
       >
         <CircleArrowUpIcon className="h-5 w-5" />
       </Button>
-      <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog} modal={false}>
+      <Dialog open={showUpdateDialog} onOpenChange={handleCloseUpdateDialog} modal={false}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Update Available</DialogTitle>
@@ -59,11 +65,15 @@ export default function UpdateIcon() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setShowUpdateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowUpdateDialog(false)}
+              disabled={isUpdating}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleUpdateClick}>
-              Update Now
+            <Button variant="destructive" onClick={handleUpdateClick} disabled={isUpdating}>
+              {isUpdating ? 'Updating...' : 'Update Now'}
             </Button>
           </div>
         </DialogContent>
