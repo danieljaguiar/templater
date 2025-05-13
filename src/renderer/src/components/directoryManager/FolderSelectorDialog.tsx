@@ -33,7 +33,7 @@ export default function FolderSelector(props: FolderSelectorProps) {
             <DirectoryItemRow
               key={item.fullPath}
               item={item}
-              hideContextMenu={true}
+              folderMoveMode={true}
               onSelect={props.onSelect}
               discardType={DirectoryItemType.FILE}
             />

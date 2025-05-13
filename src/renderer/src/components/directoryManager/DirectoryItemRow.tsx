@@ -28,7 +28,7 @@ import {
 
 interface DirectoryItemProps {
   item: DirectoryItem
-  hideContextMenu?: boolean
+  folderMoveMode?: boolean
   discardType?: DirectoryItemType
   selectedId?: string | null
   level?: number
@@ -56,7 +56,7 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
   }
 
   const handleSelect = () => {
-    if (isFolder) {
+    if (isFolder && !props.folderMoveMode) {
       handleToggle()
       return
     }
@@ -92,7 +92,7 @@ export function DirectoryItemRow(props: DirectoryItemProps) {
       <ContextMenu>
         <ContextMenuTrigger
           onContextMenu={(event) => {
-            if (props.hideContextMenu) {
+            if (props.folderMoveMode) {
               event.preventDefault()
               return
             }
