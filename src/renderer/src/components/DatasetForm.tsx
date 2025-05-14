@@ -1,7 +1,6 @@
 import { toast } from '@/hooks/use-toast'
-import { cn } from '@/lib/utils'
 import useDatasetStore from '@/stores/datasetStore'
-import { Copy, SaveIcon, SquareX } from 'lucide-react'
+import { SaveIcon, SquareX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   BaseDirectoryItem,
@@ -10,8 +9,8 @@ import {
   FieldInUse,
   FileToSave
 } from '../../../types/types'
+import DatasetFormField from './DatasetFormField'
 import { Button } from './ui/button'
-import { Input } from './ui/input'
 import { Label } from './ui/label'
 
 export default function DatasetForm() {
@@ -39,8 +38,8 @@ export default function DatasetForm() {
     reset() // Reset the dataset store
   }
 
-  // Handle input change
-  const handleChange = (item: FieldInUse) => {
+  // Handle input change (this will be passed to FieldInput)
+  const handleFieldUpdate = (item: FieldInUse) => {
     addOrUpdateField(item)
   }
 
@@ -99,50 +98,24 @@ export default function DatasetForm() {
     }
   }
 
-  // Render input field
+  const handleCopyField = (valueToCopy: string, fieldName: string) => {
+    navigator.clipboard.writeText(valueToCopy).then(() => {
+      toast({
+        title: 'Copied to clipboard',
+        description: `Field ${fieldName} copied to clipboard.`,
+        variant: 'default'
+      })
+    })
+  }
+
+  // Render input field using the new FieldInput component
   const renderField = (dataItem: FieldInUse) => (
-    <div className="grid w-full items-center gap-1.5" key={dataItem.name}>
-      <Label
-        htmlFor={dataItem.name}
-        className={cn(dataItem.inTemplate ? 'text-primary' : 'text-muted-foreground/60')}
-      >
-        {dataItem.name}
-      </Label>
-      <div className="flex items-center justify-between">
-        <Input
-          className={cn(
-            'flex-1',
-            dataItem.inTemplate
-              ? 'bg-background'
-              : 'bg-muted/50 text-muted-foreground/60 border-muted/10 '
-          )}
-          type="text"
-          id={dataItem.name}
-          value={dataItem.value}
-          onChange={(e) =>
-            handleChange({
-              ...dataItem,
-              value: e.target.value
-            })
-          }
-        />
-        <Button
-          className=""
-          size={'icon'}
-          onClick={() => {
-            navigator.clipboard.writeText(dataItem.value).then(() => {
-              toast({
-                title: 'Copied to clipboard',
-                description: `Field ${dataItem.name} copied to clipboard.`,
-                variant: 'default'
-              })
-            })
-          }}
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
+    <DatasetFormField
+      key={dataItem.name} // Key is important here for React's reconciliation
+      field={dataItem}
+      onFieldChange={handleFieldUpdate}
+      onCopy={handleCopyField}
+    />
   )
 
   if (!fileInfo) {
