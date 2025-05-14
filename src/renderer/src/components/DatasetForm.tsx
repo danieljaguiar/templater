@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast'
+import { useDebounce } from '@/hooks/useDebounce'
 import useDatasetStore from '@/stores/datasetStore'
 import { SaveIcon, SquareX } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -12,12 +13,16 @@ import {
 import DatasetFormField from './DatasetFormField'
 import { Button } from './ui/button'
 import { Label } from './ui/label'
+import { Switch } from './ui/switch'
 
 export default function DatasetForm() {
   // Get fields from the store
   const { fields, addOrUpdateField, fileInfo, setFileInfo, reset } = useDatasetStore()
   const [sortedTemplateData, setSortedTemplateData] = useState<FieldInUse[]>([])
   const [sortedNonTemplateData, setSortedNonTemplateData] = useState<FieldInUse[]>([])
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true)
+  const [initialLoad, setInitialLoad] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   // Sort and separate dataset when it changes
   useEffect(() => {
@@ -43,10 +48,14 @@ export default function DatasetForm() {
     addOrUpdateField(item)
   }
 
-  const handleFileSave = async () => {
-    if (!fileInfo) {
+  const saveFile = async () => {
+    if (!fileInfo || isSaving) {
       return
     }
+
+    console.log('Saving file')
+    setIsSaving(true)
+
     let fileToSaveLocal: FileToSave = fileInfo
 
     fileToSaveLocal = {
@@ -65,6 +74,8 @@ export default function DatasetForm() {
     }
 
     const fileSaveResponse = await window.electronAPI.saveFile(fileToSaveLocal)
+    setIsSaving(false)
+
     if (fileSaveResponse !== DirectoryItemIPCReponse.SUCCESS) {
       toast({
         title: 'Error saving file',
@@ -89,13 +100,32 @@ export default function DatasetForm() {
         description: `File ${fileToSaveLocal.newFileName} created successfully.`,
         variant: 'default'
       })
-    } else {
+    } else if (!autoSaveEnabled) {
+      // Only show toast for manual saves
       toast({
         title: 'File saved',
         description: `File ${fileToSaveLocal.name} saved successfully.`,
         variant: 'default'
       })
     }
+  }
+
+  // Use a debounced version of saveFile for autosave
+  const debouncedSave = useDebounce(saveFile, 1000)
+
+  // Autosave when fields change
+  useEffect(() => {
+    if (!initialLoad) {
+      setInitialLoad(true)
+      return
+    }
+    if (autoSaveEnabled && fileInfo && fields.length > 0) {
+      debouncedSave()
+    }
+  }, [fields, autoSaveEnabled, fileInfo])
+
+  const handleFileSave = () => {
+    saveFile()
   }
 
   const handleCopyField = (valueToCopy: string, fieldName: string) => {
@@ -130,22 +160,26 @@ export default function DatasetForm() {
     <>
       <div className="space-y-4 ">
         {/* Top bar with button to save to file */}
-        <div className="flex items-center ">
-          <Button
-            variant={'ghost'}
-            onClick={() => {
-              handleFileSave() // Save the file when the button is clicked
-            }}
-          >
-            <SaveIcon className="h-4 w-4" /> Save
-          </Button>
-          <Button
-            variant={'ghost'}
-            onClick={() => {
-              handleCloseDataset() // Close the dataset when the button is clicked
-            }}
-          >
-            <SquareX className="h-4 w-4" /> Close
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="autosave"
+                checked={autoSaveEnabled}
+                onCheckedChange={() => setAutoSaveEnabled(!autoSaveEnabled)}
+              />
+              <Label htmlFor="autosave" className="text-sm">
+                Autosave
+              </Label>
+            </div>
+            {!autoSaveEnabled && (
+              <Button variant={'ghost'} onClick={handleFileSave} disabled={isSaving}>
+                <SaveIcon className="h-4 w-4 mr-1" /> {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            )}
+          </div>
+          <Button variant={'ghost'} onClick={handleCloseDataset}>
+            <SquareX className="h-4 w-4 mr-1" /> Close
           </Button>
         </div>
 
