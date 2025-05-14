@@ -3,13 +3,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import useDatasetStore from '@/stores/datasetStore'
 import { SaveIcon, SquareX } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import {
-  BaseDirectoryItem,
-  DirectoryItemIPCReponse,
-  DirectoryItemType,
-  FieldInUse,
-  FileToSave
-} from '../../../types/types'
+import { DirectoryItemIPCReponse, FieldInUse, FileToSave } from '../../../types/types'
 import DatasetFormField from './DatasetFormField'
 import { Button } from './ui/button'
 import { Label } from './ui/label'
@@ -85,22 +79,7 @@ export default function DatasetForm() {
       return
     }
 
-    if (fileToSaveLocal.newFileName) {
-      // If a new file name is provided, update the fileInfo in the store
-      const baseFile = {
-        name: fileToSaveLocal.newFileName,
-        type: DirectoryItemType.FILE,
-        extension: fileToSaveLocal.extension,
-        basePath: fileToSaveLocal.basePath
-      } as BaseDirectoryItem
-      setFileInfo(baseFile)
-      // toast file created
-      toast({
-        title: 'File created',
-        description: `File ${fileToSaveLocal.newFileName} created successfully.`,
-        variant: 'default'
-      })
-    } else if (!autoSaveEnabled) {
+    if (!autoSaveEnabled) {
       // Only show toast for manual saves
       toast({
         title: 'File saved',
