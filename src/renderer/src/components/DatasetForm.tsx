@@ -41,8 +41,7 @@ export default function DatasetForm() {
 
   // Handle input change
   const handleChange = (item: FieldInUse) => {
-    const updatedItem = { ...item, value: item.value } // Trim whitespace
-    addOrUpdateField(updatedItem) // Update the store with the new value
+    addOrUpdateField(item)
   }
 
   const handleFileSave = async () => {
@@ -191,11 +190,7 @@ export default function DatasetForm() {
 
         {/* Non-Template */}
         <div>
-          {sortedNonTemplateData.length > 0 ? (
-            <div className="space-y-4">{sortedNonTemplateData.map(renderField)}</div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No additional fields found.</p>
-          )}
+          <div className="space-y-4">{sortedNonTemplateData.map(renderField)}</div>
         </div>
       </div>
     </>
