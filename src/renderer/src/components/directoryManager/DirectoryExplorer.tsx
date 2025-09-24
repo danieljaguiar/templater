@@ -217,9 +217,16 @@ export function DirectoryExplorer(props: DirectoryExplorerProps) {
         })
         return
       }
+      
+      // Use the utility function to construct the proper destination path
+      const fullDestinationPath = GetFullPathFromBaseDirectoryItemInfo({
+        ...itemToMoveSource,
+        basePath: destinationPath
+      })
+
       const res = await window.electronAPI.renameOrMoveItem({
         sourcePath,
-        destinationPath: `${destinationPath}/${itemToMoveSource.name}`
+        destinationPath: fullDestinationPath
       })
       if (res === DirectoryItemIPCReponse.SUCCESS) {
         toast({
